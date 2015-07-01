@@ -41,7 +41,7 @@
              <number>0</number>
             </property>
             <item>
-             <widget class="QPushButton" name="pushButton_11">
+             <widget class="QPushButton" name="prevAnimButton">
               <property name="maximumSize">
                <size>
                 <width>16777215</width>
@@ -76,7 +76,7 @@
              </widget>
             </item>
             <item>
-             <widget class="QPushButton" name="pushButton_10">
+             <widget class="QPushButton" name="nextAnimButton">
               <property name="maximumSize">
                <size>
                 <width>16777215</width>
@@ -104,7 +104,7 @@
            </layout>
           </item>
           <item>
-           <widget class="QPushButton" name="pushButton_8">
+           <widget class="QPushButton" name="addAnimButton">
             <property name="toolTip">
              <string>Add Another Animation</string>
             </property>
@@ -118,7 +118,7 @@
            </widget>
           </item>
           <item>
-           <widget class="QPushButton" name="pushButton_9">
+           <widget class="QPushButton" name="removeAnimButton">
             <property name="toolTip">
              <string>Delete Current Animation</string>
             </property>
@@ -209,7 +209,7 @@
              </widget>
             </item>
             <item>
-             <widget class="QSpinBox" name="spinBox">
+             <widget class="QSpinBox" name="xSpacingBox">
               <property name="toolTip">
                <string>X spacing between frames</string>
               </property>
@@ -236,7 +236,7 @@
              </widget>
             </item>
             <item>
-             <widget class="QSpinBox" name="spinBox_2">
+             <widget class="QSpinBox" name="ySpacingBox">
               <property name="toolTip">
                <string>Y spacing between frames</string>
               </property>
@@ -260,7 +260,7 @@
              </widget>
             </item>
             <item>
-             <widget class="QSpinBox" name="spinBox_3">
+             <widget class="QSpinBox" name="sheetWidthBox">
               <property name="maximum">
                <number>1000000</number>
               </property>
@@ -272,7 +272,7 @@
            </layout>
           </item>
           <item>
-           <widget class="QPushButton" name="pushButton_3">
+           <widget class="QPushButton" name="saveSheetButton">
             <property name="toolTip">
              <string>Save this spritesheet</string>
             </property>
@@ -304,7 +304,7 @@
           <item>
            <layout class="QHBoxLayout" name="horizontalLayout_4">
             <item>
-             <widget class="QPushButton" name="pushButton">
+             <widget class="QPushButton" name="animPrevFrameButton">
               <property name="toolTip">
                <string>Previous Frame</string>
               </property>
@@ -321,7 +321,7 @@
              <widget class="QGraphicsView" name="animationPreview"/>
             </item>
             <item>
-             <widget class="QPushButton" name="pushButton_4">
+             <widget class="QPushButton" name="animNextFrameButton">
               <property name="toolTip">
                <string>Next Frame</string>
               </property>
@@ -352,7 +352,7 @@
              </spacer>
             </item>
             <item>
-             <widget class="QPushButton" name="pushButton_7">
+             <widget class="QPushButton" name="animPlayButton">
               <property name="toolTip">
                <string>Play Animation</string>
               </property>
@@ -366,7 +366,7 @@
              </widget>
             </item>
             <item>
-             <widget class="QPushButton" name="pushButton_6">
+             <widget class="QPushButton" name="animPauseButton">
               <property name="toolTip">
                <string>Pause Animation</string>
               </property>
@@ -380,7 +380,7 @@
              </widget>
             </item>
             <item>
-             <widget class="QPushButton" name="pushButton_5">
+             <widget class="QPushButton" name="animStopButton">
               <property name="toolTip">
                <string>Stop Animation</string>
               </property>
@@ -421,7 +421,7 @@
              </widget>
             </item>
             <item>
-             <widget class="QSpinBox" name="spinBox_4">
+             <widget class="QSpinBox" name="animationSpeedSpinbox">
               <property name="maximum">
                <number>999</number>
               </property>
@@ -455,7 +455,7 @@
              </widget>
             </item>
             <item>
-             <widget class="QLineEdit" name="lineEdit"/>
+             <widget class="QLineEdit" name="animationNameEditor"/>
             </item>
            </layout>
           </item>

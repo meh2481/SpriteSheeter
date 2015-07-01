@@ -20,7 +20,7 @@
    </sizepolicy>
   </property>
   <property name="windowTitle">
-   <string>Open Images</string>
+   <string>Animation for image </string>
   </property>
   <layout class="QVBoxLayout" name="verticalLayout_2">
    <item>
@@ -62,7 +62,10 @@
           </widget>
          </item>
          <item>
-          <widget class="QSpinBox" name="spinBox">
+          <widget class="QSpinBox" name="xFramesBox">
+           <property name="minimum">
+            <number>1</number>
+           </property>
            <property name="maximum">
             <number>999</number>
            </property>
@@ -112,7 +115,10 @@
           </widget>
          </item>
          <item>
-          <widget class="QSpinBox" name="spinBox_2">
+          <widget class="QSpinBox" name="yFramesBox">
+           <property name="minimum">
+            <number>1</number>
+           </property>
            <property name="maximum">
             <number>999</number>
            </property>
@@ -179,14 +185,14 @@
           </sizepolicy>
          </property>
          <property name="title">
-          <string>Preview</string>
+          <string>Image</string>
          </property>
          <layout class="QGridLayout" name="gridLayout">
           <property name="sizeConstraint">
            <enum>QLayout::SetMaximumSize</enum>
           </property>
           <item row="0" column="0">
-           <widget class="QGraphicsView" name="graphicsView">
+           <widget class="QGraphicsView" name="imagePreview">
             <property name="sizePolicy">
              <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
               <horstretch>5</horstretch>
