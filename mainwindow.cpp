@@ -167,11 +167,13 @@ void MainWindow::drawSheet()
     if(!mSheetFrames.size())
         return;
 
+    float textHeight = 20;
+
     //First pass: Figure out dimensions of final image
     int offsetX = ui->xSpacingBox->value();
     int offsetY = ui->ySpacingBox->value();
     int iSizeX = offsetX;
-    int iSizeY = 0;
+    int iSizeY = offsetY;
     foreach(QList<QImage> ql, mSheetFrames)
     {
         int ySize = 0;
@@ -181,7 +183,7 @@ void MainWindow::drawSheet()
             ySize = img.height();
             iCurSizeX += img.width() + offsetX;
         }
-        iSizeY += offsetY + ySize;
+        iSizeY += offsetY + ySize + textHeight;
         if(iCurSizeX > iSizeX)
             iSizeX = iCurSizeX;
     }
@@ -190,26 +192,32 @@ void MainWindow::drawSheet()
         delete mCurSheet;
 
     //Create image of the proper size and fill it with a good bg color
-    mCurSheet = new QImage(iSizeX, iSizeY, QImage::Format_RGB32);
+    mCurSheet = new QImage(iSizeX, iSizeY, QImage::Format_ARGB32);
     mCurSheet->fill(QColor(0, 128, 128, 255));
 
     //Second pass: Print each frame into the final image
     int curX = offsetX;
-    int curY = offsetY / 2;
+    int curY = offsetY;
     QPainter painter(mCurSheet);
-    foreach(QList<QImage> qil, mSheetFrames)
+    painter.setCompositionMode(QPainter::CompositionMode_Source);
+    foreach(QList<QImage> ql, mSheetFrames)
     {
         int ySize = 0;
-        foreach(QImage img, qil)
+        //Draw label for animation
+        painter.drawText(QRectF(offsetX,curY,1000,textHeight), Qt::AlignLeft|Qt::AlignVCenter, tr("Test string..."));
+        curY += textHeight;
+        foreach(QImage img, ql)
         {
-            painter.eraseRect(curX, curY, img.width(), img.height());
+            //Erase this portion of the image
+            painter.fillRect(curX, curY, img.width(), img.height(), Qt::transparent);
+
             //TODO: Specify bg color so we can fill this however we like
             painter.drawImage(curX, curY, img);
             ySize = img.height();
             curX += img.width() + offsetX;
         }
         curY += offsetY + ySize;
-        curX += offsetX;
+        curX = offsetX;
     }
     painter.end();
 
@@ -225,6 +233,36 @@ void MainWindow::drawSheet()
     ui->sheetPreview->show();
 }
 
+//Redraw the sheet if either of these change
+void MainWindow::on_xSpacingBox_valueChanged(int arg1)
+{
+    drawSheet();
+}
+
+void MainWindow::on_ySpacingBox_valueChanged(int arg1)
+{
+    drawSheet();
+}
+
+void MainWindow::on_saveSheetButton_clicked()
+{
+    if(!mCurSheet) return;
+    QString sSel = "PNG Image (*.png)";
+    QString saveFilename = QFileDialog::getSaveFileName(this,
+                                                        tr("Save Spritesheet"),
+                                                        lastSaveStr,
+                                                        tr("PNG Image (*.png);;Windows Bitmap (*.bmp);;TIFF Image(*.tiff)"),
+                                                        &sSel);
+
+    if(saveFilename.length())
+    {
+        lastSaveStr = saveFilename;
+        if(!mCurSheet->save(saveFilename))
+        {
+            QMessageBox::information(this,"Image Export","Error saving image " + saveFilename);
+        }
+    }
+}
 
 
 

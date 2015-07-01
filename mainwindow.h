@@ -26,11 +26,18 @@ public slots:
 private slots:
     void on_openImagesButton_clicked();
 
+    void on_xSpacingBox_valueChanged(int arg1);
+
+    void on_ySpacingBox_valueChanged(int arg1);
+
+    void on_saveSheetButton_clicked();
+
 private:
     Ui::MainWindow *ui;
     importDialog *mImportWindow;
     QStringList mOpenFiles;
     QString curImportImage;
+    QString lastSaveStr;
 
     QImage* mCurSheet;
     QList<QList<QImage> > mSheetFrames;
