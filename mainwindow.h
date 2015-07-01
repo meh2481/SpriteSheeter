@@ -2,6 +2,7 @@
 #define MAINWINDOW_H
 
 #include <QMainWindow>
+#include <QTimer>
 #include "importdialog.h"
 
 namespace Ui {
@@ -22,6 +23,7 @@ signals:
 public slots:
     void importNext(int numx, int numy);
     void importAll(int numx, int numy);
+    void animUpdate();
 
 private slots:
     void on_openImagesButton_clicked();
@@ -40,6 +42,20 @@ private slots:
 
     void on_nextAnimButton_clicked();
 
+    void on_animPlayButton_clicked();
+
+    void on_animPauseButton_clicked();
+
+    void on_animStopButton_clicked();
+
+    void on_animPrevFrameButton_clicked();
+
+    void on_animNextFrameButton_clicked();
+
+    void on_animationSpeedSpinbox_valueChanged(int arg1);
+
+    void on_openStripButton_clicked();
+
 private:
     Ui::MainWindow *ui;
     importDialog *mImportWindow;
@@ -50,6 +66,7 @@ private:
     QImage* mCurSheet;
     QList<QList<QImage> > mSheetFrames;
     QList<QList<QImage> >::iterator mCurAnim;
+    QList<QImage>::iterator mCurFrame;
     QList<QString> mAnimNames;
     QList<QString>::iterator mCurAnimName;
 
@@ -57,6 +74,8 @@ private:
     QGraphicsPixmapItem* animItem;
     QGraphicsScene* sheetScene;
     QGraphicsPixmapItem* sheetItem;
+
+    QTimer* animUpdateTimer;
 
     void openImportDiag();
     void importImage(QString s, int numxframes, int numyframes);

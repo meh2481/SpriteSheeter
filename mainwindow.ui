@@ -148,12 +148,19 @@
            </spacer>
           </item>
           <item>
+           <widget class="QPushButton" name="openStripButton">
+            <property name="text">
+             <string>Import Image Sequence</string>
+            </property>
+           </widget>
+          </item>
+          <item>
            <widget class="QPushButton" name="openImagesButton">
             <property name="toolTip">
              <string>Load images to current animation from file or files</string>
             </property>
             <property name="text">
-             <string>Open Image(s)...</string>
+             <string>Import Image(s) as Animation Sheet</string>
             </property>
            </widget>
           </item>
@@ -251,6 +258,9 @@
             </item>
             <item>
              <widget class="QSpinBox" name="sheetWidthBox">
+              <property name="enabled">
+               <bool>false</bool>
+              </property>
               <property name="maximum">
                <number>1000000</number>
               </property>
@@ -412,6 +422,9 @@
             </item>
             <item>
              <widget class="QSpinBox" name="animationSpeedSpinbox">
+              <property name="minimum">
+               <number>1</number>
+              </property>
               <property name="maximum">
                <number>999</number>
               </property>

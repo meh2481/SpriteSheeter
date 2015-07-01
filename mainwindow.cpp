@@ -24,6 +24,9 @@ MainWindow::MainWindow(QWidget *parent) :
     mCurAnim = mSheetFrames.begin();
     mCurAnimName = mAnimNames.begin();
 
+    animUpdateTimer = new QTimer(this);
+    QObject::connect(animUpdateTimer, SIGNAL(timeout()), this, SLOT(animUpdate()));
+
     //Create gfx stuff for drawing to image contexts
     animScene = new QGraphicsScene();
     sheetScene = new QGraphicsScene();
@@ -45,6 +48,7 @@ MainWindow::~MainWindow()
         delete sheetItem;
     if(sheetScene)
         delete sheetScene;
+    delete animUpdateTimer;
     delete mImportWindow;
     delete ui;
 }
@@ -54,6 +58,40 @@ void MainWindow::on_openImagesButton_clicked()
     mOpenFiles = QFileDialog::getOpenFileNames(this, "Open Images", "", "All Files (*.*)");
 
     openImportDiag();
+}
+
+void MainWindow::on_openStripButton_clicked()
+{
+    mOpenFiles = QFileDialog::getOpenFileNames(this, "Open Images", "", "All Files (*.*)");
+
+    QList<QImage> imgList;
+    foreach(QString s, mOpenFiles)
+    {
+        QImage image(s);
+        if(!image.isNull())
+            imgList.push_back(image);
+    }
+    if(imgList.size())
+    {
+        //mSheetFrames.push_back(imgList);
+        QList<QList<QImage> >::iterator it = mCurAnim;
+        if(it != mSheetFrames.end())
+            it++;
+        mCurAnim = mSheetFrames.insert(it, imgList);
+
+        QList<QString>::iterator itN = mCurAnimName;
+        if(itN != mAnimNames.end())
+            itN++;
+        mCurAnimName = mAnimNames.insert(itN, QString(""));
+
+        ui->animationNameEditor->setText(QString(""));
+    }
+
+    if(mCurAnim != mSheetFrames.end())
+        mCurFrame = mCurAnim->begin();
+
+    drawSheet();
+    drawAnimation();
 }
 
 void MainWindow::importNext(int numx, int numy)
@@ -137,7 +175,11 @@ void MainWindow::importImage(QString s, int numxframes, int numyframes)
         ui->animationNameEditor->setText(QString(""));
     }
 
+    if(mCurAnim != mSheetFrames.end())
+        mCurFrame = mCurAnim->begin();
+
     drawSheet();
+    drawAnimation();
 }
 
 //Example from http://www.qtforum.org/article/28852/center-any-child-window-center-parent.html
@@ -164,17 +206,6 @@ void MainWindow::CenterParent(QWidget* parent, QWidget* child)
     child->move(centerparent);
 }
 
-void MainWindow::drawAnimation()
-{
-    /*if(animItem == NULL)
-    {
-        animItem = new QGraphicsPixmapItem(QPixmap::fromImage(image));
-        animScene->addItem(animItem);
-    }
-    else
-        animItem->setPixmap(QPixmap::fromImage(image));*/
-}
-
 void MainWindow::drawSheet(bool bHighlight)
 {
     float textHeight = 20;
@@ -192,7 +223,8 @@ void MainWindow::drawSheet(bool bHighlight)
         int iCurSizeX = offsetX;
         foreach(QImage img, ql)
         {
-            ySize = img.height();
+            if(img.height() > ySize)
+                ySize = img.height();
             iCurSizeX += img.width() + offsetX;
         }
 
@@ -238,7 +270,8 @@ void MainWindow::drawSheet(bool bHighlight)
 
             //TODO: Specify bg color so we can fill this however we like
             painter.drawImage(curX, curY, img);
-            ySize = img.height();
+            if(img.height() > ySize)
+                ySize = img.height();
             curX += img.width() + offsetX;
         }
         curY += offsetY + ySize;
@@ -315,6 +348,11 @@ void MainWindow::on_removeAnimButton_clicked()
         ui->animationNameEditor->setText(*mCurAnimName);
     else
         ui->animationNameEditor->setText(QString(""));
+
+    if(mCurAnim != mSheetFrames.end())
+        mCurFrame = mCurAnim->begin();
+
+    drawAnimation();
 }
 
 void MainWindow::on_animationNameEditor_textChanged(const QString &arg1)
@@ -337,6 +375,11 @@ void MainWindow::on_prevAnimButton_clicked()
         ui->animationNameEditor->setText(*mCurAnimName);
     else
         ui->animationNameEditor->setText(QString(""));
+
+    if(mCurAnim != mSheetFrames.end())
+        mCurFrame = mCurAnim->begin();
+
+    drawAnimation();
 }
 
 void MainWindow::on_nextAnimButton_clicked()
@@ -360,7 +403,113 @@ void MainWindow::on_nextAnimButton_clicked()
         ui->animationNameEditor->setText(*mCurAnimName);
     else
         ui->animationNameEditor->setText(QString(""));
+
+    if(mCurAnim != mSheetFrames.end())
+        mCurFrame = mCurAnim->begin();
+
+    drawAnimation();
 }
+
+void MainWindow::drawAnimation()
+{
+    if(mCurAnim == mSheetFrames.end() || !mCurAnim->size() || mCurFrame == mCurAnim->end())
+        return;
+
+    if(animItem == NULL)
+    {
+        animItem = new QGraphicsPixmapItem(QPixmap::fromImage(*mCurFrame));
+        animScene->addItem(animItem);
+    }
+    else
+        animItem->setPixmap(QPixmap::fromImage(*mCurFrame));
+}
+
+void MainWindow::animUpdate()
+{
+    if(mCurAnim == mSheetFrames.end() || !mCurAnim->size())
+        return;
+
+    if(mCurFrame == mCurAnim->end())
+        mCurFrame = mCurAnim->begin();
+    else
+    {
+        mCurFrame++;
+        if(mCurFrame == mCurAnim->end())
+            mCurFrame = mCurAnim->begin();
+    }
+
+    drawAnimation();
+}
+
+void MainWindow::on_animationSpeedSpinbox_valueChanged(int arg1)
+{
+    int iInterval = 1000/arg1;
+    animUpdateTimer->stop();
+    animUpdateTimer->start(iInterval);
+}
+
+void MainWindow::on_animPlayButton_clicked()
+{
+    int iInterval = 1000/ui->animationSpeedSpinbox->value();
+    animUpdateTimer->start(iInterval);
+}
+
+void MainWindow::on_animPauseButton_clicked()
+{
+    animUpdateTimer->stop();
+}
+
+void MainWindow::on_animStopButton_clicked()
+{
+    animUpdateTimer->stop();
+
+    if(mCurAnim == mSheetFrames.end() || !mCurAnim->size())
+        return;
+
+    mCurFrame = mCurAnim->begin();
+    drawAnimation();
+}
+
+void MainWindow::on_animPrevFrameButton_clicked()
+{
+    if(animUpdateTimer->isActive())
+        animUpdateTimer->stop();
+
+    if(mCurAnim == mSheetFrames.end() || !mCurAnim->size())
+        return;
+
+    if(mCurFrame == mCurAnim->begin())
+        mCurFrame = mCurAnim->end();
+    mCurFrame--;
+
+    drawAnimation();
+}
+
+void MainWindow::on_animNextFrameButton_clicked()
+{
+    if(animUpdateTimer->isActive())
+        animUpdateTimer->stop();
+
+    if(mCurAnim == mSheetFrames.end() || !mCurAnim->size())
+        return;
+
+    mCurFrame++;
+    if(mCurFrame == mCurAnim->end())
+        mCurFrame = mCurAnim->begin();
+
+    drawAnimation();
+}
+
+
+
+
+
+
+
+
+
+
+
 
 
 
