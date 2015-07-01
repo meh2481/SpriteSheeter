@@ -32,9 +32,20 @@ private:
     QStringList mOpenFiles;
     QString curImportImage;
 
+    QImage* mCurSheet;
+    QList<QList<QImage> > mSheetFrames;
+
+    QGraphicsScene* animScene;
+    QGraphicsPixmapItem* animItem;
+    QGraphicsScene* sheetScene;
+    QGraphicsPixmapItem* sheetItem;
+
     void openImportDiag();
     void importImage(QString s, int numxframes, int numyframes);
     void CenterParent(QWidget* parent, QWidget* child);
+
+    void drawAnimation();
+    void drawSheet();
 };
 
 #endif // MAINWINDOW_H

@@ -33,7 +33,6 @@ private:
     Ui::importDialog *ui;
 
     QGraphicsScene* scene;
-    //QGraphicsView* view;
     QGraphicsPixmapItem* item;
 };
 

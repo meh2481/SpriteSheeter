@@ -56,6 +56,9 @@
          </item>
          <item>
           <widget class="QLabel" name="label">
+           <property name="toolTip">
+            <string>Number of frames this image has horizontally</string>
+           </property>
            <property name="text">
             <string>Num Frames X:</string>
            </property>
@@ -63,6 +66,9 @@
          </item>
          <item>
           <widget class="QSpinBox" name="xFramesBox">
+           <property name="toolTip">
+            <string>Number of frames this image has horizontally</string>
+           </property>
            <property name="minimum">
             <number>1</number>
            </property>
@@ -109,6 +115,9 @@
          </item>
          <item>
           <widget class="QLabel" name="label_2">
+           <property name="toolTip">
+            <string>Number of frames this image has vertically</string>
+           </property>
            <property name="text">
             <string>Num Frames Y:</string>
            </property>
@@ -116,6 +125,9 @@
          </item>
          <item>
           <widget class="QSpinBox" name="yFramesBox">
+           <property name="toolTip">
+            <string>Number of frames this image has vertically</string>
+           </property>
            <property name="minimum">
             <number>1</number>
            </property>
@@ -162,6 +174,9 @@
          </item>
          <item>
           <widget class="QPushButton" name="okButton">
+           <property name="toolTip">
+            <string>Use this frame layout for this image</string>
+           </property>
            <property name="text">
             <string>OK</string>
            </property>
@@ -169,6 +184,9 @@
          </item>
          <item>
           <widget class="QPushButton" name="allButton">
+           <property name="toolTip">
+            <string>Use this frame layout for all imported images</string>
+           </property>
            <property name="text">
             <string>All</string>
            </property>
@@ -210,6 +228,9 @@
               <width>0</width>
               <height>0</height>
              </size>
+            </property>
+            <property name="toolTip">
+             <string>Preview of the current image</string>
             </property>
            </widget>
           </item>

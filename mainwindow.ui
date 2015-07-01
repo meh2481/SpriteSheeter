@@ -157,26 +157,7 @@
          </layout>
         </item>
         <item>
-         <widget class="QScrollArea" name="scrollArea">
-          <property name="widgetResizable">
-           <bool>true</bool>
-          </property>
-          <widget class="QWidget" name="scrollAreaWidgetContents">
-           <property name="geometry">
-            <rect>
-             <x>0</x>
-             <y>0</y>
-             <width>637</width>
-             <height>538</height>
-            </rect>
-           </property>
-           <layout class="QHBoxLayout" name="horizontalLayout_12">
-            <item>
-             <widget class="QGraphicsView" name="sheetPreview"/>
-            </item>
-           </layout>
-          </widget>
-         </widget>
+         <widget class="QGraphicsView" name="sheetPreview"/>
         </item>
         <item>
          <layout class="QHBoxLayout" name="horizontalLayout_5">
@@ -216,6 +197,9 @@
               <property name="maximum">
                <number>999</number>
               </property>
+              <property name="value">
+               <number>1</number>
+              </property>
              </widget>
             </item>
            </layout>
@@ -242,6 +226,9 @@
               </property>
               <property name="maximum">
                <number>999</number>
+              </property>
+              <property name="value">
+               <number>2</number>
               </property>
              </widget>
             </item>
