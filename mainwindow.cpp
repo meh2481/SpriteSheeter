@@ -21,6 +21,8 @@ MainWindow::MainWindow(QWidget *parent) :
     sheetItem = NULL;
     sheetScene = NULL;
     mCurSheet = NULL;
+    mCurAnim = mSheetFrames.begin();
+    mCurAnimName = mAnimNames.begin();
 
     //Create gfx stuff for drawing to image contexts
     animScene = new QGraphicsScene();
@@ -121,7 +123,18 @@ void MainWindow::importImage(QString s, int numxframes, int numyframes)
     }
     if(imgList.size())
     {
-        mSheetFrames.push_back(imgList);
+        //mSheetFrames.push_back(imgList);
+        QList<QList<QImage> >::iterator it = mCurAnim;
+        if(it != mSheetFrames.end())
+            it++;
+        mCurAnim = mSheetFrames.insert(it, imgList);
+
+        QList<QString>::iterator itN = mCurAnimName;
+        if(itN != mAnimNames.end())
+            itN++;
+        mCurAnimName = mAnimNames.insert(itN, QString(""));
+
+        ui->animationNameEditor->setText(QString(""));
     }
 
     drawSheet();
@@ -162,11 +175,8 @@ void MainWindow::drawAnimation()
         animItem->setPixmap(QPixmap::fromImage(image));*/
 }
 
-void MainWindow::drawSheet()
+void MainWindow::drawSheet(bool bHighlight)
 {
-    if(!mSheetFrames.size())
-        return;
-
     float textHeight = 20;
 
     //First pass: Figure out dimensions of final image
@@ -174,6 +184,8 @@ void MainWindow::drawSheet()
     int offsetY = ui->ySpacingBox->value();
     int iSizeX = offsetX;
     int iSizeY = offsetY;
+    QList<QString>::iterator sName = mAnimNames.begin();
+    int hiliteH = 0;
     foreach(QList<QImage> ql, mSheetFrames)
     {
         int ySize = 0;
@@ -183,6 +195,11 @@ void MainWindow::drawSheet()
             ySize = img.height();
             iCurSizeX += img.width() + offsetX;
         }
+
+        if(bHighlight && sName == mCurAnimName)
+            hiliteH = ySize;
+        sName++;
+
         iSizeY += offsetY + ySize + textHeight;
         if(iCurSizeX > iSizeX)
             iSizeX = iCurSizeX;
@@ -200,12 +217,20 @@ void MainWindow::drawSheet()
     int curY = offsetY;
     QPainter painter(mCurSheet);
     painter.setCompositionMode(QPainter::CompositionMode_Source);
+    sName = mAnimNames.begin();
     foreach(QList<QImage> ql, mSheetFrames)
     {
         int ySize = 0;
+
+        //Highlight our current anim red
+        if(bHighlight && sName == mCurAnimName)
+            painter.fillRect(0, curY-offsetY, mCurSheet->width(), hiliteH + textHeight + offsetY*2, QColor(128,0,0,255));
+
         //Draw label for animation
-        painter.drawText(QRectF(offsetX,curY,1000,textHeight), Qt::AlignLeft|Qt::AlignVCenter, tr("Test string..."));
+        painter.drawText(QRectF(offsetX,curY,1000,textHeight), Qt::AlignLeft|Qt::AlignVCenter, *sName);
+        sName++;
         curY += textHeight;
+
         foreach(QImage img, ql)
         {
             //Erase this portion of the image
@@ -247,6 +272,9 @@ void MainWindow::on_ySpacingBox_valueChanged(int arg1)
 void MainWindow::on_saveSheetButton_clicked()
 {
     if(!mCurSheet) return;
+
+    drawSheet(false);   //Save a non-highlighted version
+
     QString sSel = "PNG Image (*.png)";
     QString saveFilename = QFileDialog::getSaveFileName(this,
                                                         tr("Save Spritesheet"),
@@ -262,8 +290,77 @@ void MainWindow::on_saveSheetButton_clicked()
             QMessageBox::information(this,"Image Export","Error saving image " + saveFilename);
         }
     }
+    drawSheet(true);    //Redraw the highlighted version
 }
 
+void MainWindow::on_removeAnimButton_clicked()
+{
+    //mSheetFrames.pop_back();    //TODO: Remove current
+    if(mCurAnim != mSheetFrames.end())
+    {
+        mCurAnim = mSheetFrames.erase(mCurAnim);
+        if(mCurAnim == mSheetFrames.end() && mCurAnim != mSheetFrames.begin())
+            mCurAnim--;
+    }
+    if(mCurAnimName != mAnimNames.end())
+    {
+        mCurAnimName = mAnimNames.erase(mCurAnimName);
+        if(mCurAnimName == mAnimNames.end() && mCurAnimName != mAnimNames.begin())
+            mCurAnimName--;
+    }
+
+    drawSheet();
+
+    if(mCurAnimName != mAnimNames.end())
+        ui->animationNameEditor->setText(*mCurAnimName);
+    else
+        ui->animationNameEditor->setText(QString(""));
+}
+
+void MainWindow::on_animationNameEditor_textChanged(const QString &arg1)
+{
+    if(mCurAnimName != mAnimNames.end())
+        *mCurAnimName = arg1;
+    drawSheet();
+}
+
+void MainWindow::on_prevAnimButton_clicked()
+{
+    if(mCurAnim != mSheetFrames.begin())
+        mCurAnim--;
+    if(mCurAnimName != mAnimNames.begin())
+        mCurAnimName--;
+
+    drawSheet();
+
+    if(mCurAnimName != mAnimNames.end())
+        ui->animationNameEditor->setText(*mCurAnimName);
+    else
+        ui->animationNameEditor->setText(QString(""));
+}
+
+void MainWindow::on_nextAnimButton_clicked()
+{
+    if(mCurAnim != mSheetFrames.end())
+    {
+        mCurAnim++;
+        if(mCurAnim == mSheetFrames.end())
+            mCurAnim--;
+    }
+    if(mCurAnimName != mAnimNames.end())
+    {
+        mCurAnimName++;
+        if(mCurAnimName == mAnimNames.end())
+            mCurAnimName--;
+    }
+
+    drawSheet();
+
+    if(mCurAnimName != mAnimNames.end())
+        ui->animationNameEditor->setText(*mCurAnimName);
+    else
+        ui->animationNameEditor->setText(QString(""));
+}
 
 
 

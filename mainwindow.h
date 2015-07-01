@@ -32,6 +32,14 @@ private slots:
 
     void on_saveSheetButton_clicked();
 
+    void on_removeAnimButton_clicked();
+
+    void on_animationNameEditor_textChanged(const QString &arg1);
+
+    void on_prevAnimButton_clicked();
+
+    void on_nextAnimButton_clicked();
+
 private:
     Ui::MainWindow *ui;
     importDialog *mImportWindow;
@@ -41,6 +49,9 @@ private:
 
     QImage* mCurSheet;
     QList<QList<QImage> > mSheetFrames;
+    QList<QList<QImage> >::iterator mCurAnim;
+    QList<QString> mAnimNames;
+    QList<QString>::iterator mCurAnimName;
 
     QGraphicsScene* animScene;
     QGraphicsPixmapItem* animItem;
@@ -52,7 +63,7 @@ private:
     void CenterParent(QWidget* parent, QWidget* child);
 
     void drawAnimation();
-    void drawSheet();
+    void drawSheet(bool bHighlight = true);
 };
 
 #endif // MAINWINDOW_H

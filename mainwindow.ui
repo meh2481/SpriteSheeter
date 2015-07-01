@@ -105,6 +105,9 @@
           </item>
           <item>
            <widget class="QPushButton" name="addAnimButton">
+            <property name="enabled">
+             <bool>false</bool>
+            </property>
             <property name="toolTip">
              <string>Add Another Animation</string>
             </property>
