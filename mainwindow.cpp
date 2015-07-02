@@ -161,7 +161,6 @@ void MainWindow::importImage(QString s, int numxframes, int numyframes)
     }
     if(imgList.size())
     {
-        //mSheetFrames.push_back(imgList);
         QList<QList<QImage> >::iterator it = mCurAnim;
         if(it != mSheetFrames.end())
             it++;
@@ -328,7 +327,6 @@ void MainWindow::on_saveSheetButton_clicked()
 
 void MainWindow::on_removeAnimButton_clicked()
 {
-    //mSheetFrames.pop_back();    //TODO: Remove current
     if(mCurAnim != mSheetFrames.end())
     {
         mCurAnim = mSheetFrames.erase(mCurAnim);
