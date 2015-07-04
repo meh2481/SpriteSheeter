@@ -265,6 +265,7 @@ void MainWindow::drawSheet(bool bHighlight)
             painter.fillRect(0, curY-offsetY, mCurSheet->width(), hiliteH + textHeight + offsetY*2, QColor(128,0,0,255));
 
         //Draw label for animation
+        painter.setPen(QColor(255,255,255,255));
         painter.drawText(QRectF(offsetX,curY,1000,textHeight), Qt::AlignLeft|Qt::AlignVCenter, *sName);
         sName++;
         curY += textHeight;
