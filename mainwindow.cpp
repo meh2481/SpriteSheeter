@@ -35,7 +35,9 @@ MainWindow::MainWindow(QWidget *parent) :
     ui->sheetPreview->setScene(sheetScene);
     ui->animationPreview->show();
     ui->sheetPreview->show();
-    ui->sheetPreview->setDragMode(QGraphicsView::ScrollHandDrag);
+
+    ui->splitter->setStretchFactor(0, 1);
+    ui->splitter->setStretchFactor(1, 0);
 
     Graphics_view_zoom* z = new Graphics_view_zoom(ui->sheetPreview);
     z->set_modifiers(Qt::NoModifier);
