@@ -18,6 +18,9 @@ public:
     explicit importDialog(QWidget *parent = 0);
     ~importDialog();
 
+    void showEvent(QShowEvent *);
+    void resizeEvent(QResizeEvent* event);
+
 signals:
     void importOK(int numx, int numy);
     void importAll(int numx, int numy);

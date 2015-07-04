@@ -40,7 +40,6 @@ void importDialog::setPreviewImage(QString sImg)
             else
                 item->setPixmap(QPixmap::fromImage(image));
 
-            scene->setSceneRect(0, 0, image.width(), image.height());
 
             ui->imagePreview->show();
         }
@@ -58,3 +57,31 @@ void importDialog::on_allButton_clicked()
     this->hide();
     importAll(ui->xFramesBox->value(), ui->yFramesBox->value());
 }
+
+void importDialog::showEvent(QShowEvent *)
+{
+    ui->imagePreview->fitInView(scene->sceneRect(),Qt::KeepAspectRatio);
+}
+
+void importDialog::resizeEvent(QResizeEvent* event)
+{
+   QDialog::resizeEvent(event);
+
+   ui->imagePreview->fitInView(scene->sceneRect(),Qt::KeepAspectRatio);
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
