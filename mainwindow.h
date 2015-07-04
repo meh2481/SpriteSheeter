@@ -4,6 +4,7 @@
 #include <QMainWindow>
 #include <QTimer>
 #include "importdialog.h"
+#include "sheeteditorview.h"
 
 namespace Ui {
 class MainWindow;

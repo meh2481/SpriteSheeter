@@ -232,6 +232,9 @@
             <property name="toolTip">
              <string>Preview of the current image</string>
             </property>
+            <property name="dragMode">
+             <enum>QGraphicsView::ScrollHandDrag</enum>
+            </property>
            </widget>
           </item>
          </layout>

@@ -1,0 +1,14 @@
+<!DOCTYPE RCC><RCC version="1.0">
+<qresource>
+    <file>images/down.png</file>
+    <file>images/icon.png</file>
+    <file>images/media-play.png</file>
+    <file>images/media-stop.png</file>
+    <file>images/minus-2-256.png</file>
+    <file>images/next.png</file>
+    <file>images/pause.png</file>
+    <file>images/plus-icon.png</file>
+    <file>images/prev.png</file>
+    <file>images/up.png</file>
+</qresource>
+</RCC>

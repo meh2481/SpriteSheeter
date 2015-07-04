@@ -14,10 +14,17 @@ TEMPLATE = app
 
 SOURCES += main.cpp\
         mainwindow.cpp \
-    importdialog.cpp
+    importdialog.cpp \
+	Graphics_view_zoom.cpp
 
 HEADERS  += mainwindow.h \
-    importdialog.h
+    importdialog.h \
+	Graphics_view_zoom.h \
+    sheeteditorview.h
 
 FORMS    += mainwindow.ui \
     importdialog.ui
+	
+RC_FILE = spritesheetertest1.rc
+
+RESOURCES = spritesheetertest1.qrc

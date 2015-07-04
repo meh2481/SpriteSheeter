@@ -40,6 +40,7 @@ void importDialog::setPreviewImage(QString sImg)
             else
                 item->setPixmap(QPixmap::fromImage(image));
 
+            scene->setSceneRect(0, 0, image.width(), image.height());
 
             ui->imagePreview->show();
         }

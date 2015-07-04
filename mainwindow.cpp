@@ -1,5 +1,6 @@
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
+#include "Graphics_view_zoom.h"
 #include <QFileDialog>
 #include <QDesktopWidget>
 #include <QFile>
@@ -34,6 +35,10 @@ MainWindow::MainWindow(QWidget *parent) :
     ui->sheetPreview->setScene(sheetScene);
     ui->animationPreview->show();
     ui->sheetPreview->show();
+    ui->sheetPreview->setDragMode(QGraphicsView::ScrollHandDrag);
+
+    Graphics_view_zoom* z = new Graphics_view_zoom(ui->sheetPreview);
+    z->set_modifiers(Qt::NoModifier);
 }
 
 MainWindow::~MainWindow()
@@ -287,6 +292,10 @@ void MainWindow::drawSheet(bool bHighlight)
     }
     else
         sheetItem->setPixmap(QPixmap::fromImage(*mCurSheet));
+
+    //Set the new rect of the scene
+    sheetScene->setSceneRect(-100, -100, mCurSheet->width()+200, mCurSheet->height()+200);
+
     ui->sheetPreview->show();
 }
 
@@ -294,11 +303,13 @@ void MainWindow::drawSheet(bool bHighlight)
 void MainWindow::on_xSpacingBox_valueChanged(int arg1)
 {
     drawSheet();
+    Q_UNUSED(arg1);
 }
 
 void MainWindow::on_ySpacingBox_valueChanged(int arg1)
 {
     drawSheet();
+    Q_UNUSED(arg1);
 }
 
 void MainWindow::on_saveSheetButton_clicked()
@@ -420,6 +431,8 @@ void MainWindow::drawAnimation()
     }
     else
         animItem->setPixmap(QPixmap::fromImage(*mCurFrame));
+
+    animScene->setSceneRect(0, 0, mCurFrame->width(), mCurFrame->height());
 }
 
 void MainWindow::animUpdate()
@@ -497,7 +510,6 @@ void MainWindow::on_animNextFrameButton_clicked()
 
     drawAnimation();
 }
-
 
 
 
