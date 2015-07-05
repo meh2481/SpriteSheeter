@@ -15,12 +15,14 @@ TEMPLATE = app
 SOURCES += main.cpp\
         mainwindow.cpp \
     importdialog.cpp \
-	Graphics_view_zoom.cpp
+	Graphics_view_zoom.cpp \
+    sheeteditorview.cpp
 
 HEADERS  += mainwindow.h \
     importdialog.h \
 	Graphics_view_zoom.h \
-    sheeteditorview.h
+    sheeteditorview.h \
+	animpreview.h
 
 FORMS    += mainwindow.ui \
     importdialog.ui

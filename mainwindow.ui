@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>1091</width>
-    <height>736</height>
+    <width>1123</width>
+    <height>724</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -340,7 +340,7 @@
              </widget>
             </item>
             <item>
-             <widget class="QGraphicsView" name="animationPreview">
+             <widget class="animPreview" name="animationPreview" native="true">
               <property name="sizePolicy">
                <sizepolicy hsizetype="Expanding" vsizetype="Preferred">
                 <horstretch>0</horstretch>
@@ -352,9 +352,6 @@
                 <width>200</width>
                 <height>200</height>
                </size>
-              </property>
-              <property name="dragMode">
-               <enum>QGraphicsView::NoDrag</enum>
               </property>
              </widget>
             </item>
@@ -507,8 +504,8 @@
             </property>
             <property name="sizeHint" stdset="0">
              <size>
-              <width>20</width>
-              <height>40</height>
+              <width>267</width>
+              <height>37</height>
              </size>
             </property>
            </spacer>
@@ -526,7 +523,7 @@
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>1091</width>
+     <width>1123</width>
      <height>21</height>
     </rect>
    </property>

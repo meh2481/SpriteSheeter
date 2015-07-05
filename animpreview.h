@@ -1,23 +1,21 @@
-#ifndef SHEETEDITORVIEW_H
-#define SHEETEDITORVIEW_H
+#ifndef ANIMPREVIEW_H
+#define ANIMPREVIEW_H
 
 #include <QGraphicsView>
 #include <QMouseEvent>
 #include <QScrollBar>
 
-class sheetEditorView : public QGraphicsView
+class animPreview : public QGraphicsView
 {
-    Q_OBJECT
-
     bool _pan;
     int _panStartX, _panStartY;
 
 public:
-    explicit sheetEditorView(QWidget *parent = 0);
-    ~sheetEditorView();
-
-signals:
-    void mouseMoved(int x, int y);
+    animPreview(QWidget * parent) : QGraphicsView(parent)
+    {
+        _pan = false;
+        _panStartX = _panStartY = 0;
+    }
 
 protected:
 
@@ -49,8 +47,6 @@ protected:
 
     void mouseMoveEvent(QMouseEvent *event)
     {
-        QPointF pt = mapToScene(event->pos());
-        mouseMoved(pt.x(), pt.y());
         if (_pan)
         {
             horizontalScrollBar()->setValue(horizontalScrollBar()->value() - (event->x() - _panStartX));

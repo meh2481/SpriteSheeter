@@ -25,6 +25,7 @@ public slots:
     void importNext(int numx, int numy);
     void importAll(int numx, int numy);
     void animUpdate();
+    void mouseCursorPos(int x, int y);
 
 private slots:
     void on_openImagesButton_clicked();

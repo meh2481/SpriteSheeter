@@ -1,6 +1,7 @@
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
 #include "Graphics_view_zoom.h"
+#include "sheeteditorview.h"
 #include <QFileDialog>
 #include <QDesktopWidget>
 #include <QFile>
@@ -16,6 +17,7 @@ MainWindow::MainWindow(QWidget *parent) :
     QObject::connect(mImportWindow, SIGNAL(importOK(int, int)), this, SLOT(importNext(int, int)));
     QObject::connect(mImportWindow, SIGNAL(importAll(int, int)), this, SLOT(importAll(int, int)));
     QObject::connect(this, SIGNAL(setImportImg(QString)), mImportWindow, SLOT(setPreviewImage(QString)));
+    QObject::connect(ui->sheetPreview, SIGNAL(mouseMoved(int,int)), this, SLOT(mouseCursorPos(int, int)));
 
     animItem = NULL;
     animScene = NULL;
@@ -40,6 +42,9 @@ MainWindow::MainWindow(QWidget *parent) :
     ui->splitter->setStretchFactor(1, 0);
 
     Graphics_view_zoom* z = new Graphics_view_zoom(ui->sheetPreview);
+    z->set_modifiers(Qt::NoModifier);
+
+    z = new Graphics_view_zoom(ui->animationPreview);
     z->set_modifiers(Qt::NoModifier);
 }
 
@@ -514,7 +519,10 @@ void MainWindow::on_animNextFrameButton_clicked()
     drawAnimation();
 }
 
-
+void MainWindow::mouseCursorPos(int x, int y)
+{
+    statusBar()->showMessage(QString::number(x) + ", " + QString::number(y));
+}
 
 
 
