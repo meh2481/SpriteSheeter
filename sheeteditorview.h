@@ -25,7 +25,7 @@ protected:
 
     void mousePressEvent(QMouseEvent *event)
     {
-        if (event->button() == Qt::MidButton)
+        if(event->button() == Qt::MidButton)
         {
             _pan = true;
             _panStartX = event->x();
@@ -34,7 +34,7 @@ protected:
             event->accept();
             return;
         }
-        if(event->button == Qt::LeftButton)
+        if(event->button() == Qt::LeftButton)
         {
             QPointF pt = mapToScene(event->pos());
             mousePressed(pt.x(), pt.y());
@@ -44,14 +44,14 @@ protected:
 
     void mouseReleaseEvent(QMouseEvent *event)
     {
-        if (event->button() == Qt::MidButton)
+        if(event->button() == Qt::MidButton)
         {
             _pan = false;
             setCursor(Qt::ArrowCursor);
             event->accept();
             return;
         }
-        if(event->button == Qt::LeftButton)
+        if(event->button() == Qt::LeftButton)
         {
             QPointF pt = mapToScene(event->pos());
             mouseReleased(pt.x(), pt.y());
@@ -61,7 +61,7 @@ protected:
 
     void mouseMoveEvent(QMouseEvent *event)
     {
-        if (_pan)
+        if(_pan)
         {
             horizontalScrollBar()->setValue(horizontalScrollBar()->value() - (event->x() - _panStartX));
             verticalScrollBar()->setValue(verticalScrollBar()->value() - (event->y() - _panStartY));

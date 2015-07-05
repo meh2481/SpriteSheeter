@@ -425,10 +425,19 @@ void MainWindow::on_animationNameEditor_textChanged(const QString &arg1)
 
 void MainWindow::on_prevAnimButton_clicked()
 {
-    if(mCurAnim != mSheetFrames.begin())
+    //Move these back one
+    if(mCurAnim != mSheetFrames.begin() && mCurAnimName != mAnimNames.begin())
+    {
+        QList<QImage> curAnim = *mCurAnim;
+        mCurAnim = mSheetFrames.erase(mCurAnim);
         mCurAnim--;
-    if(mCurAnimName != mAnimNames.begin())
+        mCurAnim = mSheetFrames.insert(mCurAnim, curAnim);
+
+        QString curName = *mCurAnimName;
+        mCurAnimName = mAnimNames.erase(mCurAnimName);
         mCurAnimName--;
+        mCurAnimName = mAnimNames.insert(mCurAnimName, curName);
+    }
 
     drawSheet();
 
@@ -445,17 +454,19 @@ void MainWindow::on_prevAnimButton_clicked()
 
 void MainWindow::on_nextAnimButton_clicked()
 {
-    if(mCurAnim != mSheetFrames.end())
+    if(mCurAnim != mSheetFrames.end() && mCurAnimName != mAnimNames.end())
     {
-        mCurAnim++;
-        if(mCurAnim == mSheetFrames.end())
-            mCurAnim--;
-    }
-    if(mCurAnimName != mAnimNames.end())
-    {
-        mCurAnimName++;
-        if(mCurAnimName == mAnimNames.end())
-            mCurAnimName--;
+        QList<QImage> curAnim = *mCurAnim;
+        mCurAnim = mSheetFrames.erase(mCurAnim);
+        if(mCurAnim != mSheetFrames.end())
+            mCurAnim++;
+        mCurAnim = mSheetFrames.insert(mCurAnim, curAnim);
+
+        QString curName = *mCurAnimName;
+        mCurAnimName = mAnimNames.erase(mCurAnimName);
+        if(mCurAnimName != mAnimNames.end())
+            mCurAnimName++;
+        mCurAnimName = mAnimNames.insert(mCurAnimName, curName);
     }
 
     drawSheet();

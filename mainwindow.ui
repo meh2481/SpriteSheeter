@@ -40,7 +40,7 @@
           <item>
            <widget class="QLabel" name="label_6">
             <property name="text">
-             <string>Animation:</string>
+             <string>Current Animation:</string>
             </property>
            </widget>
           </item>
@@ -58,7 +58,7 @@
                </size>
               </property>
               <property name="toolTip">
-               <string>Previous Animation</string>
+               <string>Move current animation up the spritesheet</string>
               </property>
               <property name="text">
                <string/>
@@ -93,7 +93,7 @@
                </size>
               </property>
               <property name="toolTip">
-               <string>Next Animation</string>
+               <string>Move current animation down the spritesheet</string>
               </property>
               <property name="text">
                <string/>
@@ -118,7 +118,7 @@
              <bool>false</bool>
             </property>
             <property name="toolTip">
-             <string>Add Another Animation</string>
+             <string>TODO: Add another animation</string>
             </property>
             <property name="text">
              <string/>
@@ -132,7 +132,7 @@
           <item>
            <widget class="QPushButton" name="removeAnimButton">
             <property name="toolTip">
-             <string>Delete Current Animation</string>
+             <string>Delete current animation</string>
             </property>
             <property name="text">
              <string/>
@@ -158,6 +158,9 @@
           </item>
           <item>
            <widget class="QPushButton" name="openStripButton">
+            <property name="toolTip">
+             <string>Import single animation from list of images</string>
+            </property>
             <property name="text">
              <string>Import Image Sequence</string>
             </property>
@@ -166,7 +169,7 @@
           <item>
            <widget class="QPushButton" name="openImagesButton">
             <property name="toolTip">
-             <string>Load images to current animation from file or files</string>
+             <string>Load a single image as an animation sheet with multiple frames</string>
             </property>
             <property name="text">
              <string>Import Image(s) as Animation Sheet</string>
@@ -264,6 +267,9 @@
            <layout class="QHBoxLayout" name="horizontalLayout_10">
             <item>
              <widget class="QLabel" name="label_5">
+              <property name="toolTip">
+               <string>Maximum allowed width for this spritesheet</string>
+              </property>
               <property name="text">
                <string>Maximum Sheet Width:</string>
               </property>
@@ -276,6 +282,9 @@
              <widget class="QSpinBox" name="sheetWidthBox">
               <property name="enabled">
                <bool>true</bool>
+              </property>
+              <property name="toolTip">
+               <string>Maximum allowed width for this spritesheet</string>
               </property>
               <property name="maximum">
                <number>1000000</number>
@@ -290,7 +299,7 @@
           <item>
            <widget class="QPushButton" name="saveSheetButton">
             <property name="toolTip">
-             <string>Save this spritesheet</string>
+             <string>Save this spritesheet to a file</string>
             </property>
             <property name="text">
              <string>Save</string>
@@ -328,7 +337,7 @@
             <item>
              <widget class="QPushButton" name="animPrevFrameButton">
               <property name="toolTip">
-               <string>Previous Frame</string>
+               <string>Previous animation frame</string>
               </property>
               <property name="text">
                <string/>
@@ -358,7 +367,7 @@
             <item>
              <widget class="QPushButton" name="animNextFrameButton">
               <property name="toolTip">
-               <string>Next Frame</string>
+               <string>Next animation frame</string>
               </property>
               <property name="text">
                <string/>
@@ -389,7 +398,7 @@
             <item>
              <widget class="QPushButton" name="animPlayButton">
               <property name="toolTip">
-               <string>Play Animation</string>
+               <string>Play animation</string>
               </property>
               <property name="text">
                <string/>
@@ -403,7 +412,7 @@
             <item>
              <widget class="QPushButton" name="animPauseButton">
               <property name="toolTip">
-               <string>Pause Animation</string>
+               <string>Pause animation</string>
               </property>
               <property name="text">
                <string/>
@@ -417,7 +426,7 @@
             <item>
              <widget class="QPushButton" name="animStopButton">
               <property name="toolTip">
-               <string>Stop Animation</string>
+               <string>Stop animation</string>
               </property>
               <property name="text">
                <string/>
@@ -457,6 +466,9 @@
             </item>
             <item>
              <widget class="QSpinBox" name="animationSpeedSpinbox">
+              <property name="toolTip">
+               <string>Playback speed of animation preview</string>
+              </property>
               <property name="minimum">
                <number>1</number>
               </property>
@@ -493,7 +505,11 @@
              </widget>
             </item>
             <item>
-             <widget class="QLineEdit" name="animationNameEditor"/>
+             <widget class="QLineEdit" name="animationNameEditor">
+              <property name="toolTip">
+               <string>Name to give this animation on the sheet</string>
+              </property>
+             </widget>
             </item>
            </layout>
           </item>
