@@ -22,6 +22,8 @@ MainWindow::MainWindow(QWidget *parent) :
     QObject::connect(ui->sheetPreview, SIGNAL(mouseMoved(int,int)), this, SLOT(mouseCursorPos(int, int)));
     QObject::connect(ui->sheetPreview, SIGNAL(mousePressed(int,int)), this, SLOT(mouseDown(int, int)));
     QObject::connect(ui->sheetPreview, SIGNAL(mouseReleased(int,int)), this, SLOT(mouseUp(int, int)));
+    QObject::connect(ui->actionNew, SIGNAL(triggered()), this, SLOT(newFile()));
+    QObject::connect(ui->actionSave, SIGNAL(triggered()), this, SLOT(saveFile()));
 
     animItem = NULL;
     animScene = NULL;
@@ -366,7 +368,7 @@ void MainWindow::on_ySpacingBox_valueChanged(int arg1)
 
 void MainWindow::on_saveSheetButton_clicked()
 {
-    if(!mCurSheet) return;
+    if(!mCurSheet || !mSheetFrames.size()) return;
 
     drawSheet(false);   //Save a non-highlighted version
 
@@ -485,7 +487,11 @@ void MainWindow::on_nextAnimButton_clicked()
 void MainWindow::drawAnimation()
 {
     if(mCurAnim == mSheetFrames.end() || !mCurAnim->size() || mCurFrame == mCurAnim->end())
+    {
+        if(animItem)
+            animItem->hide();
         return;
+    }
 
     if(animItem == NULL)
     {
@@ -495,6 +501,7 @@ void MainWindow::drawAnimation()
     else
         animItem->setPixmap(QPixmap::fromImage(*mCurFrame));
 
+    animItem->show();
     animScene->setSceneRect(0, 0, mCurFrame->width(), mCurFrame->height());
 }
 
@@ -685,7 +692,25 @@ void MainWindow::on_sheetWidthBox_valueChanged(int arg1)
     Q_UNUSED(arg1);
 }
 
+void MainWindow::newFile()
+{
+    if(mCurSheet)
+        delete mCurSheet;
+    mCurSheet = NULL;
 
+    mSheetFrames.clear();
+    mCurAnim = mSheetFrames.begin();
+    mAnimNames.clear();
+    mCurAnimName = mAnimNames.begin();
+
+    drawSheet();
+    drawAnimation();
+}
+
+void MainWindow::saveFile()
+{
+    on_saveSheetButton_clicked();
+}
 
 
 

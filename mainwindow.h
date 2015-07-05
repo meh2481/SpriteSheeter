@@ -30,6 +30,8 @@ public slots:
     void mouseCursorPos(int x, int y);
     void mouseDown(int x, int y);
     void mouseUp(int x, int y);
+    void newFile();
+    void saveFile();
 
 private slots:
     void on_openImagesButton_clicked();
