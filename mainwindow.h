@@ -71,6 +71,7 @@ private:
     QString curImportImage;
     QString lastSaveStr;
 
+    //Variables for drawing the current sheet/animation
     QImage* mCurSheet;
     QList<QList<QImage> > mSheetFrames;
     QList<QList<QImage> >::iterator mCurAnim;
@@ -78,17 +79,22 @@ private:
     QList<QString> mAnimNames;
     QList<QString>::iterator mCurAnimName;
 
+    //Variables for dealing with the Qt draw engine
     QGraphicsScene* animScene;
     QGraphicsPixmapItem* animItem;
     QGraphicsScene* sheetScene;
     QGraphicsPixmapItem* sheetItem;
 
+    //Animation update timer
     QTimer* animUpdateTimer;
 
     //Having to do with clicking & dragging the right side of a sheet
     int mStartSheetW;
     int xStartDragSheetW;
     bool bDraggingSheetW;
+
+    //For clicking to select an animation
+    QList<QRect> mAnimRects;
 
     void openImportDiag();
     void importImage(QString s, int numxframes, int numyframes);

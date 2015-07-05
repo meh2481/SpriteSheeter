@@ -25,8 +25,6 @@ protected:
 
     void mousePressEvent(QMouseEvent *event)
     {
-        QPointF pt = mapToScene(event->pos());
-        mousePressed(pt.x(), pt.y());
         if (event->button() == Qt::MidButton)
         {
             _pan = true;
@@ -36,19 +34,27 @@ protected:
             event->accept();
             return;
         }
+        if(event->button == Qt::LeftButton)
+        {
+            QPointF pt = mapToScene(event->pos());
+            mousePressed(pt.x(), pt.y());
+        }
         event->ignore();
     }
 
     void mouseReleaseEvent(QMouseEvent *event)
     {
-        QPointF pt = mapToScene(event->pos());
-        mouseReleased(pt.x(), pt.y());
         if (event->button() == Qt::MidButton)
         {
             _pan = false;
             setCursor(Qt::ArrowCursor);
             event->accept();
             return;
+        }
+        if(event->button == Qt::LeftButton)
+        {
+            QPointF pt = mapToScene(event->pos());
+            mouseReleased(pt.x(), pt.y());
         }
         event->ignore();
     }

@@ -287,8 +287,11 @@ void MainWindow::drawSheet(bool bHighlight)
     QPainter painter(mCurSheet);
     painter.setCompositionMode(QPainter::CompositionMode_Source);
     sName = mAnimNames.begin();
+    mAnimRects.clear();
     foreach(QList<QImage> ql, mSheetFrames)
     {
+        QRect r;
+        r.setRect(0,curY-offsetY,iSizeX,0);
         int ySize = 0;
 
         //Highlight our current anim red
@@ -322,6 +325,8 @@ void MainWindow::drawSheet(bool bHighlight)
         }
         curY += offsetY + ySize;
         curX = offsetX;
+        r.setBottom(curY-offsetY);
+        mAnimRects.push_back(r);
     }
 
     //Draw drag handle on right side
@@ -599,6 +604,37 @@ void MainWindow::mouseDown(int x, int y)
             bDraggingSheetW = true;
             mStartSheetW = mCurSheet->width();
             xStartDragSheetW = x;
+        }
+        else
+        {
+            //Figure out what anim we're clicking on
+            if(!mAnimRects.empty() && !mSheetFrames.empty())
+            {
+                QList<QList<QImage> >::iterator i = mSheetFrames.begin();
+                QList<QString>::iterator name = mAnimNames.begin();
+                foreach(QRect r, mAnimRects)
+                {
+                    if(r.contains(x,y))
+                    {
+                        mCurAnim = i;
+                        mCurAnimName = name;
+
+                        drawSheet();
+                        if(mCurAnimName != mAnimNames.end())
+                            ui->animationNameEditor->setText(*mCurAnimName);
+                        else
+                            ui->animationNameEditor->setText(QString(""));
+
+                        if(mCurAnim != mSheetFrames.end())
+                            mCurFrame = mCurAnim->begin();
+                        drawAnimation();
+
+                        break;
+                    }
+                    i++;
+                    name++;
+                }
+            }
         }
     }
 }
