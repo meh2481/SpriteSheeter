@@ -15,10 +15,13 @@ MainWindow::MainWindow(QWidget *parent) :
     ui->setupUi(this);
     mImportWindow = new importDialog(this);
 
+    //Connect all our signals & slots up
     QObject::connect(mImportWindow, SIGNAL(importOK(int, int)), this, SLOT(importNext(int, int)));
     QObject::connect(mImportWindow, SIGNAL(importAll(int, int)), this, SLOT(importAll(int, int)));
     QObject::connect(this, SIGNAL(setImportImg(QString)), mImportWindow, SLOT(setPreviewImage(QString)));
     QObject::connect(ui->sheetPreview, SIGNAL(mouseMoved(int,int)), this, SLOT(mouseCursorPos(int, int)));
+    QObject::connect(ui->sheetPreview, SIGNAL(mousePressed(int,int)), this, SLOT(mouseDown(int, int)));
+    QObject::connect(ui->sheetPreview, SIGNAL(mouseReleased(int,int)), this, SLOT(mouseUp(int, int)));
 
     animItem = NULL;
     animScene = NULL;
@@ -27,6 +30,8 @@ MainWindow::MainWindow(QWidget *parent) :
     mCurSheet = NULL;
     mCurAnim = mSheetFrames.begin();
     mCurAnimName = mAnimNames.begin();
+
+    bDraggingSheetW = false;
 
     animUpdateTimer = new QTimer(this);
     QObject::connect(animUpdateTimer, SIGNAL(timeout()), this, SLOT(animUpdate()));
@@ -224,6 +229,8 @@ void MainWindow::drawSheet(bool bHighlight)
 {
     float textHeight = 20;
 
+    int maxSheetWidth = ui->sheetWidthBox->value();
+
     //First pass: Figure out dimensions of final image
     int offsetX = ui->xSpacingBox->value();
     int offsetY = ui->ySpacingBox->value();
@@ -237,13 +244,26 @@ void MainWindow::drawSheet(bool bHighlight)
         int iCurSizeX = offsetX;
         foreach(QImage img, ql)
         {
+            //Test to see if we should start next line
+            if(iCurSizeX + img.width() + offsetX > maxSheetWidth)
+            {
+                iSizeY += offsetY + ySize;
+                if(bHighlight && sName == mCurAnimName)
+                    hiliteH += ySize + offsetY;
+                ySize = 0;
+                if(iCurSizeX > iSizeX)
+                    iSizeX = iCurSizeX;
+                iCurSizeX = offsetX;
+            }
+
             if(img.height() > ySize)
                 ySize = img.height();
+
             iCurSizeX += img.width() + offsetX;
         }
 
         if(bHighlight && sName == mCurAnimName)
-            hiliteH = ySize;
+            hiliteH += ySize;
         sName++;
 
         iSizeY += offsetY + ySize + textHeight;
@@ -253,6 +273,9 @@ void MainWindow::drawSheet(bool bHighlight)
 
     if(mCurSheet)
         delete mCurSheet;
+
+    if(bHighlight)
+        iSizeX += DRAG_HANDLE_SIZE;
 
     //Create image of the proper size and fill it with a good bg color
     mCurSheet = new QImage(iSizeX, iSizeY, QImage::Format_ARGB32);
@@ -280,6 +303,14 @@ void MainWindow::drawSheet(bool bHighlight)
 
         foreach(QImage img, ql)
         {
+            //Test to see if we should start next line
+            if(curX + img.width() + offsetX > maxSheetWidth)
+            {
+                curY += offsetY + ySize;
+                ySize = 0;
+                curX = offsetX;
+            }
+
             //Erase this portion of the image
             painter.fillRect(curX, curY, img.width(), img.height(), Qt::transparent);
 
@@ -292,6 +323,11 @@ void MainWindow::drawSheet(bool bHighlight)
         curY += offsetY + ySize;
         curX = offsetX;
     }
+
+    //Draw drag handle on right side
+    if(bHighlight)
+        painter.fillRect(iSizeX - DRAG_HANDLE_SIZE, 0, DRAG_HANDLE_SIZE, mCurSheet->height(), QColor(0,230,230,255));
+
     painter.end();
 
 
@@ -524,7 +560,61 @@ void MainWindow::on_animNextFrameButton_clicked()
 
 void MainWindow::mouseCursorPos(int x, int y)
 {
+    //TODO
+    if(mCurSheet)
+    {
+        //Update cursor if need be
+        if(x <= mCurSheet->width() &&
+           x >= mCurSheet->width() - DRAG_HANDLE_SIZE &&
+           y <= mCurSheet->height() &&
+           y >= 0)
+        {
+             ui->sheetPreview->setCursor(Qt::SizeHorCursor);
+        }
+        else if(!bDraggingSheetW)
+            ui->sheetPreview->setCursor(Qt::ArrowCursor);
+
+        //See if we're resizing the sheet
+        if(bDraggingSheetW)
+        {
+            ui->sheetWidthBox->setValue(mStartSheetW - (xStartDragSheetW - x));
+            drawSheet();
+        }
+
+    }
     statusBar()->showMessage(QString::number(x) + ", " + QString::number(y));
+}
+
+
+void MainWindow::mouseDown(int x, int y)
+{
+    if(mCurSheet)
+    {
+        //We're starting to drag the sheet size handle
+        if(x <= mCurSheet->width() &&
+           x >= mCurSheet->width() - DRAG_HANDLE_SIZE &&
+           y <= mCurSheet->height() &&
+           y >= 0)
+        {
+            bDraggingSheetW = true;
+            mStartSheetW = mCurSheet->width();
+            xStartDragSheetW = x;
+        }
+    }
+}
+
+void MainWindow::mouseUp(int x, int y)
+{
+    if(mCurSheet)
+    {
+        if(bDraggingSheetW)
+        {
+            ui->sheetWidthBox->setValue(mStartSheetW - (xStartDragSheetW - x));
+            bDraggingSheetW = false;
+            drawSheet();
+        }
+    }
+    Q_UNUSED(y);    //TODO
 }
 
 void MainWindow::closeEvent(QCloseEvent *event)
@@ -540,6 +630,12 @@ void MainWindow::readSettings()
     QSettings settings("DaxarDev", "SpriteSheeter");
     restoreGeometry(settings.value("geometry").toByteArray());
     restoreState(settings.value("windowState").toByteArray());
+}
+
+void MainWindow::on_sheetWidthBox_valueChanged(int arg1)
+{
+    drawSheet();
+    Q_UNUSED(arg1);
 }
 
 

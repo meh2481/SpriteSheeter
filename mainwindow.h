@@ -6,6 +6,8 @@
 #include "importdialog.h"
 #include "sheeteditorview.h"
 
+#define DRAG_HANDLE_SIZE 5
+
 namespace Ui {
 class MainWindow;
 }
@@ -26,6 +28,8 @@ public slots:
     void importAll(int numx, int numy);
     void animUpdate();
     void mouseCursorPos(int x, int y);
+    void mouseDown(int x, int y);
+    void mouseUp(int x, int y);
 
 private slots:
     void on_openImagesButton_clicked();
@@ -58,6 +62,8 @@ private slots:
 
     void on_openStripButton_clicked();
 
+    void on_sheetWidthBox_valueChanged(int arg1);
+
 private:
     Ui::MainWindow *ui;
     importDialog *mImportWindow;
@@ -78,6 +84,11 @@ private:
     QGraphicsPixmapItem* sheetItem;
 
     QTimer* animUpdateTimer;
+
+    //Having to do with clicking & dragging the right side of a sheet
+    int mStartSheetW;
+    int xStartDragSheetW;
+    bool bDraggingSheetW;
 
     void openImportDiag();
     void importImage(QString s, int numxframes, int numyframes);

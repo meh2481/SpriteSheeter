@@ -275,7 +275,7 @@
             <item>
              <widget class="QSpinBox" name="sheetWidthBox">
               <property name="enabled">
-               <bool>false</bool>
+               <bool>true</bool>
               </property>
               <property name="maximum">
                <number>1000000</number>
@@ -536,6 +536,11 @@
    <class>sheetEditorView</class>
    <extends>QWidget</extends>
    <header>sheeteditorview.h</header>
+  </customwidget>
+  <customwidget>
+   <class>animPreview</class>
+   <extends>QWidget</extends>
+   <header>animpreview.h</header>
   </customwidget>
  </customwidgets>
  <resources>

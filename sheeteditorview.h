@@ -18,11 +18,15 @@ public:
 
 signals:
     void mouseMoved(int x, int y);
+    void mousePressed(int x, int y);
+    void mouseReleased(int x, int y);
 
 protected:
 
     void mousePressEvent(QMouseEvent *event)
     {
+        QPointF pt = mapToScene(event->pos());
+        mousePressed(pt.x(), pt.y());
         if (event->button() == Qt::MidButton)
         {
             _pan = true;
@@ -37,6 +41,8 @@ protected:
 
     void mouseReleaseEvent(QMouseEvent *event)
     {
+        QPointF pt = mapToScene(event->pos());
+        mouseReleased(pt.x(), pt.y());
         if (event->button() == Qt::MidButton)
         {
             _pan = false;
@@ -49,8 +55,6 @@ protected:
 
     void mouseMoveEvent(QMouseEvent *event)
     {
-        QPointF pt = mapToScene(event->pos());
-        mouseMoved(pt.x(), pt.y());
         if (_pan)
         {
             horizontalScrollBar()->setValue(horizontalScrollBar()->value() - (event->x() - _panStartX));
@@ -60,6 +64,8 @@ protected:
             event->accept();
             return;
         }
+        QPointF pt = mapToScene(event->pos());
+        mouseMoved(pt.x(), pt.y());
         event->ignore();
     }
 };
