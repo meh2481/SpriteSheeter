@@ -85,6 +85,9 @@ private:
 
     void drawAnimation();
     void drawSheet(bool bHighlight = true);
+
+    void closeEvent(QCloseEvent *event);
+    void readSettings();
 };
 
 #endif // MAINWINDOW_H

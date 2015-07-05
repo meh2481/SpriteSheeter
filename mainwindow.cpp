@@ -6,6 +6,7 @@
 #include <QDesktopWidget>
 #include <QFile>
 #include <QMessageBox>
+#include <QSettings>
 
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
@@ -46,6 +47,8 @@ MainWindow::MainWindow(QWidget *parent) :
 
     z = new Graphics_view_zoom(ui->animationPreview);
     z->set_modifiers(Qt::NoModifier);
+
+    readSettings();
 }
 
 MainWindow::~MainWindow()
@@ -524,9 +527,20 @@ void MainWindow::mouseCursorPos(int x, int y)
     statusBar()->showMessage(QString::number(x) + ", " + QString::number(y));
 }
 
+void MainWindow::closeEvent(QCloseEvent *event)
+{
+    QSettings settings("DaxarDev", "SpriteSheeter");
+    settings.setValue("geometry", saveGeometry());
+    settings.setValue("windowState", saveState());
+    QMainWindow::closeEvent(event);
+}
 
-
-
+void MainWindow::readSettings()
+{
+    QSettings settings("DaxarDev", "SpriteSheeter");
+    restoreGeometry(settings.value("geometry").toByteArray());
+    restoreState(settings.value("windowState").toByteArray());
+}
 
 
 
