@@ -1,6 +1,7 @@
 #include "sheeteditorview.h"
 #include <QMimeData>
 #include <QDebug>
+#include <QDir>
 
 sheetEditorView::sheetEditorView(QWidget * parent) : QGraphicsView(parent)
 {
@@ -24,13 +25,18 @@ void sheetEditorView::dragEnterEvent(QDragEnterEvent *e)
 
 void sheetEditorView::dropEvent(QDropEvent *e)
 {
-    QStringList sl;
+    QStringList sFiles;
+    QStringList sFolders;
     foreach(const QUrl &url, e->mimeData()->urls())
     {
         const QString &fileName = url.toLocalFile();
-        sl.push_back(fileName);
+        if(QDir(fileName).exists())
+            sFolders.push_back(fileName);
+        else
+            sFiles.push_back(fileName);
     }
-    droppedFiles(sl);
+    droppedFiles(sFiles);
+    droppedFolders(sFolders);
 }
 
 void sheetEditorView::dragMoveEvent(QDragMoveEvent *e)

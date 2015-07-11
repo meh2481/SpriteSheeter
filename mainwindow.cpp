@@ -7,6 +7,7 @@
 #include <QFile>
 #include <QMessageBox>
 #include <QSettings>
+#include <QDebug>
 
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
@@ -25,6 +26,7 @@ MainWindow::MainWindow(QWidget *parent) :
     QObject::connect(ui->actionNew, SIGNAL(triggered()), this, SLOT(newFile()));
     QObject::connect(ui->actionSave, SIGNAL(triggered()), this, SLOT(saveFile()));
     QObject::connect(ui->sheetPreview, SIGNAL(droppedFiles(QStringList)), this, SLOT(addImages(QStringList)));
+    QObject::connect(ui->sheetPreview, SIGNAL(droppedFolders(QStringList)), this, SLOT(addFolders(QStringList)));
 
     animItem = NULL;
     animScene = NULL;
@@ -80,6 +82,14 @@ void MainWindow::addImages(QStringList l)
 {
     mOpenFiles = l;
     openImportDiag();
+}
+
+void MainWindow::addFolders(QStringList l)
+{
+    foreach(QString s, l)
+    {
+        qDebug() << "TODO open folder " << s;
+    }
 }
 
 void MainWindow::on_openImagesButton_clicked()

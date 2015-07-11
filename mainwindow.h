@@ -33,6 +33,7 @@ public slots:
     void newFile();
     void saveFile();
     void addImages(QStringList l);
+    void addFolders(QStringList l);
 
 private slots:
     void on_openImagesButton_clicked();

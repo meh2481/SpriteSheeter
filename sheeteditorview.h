@@ -25,6 +25,7 @@ signals:
     void mousePressed(int x, int y);
     void mouseReleased(int x, int y);
     void droppedFiles(QStringList sl);
+    void droppedFolders(QStringList sl);
 
 protected:
 
