@@ -193,6 +193,7 @@ void MainWindow::importImage(QString s, int numxframes, int numyframes, bool bVe
         QMessageBox::information(this,"Image Import","Error opening image " + s);
         return;
     }
+    QString fileName = QFileInfo(s).baseName();
 
     //Find image dimensions
     int iXFrameSize = image.width() / numxframes;
@@ -230,9 +231,10 @@ void MainWindow::importImage(QString s, int numxframes, int numyframes, bool bVe
         QList<QString>::iterator itN = mCurAnimName;
         if(itN != mAnimNames.end())
             itN++;
-        mCurAnimName = mAnimNames.insert(itN, QString(""));
 
-        ui->animationNameEditor->setText(QString(""));
+        mCurAnimName = mAnimNames.insert(itN, fileName);
+
+        ui->animationNameEditor->setText(fileName);
     }
 
     if(mCurAnim != mSheetFrames.end())
