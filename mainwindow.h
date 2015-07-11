@@ -102,6 +102,7 @@ private:
 
     void openImportDiag();
     void importImage(QString s, int numxframes, int numyframes, bool bVert);
+    void importImageList(QStringList& fileList, QString prepend = QString(""), QString animName = QString(""));
     void CenterParent(QWidget* parent, QWidget* child);
 
     void drawAnimation();

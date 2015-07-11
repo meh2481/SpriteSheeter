@@ -84,9 +84,40 @@ void MainWindow::addImages(QStringList l)
     openImportDiag();
 }
 
+void MainWindow::importImageList(QStringList& fileList, QString prepend, QString animName)
+{
+    QList<QImage> imgList;
+    foreach(QString s1, fileList)
+    {
+        QString imgPath = prepend + s1;
+        QImage image(imgPath);
+        if(!image.isNull())
+            imgList.push_back(image);
+    }
+    if(imgList.size())
+    {
+        QList<QList<QImage> >::iterator it = mCurAnim;
+        if(it != mSheetFrames.end())
+            it++;
+        mCurAnim = mSheetFrames.insert(it, imgList);
+
+        QList<QString>::iterator itN = mCurAnimName;
+        if(itN != mAnimNames.end())
+            itN++;
+        mCurAnimName = mAnimNames.insert(itN, animName);
+
+        ui->animationNameEditor->setText(animName);
+    }
+
+    if(mCurAnim != mSheetFrames.end())
+        mCurFrame = mCurAnim->begin();
+
+    drawSheet();
+    drawAnimation();
+}
+
 void MainWindow::addFolders(QStringList l)
 {
-    //qDebug() << l.size();
     foreach(QString s, l)
     {
         QDir folder(s);
@@ -95,38 +126,7 @@ void MainWindow::addFolders(QStringList l)
         fileFilters << "*.png" << "*.bmp" << "*.gif" << "*.pbm" << "*.pgm" << "*.ppm" << "*.tif" << "*.tiff" << "*.xbm" << "*.xpm";
         QStringList files = folder.entryList(fileFilters, QDir::Files, QDir::Name); //Get list of all files in this folder
 
-        //Same as open strip button below, only give animation a name based on folder name
-        QList<QImage> imgList;
-        //qDebug() << files.size();
-        foreach(QString s1, files)
-        {
-            QString imgPath = s + '/' + s1;
-            QImage image(imgPath);
-            if(!image.isNull())
-                imgList.push_back(image);
-        }
-        if(imgList.size())
-        {
-            QList<QList<QImage> >::iterator it = mCurAnim;
-            if(it != mSheetFrames.end())
-                it++;
-            mCurAnim = mSheetFrames.insert(it, imgList);
-
-            QList<QString>::iterator itN = mCurAnimName;
-            if(itN != mAnimNames.end())
-                itN++;
-            mCurAnimName = mAnimNames.insert(itN, folder.dirName());
-
-            ui->animationNameEditor->setText(folder.dirName());
-        }
-        //else
-        //    qDebug() << "Empty size";
-
-        if(mCurAnim != mSheetFrames.end())
-            mCurFrame = mCurAnim->begin();
-
-        drawSheet();
-        drawAnimation();
+        importImageList(files, s + '/', folder.dirName());
     }
 }
 
@@ -139,34 +139,7 @@ void MainWindow::on_openStripButton_clicked()
 {
     mOpenFiles = QFileDialog::getOpenFileNames(this, "Open Images", "", "All Files (*.*)");
 
-    QList<QImage> imgList;
-    foreach(QString s, mOpenFiles)
-    {
-        QImage image(s);
-        if(!image.isNull())
-            imgList.push_back(image);
-    }
-    if(imgList.size())
-    {
-        //mSheetFrames.push_back(imgList);
-        QList<QList<QImage> >::iterator it = mCurAnim;
-        if(it != mSheetFrames.end())
-            it++;
-        mCurAnim = mSheetFrames.insert(it, imgList);
-
-        QList<QString>::iterator itN = mCurAnimName;
-        if(itN != mAnimNames.end())
-            itN++;
-        mCurAnimName = mAnimNames.insert(itN, QString(""));
-
-        ui->animationNameEditor->setText(QString(""));
-    }
-
-    if(mCurAnim != mSheetFrames.end())
-        mCurFrame = mCurAnim->begin();
-
-    drawSheet();
-    drawAnimation();
+    importImageList(mOpenFiles);
 }
 
 void MainWindow::importNext(int numx, int numy, bool bVert)
