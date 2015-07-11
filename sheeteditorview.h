@@ -16,10 +16,15 @@ public:
     explicit sheetEditorView(QWidget *parent = 0);
     ~sheetEditorView();
 
+    void dragEnterEvent(QDragEnterEvent *e);
+    void dropEvent(QDropEvent *e);
+    void dragMoveEvent(QDragMoveEvent *e);
+
 signals:
     void mouseMoved(int x, int y);
     void mousePressed(int x, int y);
     void mouseReleased(int x, int y);
+    void droppedFiles(QStringList sl);
 
 protected:
 

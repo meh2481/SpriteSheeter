@@ -155,6 +155,59 @@
         </layout>
        </item>
        <item>
+        <layout class="QHBoxLayout" name="horizontalLayout_5">
+         <item>
+          <spacer name="horizontalSpacer_6">
+           <property name="orientation">
+            <enum>Qt::Horizontal</enum>
+           </property>
+           <property name="sizeHint" stdset="0">
+            <size>
+             <width>40</width>
+             <height>20</height>
+            </size>
+           </property>
+          </spacer>
+         </item>
+         <item>
+          <widget class="QRadioButton" name="horizFirst">
+           <property name="toolTip">
+            <string>Frames are stored horizontally across in rows</string>
+           </property>
+           <property name="text">
+            <string>Horizontal First</string>
+           </property>
+           <property name="checked">
+            <bool>true</bool>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QRadioButton" name="vertFirst">
+           <property name="toolTip">
+            <string>Frames are stored vertically down in columns</string>
+           </property>
+           <property name="text">
+            <string>Vertical First</string>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <spacer name="horizontalSpacer_7">
+           <property name="orientation">
+            <enum>Qt::Horizontal</enum>
+           </property>
+           <property name="sizeHint" stdset="0">
+            <size>
+             <width>40</width>
+             <height>20</height>
+            </size>
+           </property>
+          </spacer>
+         </item>
+        </layout>
+       </item>
+       <item>
         <layout class="QHBoxLayout" name="horizontalLayout_4">
          <property name="sizeConstraint">
           <enum>QLayout::SetMaximumSize</enum>
@@ -230,7 +283,7 @@
              </size>
             </property>
             <property name="toolTip">
-             <string>Preview of the current image</string>
+             <string/>
             </property>
             <property name="dragMode">
              <enum>QGraphicsView::NoDrag</enum>

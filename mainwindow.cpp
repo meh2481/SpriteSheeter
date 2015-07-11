@@ -16,19 +16,20 @@ MainWindow::MainWindow(QWidget *parent) :
     mImportWindow = new importDialog(this);
 
     //Connect all our signals & slots up
-    QObject::connect(mImportWindow, SIGNAL(importOK(int, int)), this, SLOT(importNext(int, int)));
-    QObject::connect(mImportWindow, SIGNAL(importAll(int, int)), this, SLOT(importAll(int, int)));
+    QObject::connect(mImportWindow, SIGNAL(importOK(int, int, bool)), this, SLOT(importNext(int, int, bool)));
+    QObject::connect(mImportWindow, SIGNAL(importAll(int, int, bool)), this, SLOT(importAll(int, int, bool)));
     QObject::connect(this, SIGNAL(setImportImg(QString)), mImportWindow, SLOT(setPreviewImage(QString)));
     QObject::connect(ui->sheetPreview, SIGNAL(mouseMoved(int,int)), this, SLOT(mouseCursorPos(int, int)));
     QObject::connect(ui->sheetPreview, SIGNAL(mousePressed(int,int)), this, SLOT(mouseDown(int, int)));
     QObject::connect(ui->sheetPreview, SIGNAL(mouseReleased(int,int)), this, SLOT(mouseUp(int, int)));
     QObject::connect(ui->actionNew, SIGNAL(triggered()), this, SLOT(newFile()));
     QObject::connect(ui->actionSave, SIGNAL(triggered()), this, SLOT(saveFile()));
+    QObject::connect(ui->sheetPreview, SIGNAL(droppedFiles(QStringList)), this, SLOT(addImages(QStringList)));
 
     animItem = NULL;
     animScene = NULL;
     sheetItem = NULL;
-    sheetScene = NULL;
+    msheetScene = NULL;
     mCurSheet = NULL;
     mCurAnim = mSheetFrames.begin();
     mCurAnimName = mAnimNames.begin();
@@ -40,9 +41,9 @@ MainWindow::MainWindow(QWidget *parent) :
 
     //Create gfx stuff for drawing to image contexts
     animScene = new QGraphicsScene();
-    sheetScene = new QGraphicsScene();
+    msheetScene = new QGraphicsScene();
     ui->animationPreview->setScene(animScene);
-    ui->sheetPreview->setScene(sheetScene);
+    ui->sheetPreview->setScene(msheetScene);
     ui->animationPreview->show();
     ui->sheetPreview->show();
 
@@ -68,18 +69,22 @@ MainWindow::~MainWindow()
         delete animScene;
     if(sheetItem)
         delete sheetItem;
-    if(sheetScene)
-        delete sheetScene;
+    if(msheetScene)
+        delete msheetScene;
     delete animUpdateTimer;
     delete mImportWindow;
     delete ui;
 }
 
+void MainWindow::addImages(QStringList l)
+{
+    mOpenFiles = l;
+    openImportDiag();
+}
+
 void MainWindow::on_openImagesButton_clicked()
 {
-    mOpenFiles = QFileDialog::getOpenFileNames(this, "Open Images", "", "All Files (*.*)");
-
-    openImportDiag();
+    addImages(QFileDialog::getOpenFileNames(this, "Open Images", "", "All Files (*.*)"));
 }
 
 void MainWindow::on_openStripButton_clicked()
@@ -116,18 +121,18 @@ void MainWindow::on_openStripButton_clicked()
     drawAnimation();
 }
 
-void MainWindow::importNext(int numx, int numy)
+void MainWindow::importNext(int numx, int numy, bool bVert)
 {
-    importImage(curImportImage, numx, numy);
+    importImage(curImportImage, numx, numy, bVert);
     openImportDiag();   //Next one
 }
 
-void MainWindow::importAll(int numx, int numy)
+void MainWindow::importAll(int numx, int numy, bool bVert)
 {
-    importImage(curImportImage, numx, numy);
+    importImage(curImportImage, numx, numy, bVert);
     foreach(QString s, mOpenFiles)
     {
-        importImage(s, numx, numy);
+        importImage(s, numx, numy, bVert);
     }
 
     curImportImage = "";
@@ -159,7 +164,7 @@ void MainWindow::openImportDiag()
     CenterParent(this, mImportWindow);
 }
 
-void MainWindow::importImage(QString s, int numxframes, int numyframes)
+void MainWindow::importImage(QString s, int numxframes, int numyframes, bool bVert)
 {
     QImage image(s);
     if(image.isNull())
@@ -174,11 +179,24 @@ void MainWindow::importImage(QString s, int numxframes, int numyframes)
 
     //Grab all the frames out
     QList<QImage> imgList;
-    for(int y = 0; y < numyframes; y++)
+    if(!bVert)
+    {
+        for(int y = 0; y < numyframes; y++)
+        {
+            for(int x = 0; x < numxframes; x++)
+            {
+                imgList.push_back(image.copy(x*iXFrameSize, y*iYFrameSize, iXFrameSize, iYFrameSize));
+            }
+        }
+    }
+    else
     {
         for(int x = 0; x < numxframes; x++)
         {
-            imgList.push_back(image.copy(x*iXFrameSize, y*iYFrameSize, iXFrameSize, iYFrameSize));
+            for(int y = 0; y < numyframes; y++)
+            {
+                imgList.push_back(image.copy(x*iXFrameSize, y*iYFrameSize, iXFrameSize, iYFrameSize));
+            }
         }
     }
     if(imgList.size())
@@ -342,13 +360,13 @@ void MainWindow::drawSheet(bool bHighlight)
     if(sheetItem == NULL)
     {
         sheetItem = new QGraphicsPixmapItem(QPixmap::fromImage(*mCurSheet));
-        sheetScene->addItem(sheetItem);
+        msheetScene->addItem(sheetItem);
     }
     else
         sheetItem->setPixmap(QPixmap::fromImage(*mCurSheet));
 
     //Set the new rect of the scene
-    sheetScene->setSceneRect(-100, -100, mCurSheet->width()+200, mCurSheet->height()+200);
+    msheetScene->setSceneRect(-100, -100, mCurSheet->width()+200, mCurSheet->height()+200);
 
     ui->sheetPreview->show();
 }
@@ -711,9 +729,6 @@ void MainWindow::saveFile()
 {
     on_saveSheetButton_clicked();
 }
-
-
-
 
 
 

@@ -24,14 +24,15 @@ signals:
     void setImportImg(QString s);
 
 public slots:
-    void importNext(int numx, int numy);
-    void importAll(int numx, int numy);
+    void importNext(int numx, int numy, bool bVert);
+    void importAll(int numx, int numy, bool bVert);
     void animUpdate();
     void mouseCursorPos(int x, int y);
     void mouseDown(int x, int y);
     void mouseUp(int x, int y);
     void newFile();
     void saveFile();
+    void addImages(QStringList l);
 
 private slots:
     void on_openImagesButton_clicked();
@@ -84,7 +85,7 @@ private:
     //Variables for dealing with the Qt draw engine
     QGraphicsScene* animScene;
     QGraphicsPixmapItem* animItem;
-    QGraphicsScene* sheetScene;
+    QGraphicsScene* msheetScene;
     QGraphicsPixmapItem* sheetItem;
 
     //Animation update timer
@@ -99,7 +100,7 @@ private:
     QList<QRect> mAnimRects;
 
     void openImportDiag();
-    void importImage(QString s, int numxframes, int numyframes);
+    void importImage(QString s, int numxframes, int numyframes, bool bVert);
     void CenterParent(QWidget* parent, QWidget* child);
 
     void drawAnimation();

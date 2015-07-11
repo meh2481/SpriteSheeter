@@ -50,13 +50,13 @@ void importDialog::setPreviewImage(QString sImg)
 void importDialog::on_okButton_clicked()
 {
     this->hide();
-    importOK(ui->xFramesBox->value(), ui->yFramesBox->value());
+    importOK(ui->xFramesBox->value(), ui->yFramesBox->value(), ui->vertFirst->isChecked());
 }
 
 void importDialog::on_allButton_clicked()
 {
     this->hide();
-    importAll(ui->xFramesBox->value(), ui->yFramesBox->value());
+    importAll(ui->xFramesBox->value(), ui->yFramesBox->value(), ui->vertFirst->isChecked());
 }
 
 void importDialog::showEvent(QShowEvent *)
