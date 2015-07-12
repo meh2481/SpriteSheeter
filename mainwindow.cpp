@@ -268,10 +268,9 @@ void MainWindow::CenterParent(QWidget* parent, QWidget* child)
     child->move(centerparent);
 }
 
+const float textHeight = 20;
 void MainWindow::drawSheet(bool bHighlight)
 {
-    float textHeight = 20;
-
     int maxSheetWidth = ui->sheetWidthBox->value();
 
     //First pass: Figure out dimensions of final image
@@ -331,7 +330,7 @@ void MainWindow::drawSheet(bool bHighlight)
     painter.setCompositionMode(QPainter::CompositionMode_Source);
     sName = mAnimNames.begin();
     mAnimRects.clear();
-    foreach(QList<QImage> ql, mSheetFrames)
+    for(QList<QList<QImage> >::iterator ql = mSheetFrames.begin(); ql != mSheetFrames.end(); ql++)
     {
         QRect r;
         r.setRect(0,curY-offsetY,iSizeX,0);
@@ -347,10 +346,10 @@ void MainWindow::drawSheet(bool bHighlight)
         sName++;
         curY += textHeight;
 
-        foreach(QImage img, ql)
+        for(QList<QImage>::iterator img = ql->begin(); img != ql->end(); img++)
         {
             //Test to see if we should start next line
-            if(curX + img.width() + offsetX > maxSheetWidth)
+            if(curX + img->width() + offsetX > maxSheetWidth)
             {
                 curY += offsetY + ySize;
                 ySize = 0;
@@ -358,13 +357,22 @@ void MainWindow::drawSheet(bool bHighlight)
             }
 
             //Erase this portion of the image
-            painter.fillRect(curX, curY, img.width(), img.height(), Qt::transparent);
+            painter.fillRect(curX, curY, img->width(), img->height(), Qt::transparent);
 
             //TODO: Specify bg color so we can fill this however we like
-            painter.drawImage(curX, curY, img);
-            if(img.height() > ySize)
-                ySize = img.height();
-            curX += img.width() + offsetX;
+            painter.drawImage(curX, curY, *img);
+
+            //If we're highlighting this image, draw blue overtop
+            if(bHighlight && mCurSelected == img)
+            {
+                painter.setCompositionMode(QPainter::CompositionMode_SourceOver);
+                painter.fillRect(QRect(curX, curY, img->width(), img->height()), QBrush(QColor(0,0,255,100)));
+                painter.setCompositionMode(QPainter::CompositionMode_Source);
+            }
+
+            if(img->height() > ySize)
+                ySize = img->height();
+            curX += img->width() + offsetX;
         }
         curY += offsetY + ySize;
         curX = offsetX;
@@ -647,6 +655,51 @@ void MainWindow::mouseCursorPos(int x, int y)
 
     }
     statusBar()->showMessage(QString::number(x) + ", " + QString::number(y));
+
+    QList<QImage>::iterator mPrevSelected = mCurSelected;
+
+    if(mCurAnim != mSheetFrames.end())
+        mCurSelected = mCurAnim->end();
+
+    int maxSheetWidth = ui->sheetWidthBox->value();
+    int offsetX = ui->xSpacingBox->value();
+    int offsetY = ui->ySpacingBox->value();
+    int curX = offsetX;
+    int curY = offsetY;
+    for(QList<QList<QImage> >::iterator ql = mSheetFrames.begin(); ql != mSheetFrames.end(); ql++)
+    {
+        int ySize = 0;
+
+        curY += textHeight;
+
+        for(QList<QImage>::iterator img = ql->begin(); img != ql->end(); img++)
+        {
+            //Test to see if we should start next line
+            if(curX + img->width() + offsetX > maxSheetWidth)
+            {
+                curY += offsetY + ySize;
+                ySize = 0;
+                curX = offsetX;
+            }
+
+            //Check and see if we're overlapping this portion of the image
+            //painter.fillRect(curX, curY, img.width(), img.height(), Qt::transparent);
+            if(x >= curX && x < curX + img->width() &&
+               y >= curY && y < curY + img->height())
+            {
+                mCurSelected = img;
+            }
+
+            if(img->height() > ySize)
+                ySize = img->height();
+            curX += img->width() + offsetX;
+        }
+        curY += offsetY + ySize;
+        curX = offsetX;
+    }
+
+    if(mPrevSelected != mCurSelected)
+        drawSheet();
 }
 
 

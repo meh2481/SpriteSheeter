@@ -80,6 +80,7 @@ private:
     QList<QList<QImage> > mSheetFrames;
     QList<QList<QImage> >::iterator mCurAnim;
     QList<QImage>::iterator mCurFrame;
+    QList<QImage>::iterator mCurSelected;
     QList<QString> mAnimNames;
     QList<QString>::iterator mCurAnimName;
 
