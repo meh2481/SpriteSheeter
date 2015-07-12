@@ -688,6 +688,7 @@ void MainWindow::mouseCursorPos(int x, int y)
                y >= curY && y < curY + img->height())
             {
                 mCurSelected = img;
+                mCurSelectedInAnim = ql;
             }
 
             if(img->height() > ySize)
@@ -700,6 +701,9 @@ void MainWindow::mouseCursorPos(int x, int y)
 
     if(mPrevSelected != mCurSelected)
         drawSheet();
+
+    curMouseY = y;
+    curMouseX = x;
 }
 
 
@@ -806,7 +810,25 @@ void MainWindow::saveFile()
     on_saveSheetButton_clicked();
 }
 
+void MainWindow::keyPressEvent(QKeyEvent* e)
+{
+    //Deleting current selected frame
+    if(e->key() == Qt::Key_Delete && mSheetFrames.size() && mCurAnim != mSheetFrames.end() && mCurSelected != mCurAnim->end())
+    {
+        mCurSelectedInAnim->erase(mCurSelected);
+        mCurSelected = mCurSelectedInAnim->end();
 
+        //Test and see if this anim is now empty
+        if(!mCurSelectedInAnim->size())
+        {
+            mCurAnim = mCurSelectedInAnim;
+            on_removeAnimButton_clicked();  //Simulate deleting this anim
+        }
+
+        mouseCursorPos(curMouseX, curMouseY);   //Select again
+        drawSheet();
+    }
+}
 
 
 

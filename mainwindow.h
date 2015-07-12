@@ -20,6 +20,8 @@ public:
     explicit MainWindow(QWidget *parent = 0);
     ~MainWindow();
 
+    void keyPressEvent(QKeyEvent* e);
+
 signals:
     void setImportImg(QString s);
 
@@ -37,35 +39,20 @@ public slots:
 
 private slots:
     void on_openImagesButton_clicked();
-
     void on_xSpacingBox_valueChanged(int arg1);
-
     void on_ySpacingBox_valueChanged(int arg1);
-
     void on_saveSheetButton_clicked();
-
     void on_removeAnimButton_clicked();
-
     void on_animationNameEditor_textChanged(const QString &arg1);
-
     void on_prevAnimButton_clicked();
-
     void on_nextAnimButton_clicked();
-
     void on_animPlayButton_clicked();
-
     void on_animPauseButton_clicked();
-
     void on_animStopButton_clicked();
-
     void on_animPrevFrameButton_clicked();
-
     void on_animNextFrameButton_clicked();
-
     void on_animationSpeedSpinbox_valueChanged(int arg1);
-
     void on_openStripButton_clicked();
-
     void on_sheetWidthBox_valueChanged(int arg1);
 
 private:
@@ -81,8 +68,12 @@ private:
     QList<QList<QImage> >::iterator mCurAnim;
     QList<QImage>::iterator mCurFrame;
     QList<QImage>::iterator mCurSelected;
+    QList<QList<QImage> >::iterator mCurSelectedInAnim;
     QList<QString> mAnimNames;
     QList<QString>::iterator mCurAnimName;
+
+    int curMouseX;
+    int curMouseY;
 
     //Variables for dealing with the Qt draw engine
     QGraphicsScene* animScene;
