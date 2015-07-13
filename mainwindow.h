@@ -7,6 +7,8 @@
 #include "sheeteditorview.h"
 
 #define DRAG_HANDLE_SIZE 5
+#define ICON_WIDTH 148
+#define ICON_HEIGHT 125
 
 namespace Ui {
 class MainWindow;
@@ -26,8 +28,8 @@ signals:
     void setImportImg(QString s);
 
 public slots:
-    void importNext(int numx, int numy, bool bVert);
-    void importAll(int numx, int numy, bool bVert);
+    void importNext(int numx, int numy, bool bVert, bool bSplit);
+    void importAll(int numx, int numy, bool bVert, bool bSplit);
     void animUpdate();
     void mouseCursorPos(int x, int y);
     void mouseDown(int x, int y);
@@ -54,6 +56,8 @@ private slots:
     void on_animationSpeedSpinbox_valueChanged(int arg1);
     void on_openStripButton_clicked();
     void on_sheetWidthBox_valueChanged(int arg1);
+
+    void on_saveFrameButton_clicked();
 
 private:
     Ui::MainWindow *ui;
@@ -93,7 +97,7 @@ private:
     QList<QRect> mAnimRects;
 
     void openImportDiag();
-    void importImage(QString s, int numxframes, int numyframes, bool bVert);
+    void importImage(QString s, int numxframes, int numyframes, bool bVert, bool bSplit);
     void importImageList(QStringList& fileList, QString prepend = QString(""), QString animName = QString(""));
     void CenterParent(QWidget* parent, QWidget* child);
 
@@ -102,6 +106,8 @@ private:
 
     void closeEvent(QCloseEvent *event);
     void readSettings();
+
+    void insertAnimHelper(QList<QImage> imgList, QString name);
 };
 
 #endif // MAINWINDOW_H

@@ -39,22 +39,6 @@
           <enum>QLayout::SetMaximumSize</enum>
          </property>
          <item>
-          <spacer name="horizontalSpacer">
-           <property name="orientation">
-            <enum>Qt::Horizontal</enum>
-           </property>
-           <property name="sizeType">
-            <enum>QSizePolicy::Expanding</enum>
-           </property>
-           <property name="sizeHint" stdset="0">
-            <size>
-             <width>40</width>
-             <height>20</height>
-            </size>
-           </property>
-          </spacer>
-         </item>
-         <item>
           <widget class="QLabel" name="label">
            <property name="toolTip">
             <string>Number of frames this image has horizontally</string>
@@ -101,19 +85,6 @@
           <enum>QLayout::SetMaximumSize</enum>
          </property>
          <item>
-          <spacer name="horizontalSpacer_2">
-           <property name="orientation">
-            <enum>Qt::Horizontal</enum>
-           </property>
-           <property name="sizeHint" stdset="0">
-            <size>
-             <width>40</width>
-             <height>20</height>
-            </size>
-           </property>
-          </spacer>
-         </item>
-         <item>
           <widget class="QLabel" name="label_2">
            <property name="toolTip">
             <string>Number of frames this image has vertically</string>
@@ -157,19 +128,6 @@
        <item>
         <layout class="QHBoxLayout" name="horizontalLayout_5">
          <item>
-          <spacer name="horizontalSpacer_6">
-           <property name="orientation">
-            <enum>Qt::Horizontal</enum>
-           </property>
-           <property name="sizeHint" stdset="0">
-            <size>
-             <width>40</width>
-             <height>20</height>
-            </size>
-           </property>
-          </spacer>
-         </item>
-         <item>
           <widget class="QRadioButton" name="horizFirst">
            <property name="toolTip">
             <string>Frames are stored horizontally across in rows</string>
@@ -194,6 +152,33 @@
          </item>
          <item>
           <spacer name="horizontalSpacer_7">
+           <property name="orientation">
+            <enum>Qt::Horizontal</enum>
+           </property>
+           <property name="sizeHint" stdset="0">
+            <size>
+             <width>40</width>
+             <height>20</height>
+            </size>
+           </property>
+          </spacer>
+         </item>
+        </layout>
+       </item>
+       <item>
+        <layout class="QHBoxLayout" name="horizontalLayout_6">
+         <item>
+          <widget class="QCheckBox" name="checkSplitAnimations">
+           <property name="toolTip">
+            <string>Each row or column of an image is a different animation</string>
+           </property>
+           <property name="text">
+            <string>Split Animations</string>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <spacer name="horizontalSpacer_6">
            <property name="orientation">
             <enum>Qt::Horizontal</enum>
            </property>

@@ -17,8 +17,8 @@ MainWindow::MainWindow(QWidget *parent) :
     mImportWindow = new importDialog(this);
 
     //Connect all our signals & slots up
-    QObject::connect(mImportWindow, SIGNAL(importOK(int, int, bool)), this, SLOT(importNext(int, int, bool)));
-    QObject::connect(mImportWindow, SIGNAL(importAll(int, int, bool)), this, SLOT(importAll(int, int, bool)));
+    QObject::connect(mImportWindow, SIGNAL(importOK(int, int, bool, bool)), this, SLOT(importNext(int, int, bool, bool)));
+    QObject::connect(mImportWindow, SIGNAL(importAll(int, int, bool, bool)), this, SLOT(importAll(int, int, bool, bool)));
     QObject::connect(this, SIGNAL(setImportImg(QString)), mImportWindow, SLOT(setPreviewImage(QString)));
     QObject::connect(ui->sheetPreview, SIGNAL(mouseMoved(int,int)), this, SLOT(mouseCursorPos(int, int)));
     QObject::connect(ui->sheetPreview, SIGNAL(mousePressed(int,int)), this, SLOT(mouseDown(int, int)));
@@ -142,18 +142,18 @@ void MainWindow::on_openStripButton_clicked()
     importImageList(mOpenFiles);
 }
 
-void MainWindow::importNext(int numx, int numy, bool bVert)
+void MainWindow::importNext(int numx, int numy, bool bVert, bool bSplit)
 {
-    importImage(curImportImage, numx, numy, bVert);
+    importImage(curImportImage, numx, numy, bVert, bSplit);
     openImportDiag();   //Next one
 }
 
-void MainWindow::importAll(int numx, int numy, bool bVert)
+void MainWindow::importAll(int numx, int numy, bool bVert, bool bSplit)
 {
-    importImage(curImportImage, numx, numy, bVert);
+    importImage(curImportImage, numx, numy, bVert, bSplit);
     foreach(QString s, mOpenFiles)
     {
-        importImage(s, numx, numy, bVert);
+        importImage(s, numx, numy, bVert, bSplit);
     }
 
     curImportImage = "";
@@ -185,7 +185,26 @@ void MainWindow::openImportDiag()
     CenterParent(this, mImportWindow);
 }
 
-void MainWindow::importImage(QString s, int numxframes, int numyframes, bool bVert)
+void MainWindow::insertAnimHelper(QList<QImage> imgList, QString name)
+{
+    if(imgList.size())
+    {
+        QList<QList<QImage> >::iterator it = mCurAnim;
+        if(it != mSheetFrames.end())
+            it++;
+        mCurAnim = mSheetFrames.insert(it, imgList);
+
+        QList<QString>::iterator itN = mCurAnimName;
+        if(itN != mAnimNames.end())
+            itN++;
+
+        mCurAnimName = mAnimNames.insert(itN, name);
+
+        ui->animationNameEditor->setText(name);
+    }
+}
+
+void MainWindow::importImage(QString s, int numxframes, int numyframes, bool bVert, bool bSplit)
 {
     QImage image(s);
     if(image.isNull())
@@ -209,6 +228,11 @@ void MainWindow::importImage(QString s, int numxframes, int numyframes, bool bVe
             {
                 imgList.push_back(image.copy(x*iXFrameSize, y*iYFrameSize, iXFrameSize, iYFrameSize));
             }
+            if(bSplit)
+            {
+                insertAnimHelper(imgList, fileName + '_' + QString::number(y));
+                imgList.clear();
+            }
         }
     }
     else
@@ -219,23 +243,15 @@ void MainWindow::importImage(QString s, int numxframes, int numyframes, bool bVe
             {
                 imgList.push_back(image.copy(x*iXFrameSize, y*iYFrameSize, iXFrameSize, iYFrameSize));
             }
+            if(bSplit)
+            {
+                insertAnimHelper(imgList, fileName + '_' + QString::number(x));
+                imgList.clear();
+            }
         }
     }
-    if(imgList.size())
-    {
-        QList<QList<QImage> >::iterator it = mCurAnim;
-        if(it != mSheetFrames.end())
-            it++;
-        mCurAnim = mSheetFrames.insert(it, imgList);
-
-        QList<QString>::iterator itN = mCurAnimName;
-        if(itN != mAnimNames.end())
-            itN++;
-
-        mCurAnimName = mAnimNames.insert(itN, fileName);
-
-        ui->animationNameEditor->setText(fileName);
-    }
+    if(!bSplit)
+        insertAnimHelper(imgList, fileName);
 
     if(mCurAnim != mSheetFrames.end())
         mCurFrame = mCurAnim->begin();
@@ -829,6 +845,51 @@ void MainWindow::keyPressEvent(QKeyEvent* e)
         drawSheet();
     }
 }
+
+void MainWindow::on_saveFrameButton_clicked()
+{
+    static QString lastIconStr;
+
+    if(mCurAnim == mSheetFrames.end() || !mCurAnim->size() || mCurFrame == mCurAnim->end())
+        return;
+
+    QString sSel = "PNG Image (*.png)";
+    QString saveFilename = QFileDialog::getSaveFileName(this,
+                                                        tr("Save TSR Icon"),
+                                                        lastIconStr,
+                                                        tr("PNG Image (*.png);;Windows Bitmap (*.bmp);;TIFF Image(*.tiff)"),
+                                                        &sSel);
+
+    if(saveFilename.length())
+    {
+        QImage icon(*mCurFrame);
+
+        if(icon.width()* 2 <= ICON_WIDTH && icon.height() * 2 <= ICON_HEIGHT)   //Scale image up
+            icon = icon.scaledToWidth(icon.width()*2, Qt::FastTransformation);
+        else if(icon.width() > ICON_WIDTH || icon.height() > ICON_HEIGHT)       //Scale image down
+            icon = icon.scaledToWidth(ICON_WIDTH, Qt::SmoothTransformation);
+
+        //icon = icon.copy(0, 0, ICON_WIDTH, ICON_HEIGHT);
+        QImage saveIcon(ICON_WIDTH, ICON_HEIGHT, QImage::Format_ARGB32);
+        saveIcon.fill(QColor(0,0,0,0));
+        QPainter paint(&saveIcon);
+        paint.drawImage((ICON_WIDTH - icon.width())/2, (ICON_HEIGHT - icon.height())/2, icon);
+        paint.end();
+
+        saveIcon.save(saveFilename);
+
+        lastIconStr = saveFilename;
+    }
+}
+
+
+
+
+
+
+
+
+
 
 
 

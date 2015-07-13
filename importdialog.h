@@ -22,8 +22,8 @@ public:
     void resizeEvent(QResizeEvent* event);
 
 signals:
-    void importOK(int numx, int numy, bool bVert);
-    void importAll(int numx, int numy, bool bVert);
+    void importOK(int numx, int numy, bool bVert, bool bSplit);
+    void importAll(int numx, int numy, bool bVert, bool bSplit);
 
 public slots:
     void setPreviewImage(QString sImg);
