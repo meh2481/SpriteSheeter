@@ -48,6 +48,7 @@ MainWindow::MainWindow(QWidget *parent) :
     ui->sheetPreview->setScene(msheetScene);
     ui->animationPreview->show();
     ui->sheetPreview->show();
+    ui->animationNameEditor->installEventFilter(this);
 
     ui->splitter->setStretchFactor(0, 1);
     ui->splitter->setStretchFactor(1, 0);
@@ -844,6 +845,62 @@ void MainWindow::keyPressEvent(QKeyEvent* e)
         mouseCursorPos(curMouseX, curMouseY);   //Select again
         drawSheet();
     }
+    //TODO Fix this
+    /*else if(e->key() == Qt::Key_Up)
+    {
+        //Move back one anim
+        if(mCurAnim != mSheetFrames.begin() && mCurAnimName != mAnimNames.begin())
+        {
+            mCurAnim--;
+            mCurAnimName--;
+        }
+
+        drawSheet();
+
+        if(mCurAnimName != mAnimNames.end())
+            ui->animationNameEditor->setText(*mCurAnimName);
+        else
+            ui->animationNameEditor->setText(QString(""));
+
+        if(mCurAnim != mSheetFrames.end())
+            mCurFrame = mCurAnim->begin();
+
+        drawAnimation();
+    }
+    else if(e->key() == Qt::Key_Down)
+    {
+        //Move forward one anim
+        if(mCurAnim != mSheetFrames.end() && mCurAnimName != mAnimNames.end())
+        {
+            mCurAnim++;
+            mCurAnimName++;
+            if(mCurAnim == mSheetFrames.end() || mCurAnimName == mAnimNames.end())
+            {
+                mCurAnim--;
+                mCurAnimName--;
+            }
+        }
+
+        drawSheet();
+
+        if(mCurAnimName != mAnimNames.end())
+            ui->animationNameEditor->setText(*mCurAnimName);
+        else
+            ui->animationNameEditor->setText(QString(""));
+
+        if(mCurAnim != mSheetFrames.end())
+            mCurFrame = mCurAnim->begin();
+
+        drawAnimation();
+    }
+    else if(e->key() == Qt::Key_Left)
+    {
+        on_animPrevFrameButton_clicked();
+    }
+    else if(e->key() == Qt::Key_Right)
+    {
+        on_animNextFrameButton_clicked();
+    }*/
 }
 
 void MainWindow::on_saveFrameButton_clicked()
@@ -882,7 +939,71 @@ void MainWindow::on_saveFrameButton_clicked()
     }
 }
 
+bool MainWindow::eventFilter(QObject* obj, QEvent *event)
+{
+    if (obj == ui->animationNameEditor)
+    {
+        if (event->type() == QEvent::KeyPress)
+        {
+            QKeyEvent* keyEvent = static_cast<QKeyEvent*>(event);
+            if (keyEvent->key() == Qt::Key_Up)
+            {
+                //Move back one anim
+                if(mCurAnim != mSheetFrames.begin() && mCurAnimName != mAnimNames.begin())
+                {
+                    mCurAnim--;
+                    mCurAnimName--;
+                }
 
+                drawSheet();
+
+                if(mCurAnimName != mAnimNames.end())
+                    ui->animationNameEditor->setText(*mCurAnimName);
+                else
+                    ui->animationNameEditor->setText(QString(""));
+
+                if(mCurAnim != mSheetFrames.end())
+                    mCurFrame = mCurAnim->begin();
+
+                drawAnimation();
+
+                ui->animationNameEditor->selectAll();
+                return true;
+            }
+            else if(keyEvent->key() == Qt::Key_Down)
+            {
+                //Move forward one anim
+                if(mCurAnim != mSheetFrames.end() && mCurAnimName != mAnimNames.end())
+                {
+                    mCurAnim++;
+                    mCurAnimName++;
+                    if(mCurAnim == mSheetFrames.end() || mCurAnimName == mAnimNames.end())
+                    {
+                        mCurAnim--;
+                        mCurAnimName--;
+                    }
+                }
+
+                drawSheet();
+
+                if(mCurAnimName != mAnimNames.end())
+                    ui->animationNameEditor->setText(*mCurAnimName);
+                else
+                    ui->animationNameEditor->setText(QString(""));
+
+                if(mCurAnim != mSheetFrames.end())
+                    mCurFrame = mCurAnim->begin();
+
+                drawAnimation();
+
+                ui->animationNameEditor->selectAll();
+                return true;
+            }
+        }
+        return false;
+    }
+    return QMainWindow::eventFilter(obj, event);
+}
 
 
 

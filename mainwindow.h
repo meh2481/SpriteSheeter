@@ -108,6 +108,11 @@ private:
     void readSettings();
 
     void insertAnimHelper(QList<QImage> imgList, QString name);
+
+protected:
+    //void changeEvent(QEvent *e);
+    bool eventFilter(QObject* obj, QEvent *event);
+
 };
 
 #endif // MAINWINDOW_H
