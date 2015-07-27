@@ -323,9 +323,12 @@ void MainWindow::drawSheet(bool bHighlight)
 
         if(bHighlight && sName == mCurAnimName)
             hiliteH += ySize;
+
+        iSizeY += offsetY + ySize;
+        if(sName->length())
+            iSizeY += textHeight;
         sName++;
 
-        iSizeY += offsetY + ySize + textHeight;
         if(iCurSizeX > iSizeX)
             iSizeX = iCurSizeX;
     }
@@ -355,13 +358,21 @@ void MainWindow::drawSheet(bool bHighlight)
 
         //Highlight our current anim red
         if(bHighlight && sName == mCurAnimName)
-            painter.fillRect(0, curY-offsetY, mCurSheet->width(), hiliteH + textHeight + offsetY*2, QColor(128,0,0,255));
+        {
+            if(sName->length())
+                painter.fillRect(0, curY-offsetY, mCurSheet->width(), hiliteH + textHeight + offsetY*2, QColor(128,0,0,255));
+            else
+                painter.fillRect(0, curY-offsetY, mCurSheet->width(), hiliteH + offsetY*2, QColor(128,0,0,255));
+        }
 
         //Draw label for animation
-        painter.setPen(QColor(255,255,255,255));
-        painter.drawText(QRectF(offsetX,curY,1000,textHeight), Qt::AlignLeft|Qt::AlignVCenter, *sName);
+        if(sName->length())
+        {
+            painter.setPen(QColor(255,255,255,255));
+            painter.drawText(QRectF(offsetX,curY,1000,textHeight), Qt::AlignLeft|Qt::AlignVCenter, *sName);
+            curY += textHeight;
+        }
         sName++;
-        curY += textHeight;
 
         for(QList<QImage>::iterator img = ql->begin(); img != ql->end(); img++)
         {
@@ -683,11 +694,14 @@ void MainWindow::mouseCursorPos(int x, int y)
     int offsetY = ui->ySpacingBox->value();
     int curX = offsetX;
     int curY = offsetY;
+    QList<QString>::iterator sName = mAnimNames.begin();
     for(QList<QList<QImage> >::iterator ql = mSheetFrames.begin(); ql != mSheetFrames.end(); ql++)
     {
         int ySize = 0;
 
-        curY += textHeight;
+        if(sName->length())
+            curY += textHeight;
+        sName++;
 
         for(QList<QImage>::iterator img = ql->begin(); img != ql->end(); img++)
         {
