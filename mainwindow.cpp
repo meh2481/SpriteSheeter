@@ -33,6 +33,7 @@ MainWindow::MainWindow(QWidget *parent) :
     sheetItem = NULL;
     msheetScene = NULL;
     mCurSheet = NULL;
+    transparentBg = new QImage("://bg");
     mCurAnim = mSheetFrames.begin();
     mCurAnimName = mAnimNames.begin();
 
@@ -64,6 +65,8 @@ MainWindow::MainWindow(QWidget *parent) :
 
 MainWindow::~MainWindow()
 {
+    if(transparentBg)
+        delete transparentBg;
     if(mCurSheet)
         delete mCurSheet;
     if(animItem)
@@ -385,7 +388,13 @@ void MainWindow::drawSheet(bool bHighlight)
             }
 
             //Erase this portion of the image
-            painter.fillRect(curX, curY, img->width(), img->height(), Qt::transparent);
+            if(bHighlight)
+            {
+                QBrush bgTexBrush(*transparentBg);
+                painter.setCompositionMode(QPainter::CompositionMode_SourceOver);
+                painter.fillRect(curX, curY, img->width(), img->height(), bgTexBrush);
+                //painter.setBrush(br);
+            }
 
             //TODO: Specify bg color so we can fill this however we like
             painter.drawImage(curX, curY, *img);
@@ -393,7 +402,6 @@ void MainWindow::drawSheet(bool bHighlight)
             //If we're highlighting this image, draw blue overtop
             if(bHighlight && mCurSelected == img)
             {
-                painter.setCompositionMode(QPainter::CompositionMode_SourceOver);
                 painter.fillRect(QRect(curX, curY, img->width(), img->height()), QBrush(QColor(0,0,255,100)));
                 painter.setCompositionMode(QPainter::CompositionMode_Source);
             }

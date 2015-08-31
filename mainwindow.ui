@@ -11,7 +11,7 @@
    </rect>
   </property>
   <property name="windowTitle">
-   <string>Sprite Sheeter</string>
+   <string>Sprite Sheeter v0.4</string>
   </property>
   <property name="windowIcon">
    <iconset resource="spritesheetertest1.qrc">
