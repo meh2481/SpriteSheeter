@@ -64,6 +64,10 @@ private slots:
 
     void on_sheetBgColSelect_clicked();
 
+    void on_FrameBgTransparent_toggled(bool checked);
+
+    void on_SheetBgTransparent_toggled(bool checked);
+
 private:
     Ui::MainWindow *ui;
     importDialog *mImportWindow;

@@ -61,7 +61,7 @@ MainWindow::MainWindow(QWidget *parent) :
     z->set_modifiers(Qt::NoModifier);
 
     sheetBgCol = QColor(0, 128, 128, 255);
-    frameBgCol = QColor(0, 0, 0, 255);
+    frameBgCol = QColor(0, 255, 0, 255);
 
     QPixmap colIcon(32, 32);
     colIcon.fill(sheetBgCol);
@@ -356,13 +356,24 @@ void MainWindow::drawSheet(bool bHighlight)
 
     //Create image of the proper size and fill it with a good bg color
     mCurSheet = new QImage(iSizeX, iSizeY, QImage::Format_ARGB32);
-    mCurSheet->fill(sheetBgCol);
+    QPainter painter(mCurSheet);
+    painter.setCompositionMode(QPainter::CompositionMode_Source);
+    if(ui->SheetBgTransparent->isChecked() && bHighlight)
+    {
+        QBrush bgTexBrush(*transparentBg);
+        painter.setCompositionMode(QPainter::CompositionMode_SourceOver);
+        painter.fillRect(0, 0, iSizeX, iSizeY, bgTexBrush);
+    }
+    else if(ui->SheetBgTransparent->isChecked())
+    {
+        mCurSheet->fill(QColor(0,0,0,0));
+    }
+    else
+        mCurSheet->fill(sheetBgCol);
 
     //Second pass: Print each frame into the final image
     int curX = offsetX;
     int curY = offsetY;
-    QPainter painter(mCurSheet);
-    painter.setCompositionMode(QPainter::CompositionMode_Source);
     sName = mAnimNames.begin();
     mAnimRects.clear();
     for(QList<QList<QImage> >::iterator ql = mSheetFrames.begin(); ql != mSheetFrames.end(); ql++)
@@ -400,12 +411,16 @@ void MainWindow::drawSheet(bool bHighlight)
             }
 
             //Erase this portion of the image
-            if(bHighlight)
+            if(bHighlight && ui->FrameBgTransparent->isChecked())
             {
                 QBrush bgTexBrush(*transparentBg);
                 painter.setCompositionMode(QPainter::CompositionMode_SourceOver);
                 painter.fillRect(curX, curY, img->width(), img->height(), bgTexBrush);
-                //painter.setBrush(br);
+            }
+            else if(!ui->FrameBgTransparent->isChecked())
+            {
+                painter.setCompositionMode(QPainter::CompositionMode_SourceOver);
+                painter.fillRect(QRect(curX, curY, img->width(), img->height()), QBrush(frameBgCol));
             }
 
             //TODO: Specify bg color so we can fill this however we like
@@ -1065,6 +1080,18 @@ void MainWindow::on_sheetBgColSelect_clicked()
         ui->sheetBgColSelect->setIcon(ic);
         drawSheet();
     }
+}
+
+void MainWindow::on_FrameBgTransparent_toggled(bool checked)
+{
+    ui->frameBgColSelect->setEnabled(!checked);
+    drawSheet();
+}
+
+void MainWindow::on_SheetBgTransparent_toggled(bool checked)
+{
+    ui->sheetBgColSelect->setEnabled(!checked);
+    drawSheet();
 }
 
 

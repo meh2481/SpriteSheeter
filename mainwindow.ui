@@ -555,6 +555,9 @@
               </item>
               <item>
                <widget class="QPushButton" name="frameBgColSelect">
+                <property name="enabled">
+                 <bool>false</bool>
+                </property>
                 <property name="text">
                  <string/>
                 </property>
