@@ -76,6 +76,8 @@ private:
     QList<QString> mAnimNames;
     QList<QString>::iterator mCurAnimName;
     QImage* transparentBg;
+    QColor sheetBgCol;
+    QColor frameBgCol;
 
     int curMouseX;
     int curMouseY;

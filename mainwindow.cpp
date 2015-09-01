@@ -60,6 +60,18 @@ MainWindow::MainWindow(QWidget *parent) :
     z = new Graphics_view_zoom(ui->animationPreview);
     z->set_modifiers(Qt::NoModifier);
 
+    sheetBgCol = QColor(0, 128, 128, 255);
+    frameBgCol = QColor(0, 0, 0, 255);
+
+    QPixmap colIcon(32, 32);
+    colIcon.fill(sheetBgCol);
+    QIcon ic(colIcon);
+    ui->sheetBgColSelect->setIcon(ic);
+
+    colIcon.fill(frameBgCol);
+    QIcon ic2(colIcon);
+    ui->frameBgColSelect->setIcon(ic2);
+
     readSettings();
 }
 
@@ -344,7 +356,7 @@ void MainWindow::drawSheet(bool bHighlight)
 
     //Create image of the proper size and fill it with a good bg color
     mCurSheet = new QImage(iSizeX, iSizeY, QImage::Format_ARGB32);
-    mCurSheet->fill(QColor(0, 128, 128, 255));
+    mCurSheet->fill(sheetBgCol);
 
     //Second pass: Print each frame into the final image
     int curX = offsetX;
