@@ -423,7 +423,6 @@ void MainWindow::drawSheet(bool bHighlight)
                 painter.fillRect(QRect(curX, curY, img->width(), img->height()), QBrush(frameBgCol));
             }
 
-            //TODO: Specify bg color so we can fill this however we like
             painter.drawImage(curX, curY, *img);
 
             //If we're highlighting this image, draw blue overtop
@@ -605,16 +604,31 @@ void MainWindow::drawAnimation()
         return;
     }
 
+    //Draw image and bg
+    QImage animFrame(mCurFrame->width(), mCurFrame->height(), QImage::Format_ARGB32);
+    QPainter painter(&animFrame);
+    painter.setCompositionMode(QPainter::CompositionMode_SourceOver);
+    if(ui->FrameBgTransparent->isChecked())
+    {
+        QBrush bgTexBrush(*transparentBg);
+        painter.fillRect(0, 0, mCurFrame->width(), mCurFrame->height(), bgTexBrush);
+    }
+    else
+        animFrame.fill(frameBgCol);
+
+    painter.drawImage(0, 0, *mCurFrame);
+
+
     if(animItem == NULL)
     {
-        animItem = new QGraphicsPixmapItem(QPixmap::fromImage(*mCurFrame));
+        animItem = new QGraphicsPixmapItem(QPixmap::fromImage(animFrame));
         animScene->addItem(animItem);
     }
     else
-        animItem->setPixmap(QPixmap::fromImage(*mCurFrame));
+        animItem->setPixmap(QPixmap::fromImage(animFrame));
 
     animItem->show();
-    animScene->setSceneRect(0, 0, mCurFrame->width(), mCurFrame->height());
+    animScene->setSceneRect(0, 0, animFrame.width(), animFrame.height());
 }
 
 void MainWindow::animUpdate()
@@ -1065,6 +1079,7 @@ void MainWindow::on_frameBgColSelect_clicked()
         QIcon ic(colIcon);
         ui->frameBgColSelect->setIcon(ic);
         drawSheet();
+        drawAnimation();
     }
 }
 
@@ -1086,6 +1101,7 @@ void MainWindow::on_FrameBgTransparent_toggled(bool checked)
 {
     ui->frameBgColSelect->setEnabled(!checked);
     drawSheet();
+    drawAnimation();
 }
 
 void MainWindow::on_SheetBgTransparent_toggled(bool checked)
