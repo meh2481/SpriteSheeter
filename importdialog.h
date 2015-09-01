@@ -37,6 +37,9 @@ private:
 
     QGraphicsScene* scene;
     QGraphicsPixmapItem* item;
+
+    void saveSettings();
+    void restoreSettings();
 };
 
 #endif // IMPORTDIALOG_H

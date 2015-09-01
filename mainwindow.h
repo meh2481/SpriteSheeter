@@ -88,6 +88,9 @@ private:
     QColor sheetBgCol;
     QColor frameBgCol;
 
+    QString lastIconStr;
+    QString lastOpenDir;
+
     QColorDialog colorSelect;
 
     int curMouseX;

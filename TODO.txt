@@ -2,6 +2,5 @@
 -"a batch setup, so that you can create sheets in quick succession with the same parameters."
 -Move frames around
 -Drawing on separate thread
--Draw checkered alpha bg for anim preview
--Support color selection for sprite bg
 -Fix TSR icon export
+-Larger anim names for larger sheets

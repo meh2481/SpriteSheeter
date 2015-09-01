@@ -63,6 +63,10 @@ MainWindow::MainWindow(QWidget *parent) :
     sheetBgCol = QColor(0, 128, 128, 255);
     frameBgCol = QColor(0, 255, 0, 255);
 
+    //Read in settings here
+    readSettings();
+
+    //Set color icons to proper color
     QPixmap colIcon(32, 32);
     colIcon.fill(sheetBgCol);
     QIcon ic(colIcon);
@@ -71,8 +75,6 @@ MainWindow::MainWindow(QWidget *parent) :
     colIcon.fill(frameBgCol);
     QIcon ic2(colIcon);
     ui->frameBgColSelect->setIcon(ic2);
-
-    readSettings();
 }
 
 MainWindow::~MainWindow()
@@ -148,13 +150,25 @@ void MainWindow::addFolders(QStringList l)
 
 void MainWindow::on_openImagesButton_clicked()
 {
-    addImages(QFileDialog::getOpenFileNames(this, "Open Images", "", "All Files (*.*)"));
+    QStringList files = QFileDialog::getOpenFileNames(this, "Open Images", lastOpenDir, "All Files (*.*)");
+    if(files.size())
+    {
+        QString s = (*files.begin());
+        QFileInfo inf(s);
+        lastOpenDir = inf.absoluteDir().absolutePath();
+    }
+    addImages(files);
 }
 
 void MainWindow::on_openStripButton_clicked()
 {
-    mOpenFiles = QFileDialog::getOpenFileNames(this, "Open Images", "", "All Files (*.*)");
-
+    mOpenFiles = QFileDialog::getOpenFileNames(this, "Open Images", lastOpenDir, "All Files (*.*)");
+    if(mOpenFiles.size())
+    {
+        QString s = (*mOpenFiles.begin());
+        QFileInfo inf(s);
+        lastOpenDir = inf.absoluteDir().absolutePath();
+    }
     importImageList(mOpenFiles);
 }
 
@@ -852,16 +866,51 @@ void MainWindow::mouseUp(int x, int y)
 void MainWindow::closeEvent(QCloseEvent *event)
 {
     QSettings settings("DaxarDev", "SpriteSheeter");
+    //Save window geometry
     settings.setValue("geometry", saveGeometry());
     settings.setValue("windowState", saveState());
+    //Save other GUI settings
+    settings.setValue("xSpacing", ui->xSpacingBox->value());
+    settings.setValue("ySpacing", ui->ySpacingBox->value());
+    settings.setValue("sheetWidth", ui->sheetWidthBox->value());
+    settings.setValue("animationSpeed", ui->animationSpeedSpinbox->value());
+    settings.setValue("FrameBgTransparent", ui->FrameBgTransparent->isChecked());
+    settings.setValue("SheetBgTransparent", ui->SheetBgTransparent->isChecked());
+    settings.setValue("sheetBgColr", sheetBgCol.red());
+    settings.setValue("sheetBgColg", sheetBgCol.green());
+    settings.setValue("sheetBgColb", sheetBgCol.blue());
+    settings.setValue("frameBgColr", frameBgCol.red());
+    settings.setValue("frameBgColg", frameBgCol.green());
+    settings.setValue("frameBgColb", frameBgCol.blue());
+    settings.setValue("lastSaveStr", lastSaveStr);
+    settings.setValue("lastIconStr", lastIconStr);
+    settings.setValue("lastOpenDir", lastOpenDir);
+    //settings.setValue("", );
     QMainWindow::closeEvent(event);
 }
 
 void MainWindow::readSettings()
 {
     QSettings settings("DaxarDev", "SpriteSheeter");
+    if(settings.value("xSpacing", -1).toInt() == -1)    //No settings are here
+        return;
     restoreGeometry(settings.value("geometry").toByteArray());
     restoreState(settings.value("windowState").toByteArray());
+    ui->xSpacingBox->setValue(settings.value("xSpacing").toInt());
+    ui->ySpacingBox->setValue(settings.value("ySpacing").toInt());
+    ui->sheetWidthBox->setValue(settings.value("sheetWidth").toInt());
+    ui->animationSpeedSpinbox->setValue(settings.value("animationSpeed").toInt());
+    ui->FrameBgTransparent->setChecked(settings.value("FrameBgTransparent").toBool());
+    ui->SheetBgTransparent->setChecked(settings.value("SheetBgTransparent").toBool());
+    sheetBgCol.setRed(settings.value("sheetBgColr").toInt());
+    sheetBgCol.setGreen(settings.value("sheetBgColg").toInt());
+    sheetBgCol.setBlue(settings.value("sheetBgColb").toInt());
+    frameBgCol.setRed(settings.value("frameBgColr").toInt());
+    frameBgCol.setGreen(settings.value("frameBgColg").toInt());
+    frameBgCol.setBlue(settings.value("frameBgColb").toInt());
+    lastSaveStr = settings.value("lastSaveStr").toString();
+    lastIconStr = settings.value("lastIconStr").toString();
+    lastOpenDir = settings.value("lastOpenDir").toString();
 }
 
 void MainWindow::on_sheetWidthBox_valueChanged(int arg1)
@@ -968,8 +1017,6 @@ void MainWindow::keyPressEvent(QKeyEvent* e)
 
 void MainWindow::on_saveFrameButton_clicked()
 {
-    static QString lastIconStr;
-
     if(mCurAnim == mSheetFrames.end() || !mCurAnim->size() || mCurFrame == mCurAnim->end())
         return;
 
