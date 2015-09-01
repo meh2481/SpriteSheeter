@@ -4,3 +4,4 @@
 -Drawing on separate thread
 -Draw checkered alpha bg for anim preview
 -Support color selection for sprite bg
+-Fix TSR icon export

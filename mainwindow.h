@@ -3,6 +3,7 @@
 
 #include <QMainWindow>
 #include <QTimer>
+#include <QColorDialog>
 #include "importdialog.h"
 #include "sheeteditorview.h"
 
@@ -59,6 +60,10 @@ private slots:
 
     void on_saveFrameButton_clicked();
 
+    void on_frameBgColSelect_clicked();
+
+    void on_sheetBgColSelect_clicked();
+
 private:
     Ui::MainWindow *ui;
     importDialog *mImportWindow;
@@ -78,6 +83,8 @@ private:
     QImage* transparentBg;
     QColor sheetBgCol;
     QColor frameBgCol;
+
+    QColorDialog colorSelect;
 
     int curMouseX;
     int curMouseY;

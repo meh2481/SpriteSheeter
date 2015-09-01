@@ -1039,6 +1039,34 @@ bool MainWindow::eventFilter(QObject* obj, QEvent *event)
     return QMainWindow::eventFilter(obj, event);
 }
 
+void MainWindow::on_frameBgColSelect_clicked()
+{
+    QColor selected = colorSelect.getColor(frameBgCol, this, "Select Frame Background Color");
+    if(selected.isValid())
+    {
+        frameBgCol = selected;
+        QPixmap colIcon(32, 32);
+        colIcon.fill(frameBgCol);
+        QIcon ic(colIcon);
+        ui->frameBgColSelect->setIcon(ic);
+        drawSheet();
+    }
+}
+
+void MainWindow::on_sheetBgColSelect_clicked()
+{
+    QColor selected = colorSelect.getColor(sheetBgCol, this, "Select Sheet Background Color");
+    if(selected.isValid())
+    {
+        sheetBgCol = selected;
+        QPixmap colIcon(32, 32);
+        colIcon.fill(sheetBgCol);
+        QIcon ic(colIcon);
+        ui->sheetBgColSelect->setIcon(ic);
+        drawSheet();
+    }
+}
+
 
 
 
