@@ -800,7 +800,6 @@ void MainWindow::mouseCursorPos(int x, int y)
     curMouseX = x;
 }
 
-
 void MainWindow::mouseDown(int x, int y)
 {
     if(mCurSheet)
@@ -1034,7 +1033,14 @@ void MainWindow::on_saveFrameButton_clicked()
         if(icon.width()* 2 <= ICON_WIDTH && icon.height() * 2 <= ICON_HEIGHT)   //Scale image up
             icon = icon.scaledToWidth(icon.width()*2, Qt::FastTransformation);
         else if(icon.width() > ICON_WIDTH || icon.height() > ICON_HEIGHT)       //Scale image down
-            icon = icon.scaledToWidth(ICON_WIDTH, Qt::SmoothTransformation);
+        {
+            //Scale down X or Y as appropriate to fit the whole image
+            float wFac = (float)ICON_WIDTH / (float)icon.width();
+            if(wFac * icon.height() > ICON_HEIGHT)
+                icon = icon.scaledToHeight(ICON_HEIGHT, Qt::SmoothTransformation);
+            else
+                icon = icon.scaledToWidth(ICON_WIDTH, Qt::SmoothTransformation);
+        }
 
         //icon = icon.copy(0, 0, ICON_WIDTH, ICON_HEIGHT);
         QImage saveIcon(ICON_WIDTH, ICON_HEIGHT, QImage::Format_ARGB32);
