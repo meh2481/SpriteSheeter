@@ -2,5 +2,4 @@
 -"a batch setup, so that you can create sheets in quick succession with the same parameters."
 -Move frames around
 -Drawing on separate thread
--Fix TSR icon export
 -Larger anim names for larger sheets

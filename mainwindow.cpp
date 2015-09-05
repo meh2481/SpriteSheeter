@@ -141,7 +141,7 @@ void MainWindow::addFolders(QStringList l)
         QDir folder(s);
         QStringList fileFilters;
         //Filter out only image files
-        fileFilters << "*.png" << "*.bmp" << "*.gif" << "*.pbm" << "*.pgm" << "*.ppm" << "*.tif" << "*.tiff" << "*.xbm" << "*.xpm";
+        fileFilters << "*.png" << "*.bmp" << "*.gif" << "*.pbm" << "*.pgm" << "*.ppm" << "*.tif" << "*.tiff" << "*.xbm" << "*.xpm" << "*.tga";
         QStringList files = folder.entryList(fileFilters, QDir::Files, QDir::Name); //Get list of all files in this folder
 
         importImageList(files, s + '/', folder.dirName());
