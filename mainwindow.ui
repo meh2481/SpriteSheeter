@@ -162,7 +162,7 @@
              <string>Import single animation from list of images</string>
             </property>
             <property name="text">
-             <string>Import Image Sequence</string>
+             <string>Import Image Sequence...</string>
             </property>
            </widget>
           </item>
@@ -172,7 +172,7 @@
              <string>Load a single image as an animation sheet with multiple frames</string>
             </property>
             <property name="text">
-             <string>Import Image(s) as Animation Sheet</string>
+             <string>Import Image(s) as Animation Sheet...</string>
             </property>
            </widget>
           </item>
@@ -305,7 +305,7 @@
              <string>Save this spritesheet to a file</string>
             </property>
             <property name="text">
-             <string>Save Sheet</string>
+             <string>Save Sheet...</string>
             </property>
            </widget>
           </item>
@@ -330,7 +330,7 @@
         </size>
        </property>
        <property name="title">
-        <string>Animation Preview</string>
+        <string>Animation and Options</string>
        </property>
        <layout class="QHBoxLayout" name="horizontalLayout_7">
         <item>
@@ -519,7 +519,14 @@
           <item>
            <widget class="QPushButton" name="saveFrameButton">
             <property name="text">
-             <string>Save Frame as TSR Icon</string>
+             <string>Save Frame as TSR Icon...</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QPushButton" name="balanceAnimButton">
+            <property name="text">
+             <string>Balance Animation...</string>
             </property>
            </widget>
           </item>

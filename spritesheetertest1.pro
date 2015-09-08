@@ -15,17 +15,20 @@ TEMPLATE = app
 SOURCES += main.cpp\
         mainwindow.cpp \
         importdialog.cpp \
-	Graphics_view_zoom.cpp \
-        sheeteditorview.cpp
+	    Graphics_view_zoom.cpp \
+        sheeteditorview.cpp \
+		balancesheet.cpp
 
 HEADERS  += mainwindow.h \
         importdialog.h \
-	Graphics_view_zoom.h \
+	    Graphics_view_zoom.h \
         sheeteditorview.h \
-	animpreview.h
+	    animpreview.h \
+		balancesheet.h
 
 FORMS    += mainwindow.ui \
-            importdialog.ui
+            importdialog.ui \
+			balancesheet.ui
 	
 RC_FILE = spritesheetertest1.rc
 

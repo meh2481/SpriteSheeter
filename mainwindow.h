@@ -5,6 +5,7 @@
 #include <QTimer>
 #include <QColorDialog>
 #include "importdialog.h"
+#include "balancesheet.h"
 #include "sheeteditorview.h"
 
 #define DRAG_HANDLE_SIZE 5
@@ -68,9 +69,12 @@ private slots:
 
     void on_SheetBgTransparent_toggled(bool checked);
 
+    void on_balanceAnimButton_clicked();
+
 private:
     Ui::MainWindow *ui;
     importDialog *mImportWindow;
+    balanceSheet *mBalanceWindow;
     QStringList mOpenFiles;
     QString curImportImage;
     QString lastSaveStr;

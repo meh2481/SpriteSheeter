@@ -15,6 +15,7 @@ MainWindow::MainWindow(QWidget *parent) :
 {
     ui->setupUi(this);
     mImportWindow = new importDialog(this);
+    mBalanceWindow = new balanceSheet(this);
 
     //Connect all our signals & slots up
     QObject::connect(mImportWindow, SIGNAL(importOK(int, int, bool, bool)), this, SLOT(importNext(int, int, bool, bool)));
@@ -93,6 +94,7 @@ MainWindow::~MainWindow()
         delete msheetScene;
     delete animUpdateTimer;
     delete mImportWindow;
+    delete mBalanceWindow;
     delete ui;
 }
 
@@ -1161,6 +1163,14 @@ void MainWindow::on_SheetBgTransparent_toggled(bool checked)
 {
     ui->sheetBgColSelect->setEnabled(!checked);
     drawSheet();
+}
+
+void MainWindow::on_balanceAnimButton_clicked()
+{
+    if(mCurAnim == mSheetFrames.end() || !mCurAnim->size() || mCurFrame == mCurAnim->end())
+        return;
+    mBalanceWindow->show();
+    CenterParent(this, mBalanceWindow);
 }
 
 
