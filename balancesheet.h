@@ -19,11 +19,11 @@ public:
     ~balanceSheet();
 
     typedef int Pos;
-    const Pos Up = 0;
-    const Pos Mid = 1;
-    const Pos Down = 2;
-    const Pos Left = 0;
-    const Pos Right = 2;
+    static const Pos Up = 0;
+    static const Pos Mid = 1;
+    static const Pos Down = 2;
+    static const Pos Left = 0;
+    static const Pos Right = 2;
 
 signals:
 
@@ -58,6 +58,9 @@ private:
 
     Pos vertPos;
     Pos horizPos;
+
+
+    void clearIcons();
 
 
 };

@@ -74,6 +74,16 @@
              <property name="text">
               <string/>
              </property>
+             <property name="icon">
+              <iconset>
+               <normaloff>:/images/blank.png</normaloff>:/images/blank.png</iconset>
+             </property>
+             <property name="iconSize">
+              <size>
+               <width>16</width>
+               <height>16</height>
+              </size>
+             </property>
             </widget>
            </item>
            <item>
@@ -84,6 +94,16 @@
              <property name="text">
               <string/>
              </property>
+             <property name="icon">
+              <iconset>
+               <normaloff>:/images/blank.png</normaloff>:/images/blank.png</iconset>
+             </property>
+             <property name="iconSize">
+              <size>
+               <width>16</width>
+               <height>16</height>
+              </size>
+             </property>
             </widget>
            </item>
            <item>
@@ -93,6 +113,16 @@
              </property>
              <property name="text">
               <string/>
+             </property>
+             <property name="icon">
+              <iconset>
+               <normaloff>:/images/blank.png</normaloff>:/images/blank.png</iconset>
+             </property>
+             <property name="iconSize">
+              <size>
+               <width>16</width>
+               <height>16</height>
+              </size>
              </property>
             </widget>
            </item>
@@ -108,6 +138,16 @@
              <property name="text">
               <string/>
              </property>
+             <property name="icon">
+              <iconset>
+               <normaloff>:/images/blank.png</normaloff>:/images/blank.png</iconset>
+             </property>
+             <property name="iconSize">
+              <size>
+               <width>16</width>
+               <height>16</height>
+              </size>
+             </property>
             </widget>
            </item>
            <item>
@@ -118,6 +158,16 @@
              <property name="text">
               <string/>
              </property>
+             <property name="icon">
+              <iconset resource="spritesheetertest1.qrc">
+               <normaloff>:/stop</normaloff>:/stop</iconset>
+             </property>
+             <property name="iconSize">
+              <size>
+               <width>16</width>
+               <height>16</height>
+              </size>
+             </property>
             </widget>
            </item>
            <item>
@@ -127,6 +177,16 @@
              </property>
              <property name="text">
               <string/>
+             </property>
+             <property name="icon">
+              <iconset>
+               <normaloff>:/images/blank.png</normaloff>:/images/blank.png</iconset>
+             </property>
+             <property name="iconSize">
+              <size>
+               <width>16</width>
+               <height>16</height>
+              </size>
              </property>
             </widget>
            </item>
@@ -142,6 +202,16 @@
              <property name="text">
               <string/>
              </property>
+             <property name="icon">
+              <iconset>
+               <normaloff>:/images/blank.png</normaloff>:/images/blank.png</iconset>
+             </property>
+             <property name="iconSize">
+              <size>
+               <width>16</width>
+               <height>16</height>
+              </size>
+             </property>
             </widget>
            </item>
            <item>
@@ -152,6 +222,16 @@
              <property name="text">
               <string/>
              </property>
+             <property name="icon">
+              <iconset>
+               <normaloff>:/images/blank.png</normaloff>:/images/blank.png</iconset>
+             </property>
+             <property name="iconSize">
+              <size>
+               <width>16</width>
+               <height>16</height>
+              </size>
+             </property>
             </widget>
            </item>
            <item>
@@ -161,6 +241,16 @@
              </property>
              <property name="text">
               <string/>
+             </property>
+             <property name="icon">
+              <iconset>
+               <normaloff>:/images/blank.png</normaloff>:/images/blank.png</iconset>
+             </property>
+             <property name="iconSize">
+              <size>
+               <width>16</width>
+               <height>16</height>
+              </size>
              </property>
             </widget>
            </item>
@@ -280,6 +370,8 @@
    </item>
   </layout>
  </widget>
- <resources/>
+ <resources>
+  <include location="spritesheetertest1.qrc"/>
+ </resources>
  <connections/>
 </ui>

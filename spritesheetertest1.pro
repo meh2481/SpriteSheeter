@@ -33,3 +33,5 @@ FORMS    += mainwindow.ui \
 RC_FILE = spritesheetertest1.rc
 
 RESOURCES = spritesheetertest1.qrc
+
+DISTFILES +=

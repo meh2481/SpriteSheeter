@@ -3,7 +3,7 @@
         <file>images/down.png</file>
         <file>images/icon.png</file>
         <file>images/media-play.png</file>
-        <file>images/media-stop.png</file>
+        <file alias="stop">images/media-stop.png</file>
         <file>images/minus-2-256.png</file>
         <file>images/next.png</file>
         <file>images/pause.png</file>
@@ -11,5 +11,6 @@
         <file>images/prev.png</file>
         <file>images/up.png</file>
         <file alias="bg">images/bg.png</file>
+        <file alias="blank">images/blank.png</file>
     </qresource>
 </RCC>
