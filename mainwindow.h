@@ -28,6 +28,7 @@ public:
 
 signals:
     void setImportImg(QString s);
+    void setBalanceDefWH(int w, int h);
 
 public slots:
     void importNext(int numx, int numy, bool bVert, bool bSplit);
@@ -40,6 +41,7 @@ public slots:
     void saveFile();
     void addImages(QStringList l);
     void addFolders(QStringList l);
+    void balance(int w, int h, balanceSheet::Pos vert, balanceSheet::Pos horiz);
 
 private slots:
     void on_openImagesButton_clicked();
@@ -58,17 +60,11 @@ private slots:
     void on_animationSpeedSpinbox_valueChanged(int arg1);
     void on_openStripButton_clicked();
     void on_sheetWidthBox_valueChanged(int arg1);
-
     void on_saveFrameButton_clicked();
-
     void on_frameBgColSelect_clicked();
-
     void on_sheetBgColSelect_clicked();
-
     void on_FrameBgTransparent_toggled(bool checked);
-
     void on_SheetBgTransparent_toggled(bool checked);
-
     void on_balanceAnimButton_clicked();
 
 private:

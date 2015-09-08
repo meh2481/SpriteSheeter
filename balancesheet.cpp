@@ -17,12 +17,18 @@ balanceSheet::~balanceSheet()
 void balanceSheet::on_okButton_clicked()
 {
     this->hide();
-    //TODO
+    balance(ui->spriteWidth->value(), ui->spriteHeight->value(), vertPos, horizPos);
 }
 
 void balanceSheet::on_cancelButton_clicked()
 {
     this->hide();
+}
+
+void balanceSheet::defaultWH(int w, int h)
+{
+    ui->spriteWidth->setValue(w);
+    ui->spriteHeight->setValue(h);
 }
 
 

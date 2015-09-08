@@ -27,7 +27,10 @@ public:
 
 signals:
 
+    void balance(int w, int h, balanceSheet::Pos vert, balanceSheet::Pos horiz);
+
 public slots:
+    void defaultWH(int w, int h);
 
 private slots:
 

@@ -283,7 +283,7 @@
         </spacer>
        </item>
        <item>
-        <widget class="QSpinBox" name="spinBox_2">
+        <widget class="QSpinBox" name="spriteWidth">
          <property name="maximum">
           <number>10000</number>
          </property>
@@ -314,7 +314,7 @@
         </spacer>
        </item>
        <item>
-        <widget class="QSpinBox" name="spinBox">
+        <widget class="QSpinBox" name="spriteHeight">
          <property name="maximum">
           <number>10000</number>
          </property>
@@ -354,6 +354,9 @@
         <widget class="QPushButton" name="okButton">
          <property name="text">
           <string>OK</string>
+         </property>
+         <property name="default">
+          <bool>true</bool>
          </property>
         </widget>
        </item>

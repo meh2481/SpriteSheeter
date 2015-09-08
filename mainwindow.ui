@@ -436,7 +436,7 @@
               </property>
               <property name="icon">
                <iconset resource="spritesheetertest1.qrc">
-                <normaloff>:/images/media-stop.png</normaloff>:/images/media-stop.png</iconset>
+                <normaloff>:/stop</normaloff>:/stop</iconset>
               </property>
              </widget>
             </item>

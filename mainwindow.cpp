@@ -28,6 +28,8 @@ MainWindow::MainWindow(QWidget *parent) :
     QObject::connect(ui->actionSave, SIGNAL(triggered()), this, SLOT(saveFile()));
     QObject::connect(ui->sheetPreview, SIGNAL(droppedFiles(QStringList)), this, SLOT(addImages(QStringList)));
     QObject::connect(ui->sheetPreview, SIGNAL(droppedFolders(QStringList)), this, SLOT(addFolders(QStringList)));
+    QObject::connect(mBalanceWindow, SIGNAL(balance(int,int,balanceSheet::Pos,balanceSheet::Pos)), this, SLOT(balance(int,int,balanceSheet::Pos,balanceSheet::Pos)));
+    QObject::connect(this, SIGNAL(setBalanceDefWH(int,int)), mBalanceWindow, SLOT(defaultWH(int,int)));
 
     animItem = NULL;
     animScene = NULL;
@@ -1169,10 +1171,31 @@ void MainWindow::on_balanceAnimButton_clicked()
 {
     if(mCurAnim == mSheetFrames.end() || !mCurAnim->size() || mCurFrame == mCurAnim->end())
         return;
+
+    int w = 0, h = 0;
+    foreach(QImage img, *mCurAnim)
+    {
+        if(img.width() > w)
+            w = img.width();
+        if(img.height() > h)
+            h = img.height();
+    }
+    setBalanceDefWH(w, h);
+
     mBalanceWindow->show();
     CenterParent(this, mBalanceWindow);
 }
 
+void MainWindow::balance(int w, int h, balanceSheet::Pos vert, balanceSheet::Pos horiz)
+{
+    if(mCurAnim == mSheetFrames.end() || !mCurAnim->size() || mCurFrame == mCurAnim->end())
+        return;
+
+    foreach(QImage img, *mCurAnim)
+    {
+        //TODO
+    }
+}
 
 
 
