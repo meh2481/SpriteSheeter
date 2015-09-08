@@ -3,6 +3,5 @@
 -Move frames around
 -Drawing on separate thread, or something to speed it up at least
 -Larger anim names for larger sheets
--Button/GUI for balancing animation
--Save/restore
 -Moving mouse around shouldn't cause lag when highlighting
+-Undo/Redo

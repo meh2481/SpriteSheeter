@@ -39,6 +39,10 @@ public slots:
     void mouseUp(int x, int y);
     void newFile();
     void saveFile();
+    void undo();
+    void redo();
+    void saveSheet(QString filename = QString());
+    void loadSheet();
     void addImages(QStringList l);
     void addFolders(QStringList l);
     void balance(int w, int h, balanceSheet::Pos vert, balanceSheet::Pos horiz);
@@ -74,6 +78,7 @@ private:
     QStringList mOpenFiles;
     QString curImportImage;
     QString lastSaveStr;
+    QString lastImportExportStr;
 
     //Variables for drawing the current sheet/animation
     QImage* mCurSheet;
@@ -123,6 +128,7 @@ private:
 
     void closeEvent(QCloseEvent *event);
     void readSettings();
+    void cleanMemory();
 
     void insertAnimHelper(QList<QImage> imgList, QString name);
 

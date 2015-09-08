@@ -26,6 +26,9 @@ MainWindow::MainWindow(QWidget *parent) :
     QObject::connect(ui->sheetPreview, SIGNAL(mouseReleased(int,int)), this, SLOT(mouseUp(int, int)));
     QObject::connect(ui->actionNew, SIGNAL(triggered()), this, SLOT(newFile()));
     QObject::connect(ui->actionSave, SIGNAL(triggered()), this, SLOT(saveFile()));
+    QObject::connect(ui->actionImport_WIP_Sheet, SIGNAL(triggered(bool)), this, SLOT(loadSheet()));
+    QObject::connect(ui->actionUndo, SIGNAL(triggered(bool)), this, SLOT(undo()));
+    QObject::connect(ui->actionRedo, SIGNAL(triggered(bool)), this, SLOT(redo()));
     QObject::connect(ui->sheetPreview, SIGNAL(droppedFiles(QStringList)), this, SLOT(addImages(QStringList)));
     QObject::connect(ui->sheetPreview, SIGNAL(droppedFolders(QStringList)), this, SLOT(addFolders(QStringList)));
     QObject::connect(mBalanceWindow, SIGNAL(balance(int,int,balanceSheet::Pos,balanceSheet::Pos)), this, SLOT(balance(int,int,balanceSheet::Pos,balanceSheet::Pos)));
@@ -501,19 +504,35 @@ void MainWindow::on_saveSheetButton_clicked()
 
     drawSheet(false);   //Save a non-highlighted version
 
-    QString sSel = "PNG Image (*.png)";
+    QString sSel;
+    if(lastSaveStr.contains(".png", Qt::CaseInsensitive))
+        sSel = "PNG Image (*.png)";
+    else if(lastSaveStr.contains(".bmp", Qt::CaseInsensitive))
+        sSel = "Windows Bitmap (*.bmp)";
+    else if(lastSaveStr.contains(".tiff", Qt::CaseInsensitive))
+        sSel = "TIFF Image(*.tiff)";
+    else
+        sSel = "Sprite Sheet(*.sheet)";
+
     QString saveFilename = QFileDialog::getSaveFileName(this,
                                                         tr("Save Spritesheet"),
                                                         lastSaveStr,
-                                                        tr("PNG Image (*.png);;Windows Bitmap (*.bmp);;TIFF Image(*.tiff)"),
+                                                        tr("PNG Image (*.png);;Windows Bitmap (*.bmp);;TIFF Image(*.tiff);;Sprite Sheet(*.sheet)"),
                                                         &sSel);
 
     if(saveFilename.length())
     {
         lastSaveStr = saveFilename;
-        if(!mCurSheet->save(saveFilename))
+        if(saveFilename.contains(".sheet", Qt::CaseInsensitive))
         {
-            QMessageBox::information(this,"Image Export","Error saving image " + saveFilename);
+            saveSheet(saveFilename);
+        }
+        else
+        {
+            if(!mCurSheet->save(saveFilename))
+            {
+                QMessageBox::information(this,"Image Export","Error saving image " + saveFilename);
+            }
         }
     }
     drawSheet(true);    //Redraw the highlighted version
@@ -888,6 +907,7 @@ void MainWindow::closeEvent(QCloseEvent *event)
     settings.setValue("lastSaveStr", lastSaveStr);
     settings.setValue("lastIconStr", lastIconStr);
     settings.setValue("lastOpenDir", lastOpenDir);
+    settings.setValue("lastImportExportStr", lastImportExportStr);
     //settings.setValue("", );
     QMainWindow::closeEvent(event);
 }
@@ -914,6 +934,7 @@ void MainWindow::readSettings()
     lastSaveStr = settings.value("lastSaveStr").toString();
     lastIconStr = settings.value("lastIconStr").toString();
     lastOpenDir = settings.value("lastOpenDir").toString();
+    lastImportExportStr = settings.value("lastImportExportStr").toString();
 }
 
 void MainWindow::on_sheetWidthBox_valueChanged(int arg1)
@@ -1191,15 +1212,175 @@ void MainWindow::balance(int w, int h, balanceSheet::Pos vert, balanceSheet::Pos
     if(mCurAnim == mSheetFrames.end() || !mCurAnim->size() || mCurFrame == mCurAnim->end())
         return;
 
-    foreach(QImage img, *mCurAnim)
+    QMutableListIterator<QImage> it(*mCurAnim);
+    while(it.hasNext())
     {
-        //TODO
-    }
+        QImage img = it.next();
+
+        //Use vert/horiz
+        int xPos, yPos;
+        if(vert == balanceSheet::Up)
+            yPos = 0;
+        else if(vert == balanceSheet::Mid)
+            yPos = (h/2)-(img.height()/2);
+        else
+            yPos = h - img.height();
+
+        if(horiz == balanceSheet::Left)
+            xPos = 0;
+        else if(horiz == balanceSheet::Mid)
+            xPos = (w/2)-(img.width()/2);
+        else
+            xPos = w - img.width();
+
+        QImage final(w, h, QImage::Format_ARGB32);
+        final.fill(QColor(0,0,0,0));
+        QPainter painter(&final);
+        painter.drawImage(xPos, yPos, img);
+        painter.end();
+        it.setValue(final);
+     }
+
+    drawSheet();
 }
 
 
+void MainWindow::undo()
+{
+    //TODO
+}
 
+void MainWindow::redo()
+{
+    //TODO
+}
 
+void MainWindow::saveSheet(QString filename)
+{
+    if(!filename.size())
+    {
+        if(!mCurSheet || !mSheetFrames.size()) return;
+
+        QString saveFilename = QFileDialog::getSaveFileName(this,
+                                                            tr("Export WIP Sheet"),
+                                                            lastImportExportStr,
+                                                            tr("Sprite Sheet (*.sheet)"));
+        filename = saveFilename;
+    }
+    if(filename.length())
+    {
+        lastImportExportStr = filename;
+        QFile f(filename);
+        if(f.open(QIODevice::WriteOnly))
+        {
+            QDataStream s(&f);
+
+            //Save sheet frames
+            s << mSheetFrames.size();
+            foreach(QList<QImage> imgList, mSheetFrames)
+            {
+                 s << imgList.size();
+                 foreach(QImage img, imgList)
+                 {
+                     s << img;
+                 }
+            }
+
+            //Save anim names
+            s << mAnimNames.size();
+            foreach(QString str, mAnimNames)
+            {
+                s << str;
+            }
+
+            //Save other stuff
+            s << sheetBgCol;
+            s << frameBgCol;
+            s << ui->FrameBgTransparent->isChecked() << ui->SheetBgTransparent->isChecked();
+            s << ui->xSpacingBox->value() << ui->ySpacingBox->value() << ui->sheetWidthBox->value();
+        }
+    }
+}
+
+void MainWindow::loadSheet()
+{
+    QString openFilename = QFileDialog::getOpenFileName(this, "Import WIP Sheet", lastImportExportStr, "Sprite Sheets (*.sheet)");
+
+    if(openFilename.length())
+    {
+        lastImportExportStr = openFilename;
+        QFile f(openFilename);
+        if(f.open(QIODevice::ReadOnly))
+        {
+            QDataStream s(&f);
+
+            //Clean up memory
+            cleanMemory();
+
+            //Grab sheet frames
+            int numAnims = 0;
+            s >> numAnims;
+            for(int i = 0; i < numAnims; i++)
+            {
+                QList<QImage> imgList;
+                int numFrames = 0;
+                s >> numFrames;
+                for(int j = 0; j < numFrames; j++)
+                {
+                    QImage img;
+                    s >> img;
+                    imgList.push_back(img);
+                }
+                mSheetFrames.push_back(imgList);
+            }
+
+            //Grab anim names
+            int numAnimNames = 0;
+            s >> numAnimNames;
+            for(int i = 0; i < numAnimNames; i++)
+            {
+                QString str;
+                s >> str;
+                mAnimNames.push_back(str);
+            }
+
+            //Read other stuff
+            s >> sheetBgCol;
+            s >> frameBgCol;
+            bool bSheetBg, bFrameBg;
+            s >> bFrameBg >> bSheetBg;
+            ui->FrameBgTransparent->setChecked(bFrameBg);
+            ui->SheetBgTransparent->setChecked(bSheetBg);
+            int xSpacing, ySpacing, sheetWidth;
+            s >> xSpacing >> ySpacing >> sheetWidth;
+            ui->xSpacingBox->setValue(xSpacing);
+            ui->ySpacingBox->setValue(ySpacing);
+            ui->sheetWidthBox->setValue(sheetWidth);
+
+            //Set stuff in the GUI correctly
+            mCurAnim = mSheetFrames.begin();
+            mCurAnimName = mAnimNames.begin();
+            drawSheet();
+            if(mCurAnimName != mAnimNames.end())
+                ui->animationNameEditor->setText(*mCurAnimName);
+            if(mCurAnim != mSheetFrames.end())
+                mCurFrame = mCurAnim->begin();
+            drawAnimation();
+        }
+    }
+}
+
+void MainWindow::cleanMemory()
+{
+    if(mCurSheet)
+        delete mCurSheet;
+    mCurSheet = NULL;
+
+    mSheetFrames.clear();
+    mCurAnim = mSheetFrames.begin();
+    mAnimNames.clear();
+    mCurAnimName = mAnimNames.begin();
+}
 
 
 
