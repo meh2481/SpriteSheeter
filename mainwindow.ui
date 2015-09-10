@@ -58,7 +58,7 @@
                </size>
               </property>
               <property name="toolTip">
-               <string>Move current animation up the spritesheet</string>
+               <string>Move current animation up the spritesheet (W)</string>
               </property>
               <property name="text">
                <string/>
@@ -93,7 +93,7 @@
                </size>
               </property>
               <property name="toolTip">
-               <string>Move current animation down the spritesheet</string>
+               <string>Move current animation down the spritesheet (S)</string>
               </property>
               <property name="text">
                <string/>
@@ -132,7 +132,7 @@
           <item>
            <widget class="QPushButton" name="removeAnimButton">
             <property name="toolTip">
-             <string>Delete current animation</string>
+             <string>Delete current animation (E)</string>
             </property>
             <property name="text">
              <string/>
@@ -159,7 +159,7 @@
           <item>
            <widget class="QPushButton" name="openStripButton">
             <property name="toolTip">
-             <string>Import single animation from list of images</string>
+             <string>Import single animation from list of images (Q)</string>
             </property>
             <property name="text">
              <string>Import Image Sequence...</string>
@@ -169,10 +169,10 @@
           <item>
            <widget class="QPushButton" name="openImagesButton">
             <property name="toolTip">
-             <string>Load a single image as an animation sheet with multiple frames</string>
+             <string>Load a single image as an animation sheet with multiple frames (A)</string>
             </property>
             <property name="text">
-             <string>Import Image(s) as Animation Sheet...</string>
+             <string>Import Image as Animation Sheet...</string>
             </property>
            </widget>
           </item>
@@ -511,6 +511,13 @@
              <widget class="QLineEdit" name="animationNameEditor">
               <property name="toolTip">
                <string>Name to give this animation on the sheet</string>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QPushButton" name="fontButton">
+              <property name="text">
+               <string>Font...</string>
               </property>
              </widget>
             </item>

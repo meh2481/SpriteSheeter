@@ -8,6 +8,8 @@
 #include <QMessageBox>
 #include <QSettings>
 #include <QDebug>
+#include <QFontDialog>
+#include <QFontMetrics>
 
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
@@ -157,7 +159,7 @@ void MainWindow::addFolders(QStringList l)
 
 void MainWindow::on_openImagesButton_clicked()
 {
-    QStringList files = QFileDialog::getOpenFileNames(this, "Open Images", lastOpenDir, "All Files (*.*)");
+    QStringList files = QFileDialog::getOpenFileNames(this, "Import Image as Animation Sheet", lastOpenDir, "All Files (*.*)");
     if(files.size())
     {
         QString s = (*files.begin());
@@ -169,7 +171,7 @@ void MainWindow::on_openImagesButton_clicked()
 
 void MainWindow::on_openStripButton_clicked()
 {
-    mOpenFiles = QFileDialog::getOpenFileNames(this, "Open Images", lastOpenDir, "All Files (*.*)");
+    mOpenFiles = QFileDialog::getOpenFileNames(this, "Import Image Sequence", lastOpenDir, "All Files (*.*)");
     if(mOpenFiles.size())
     {
         QString s = (*mOpenFiles.begin());
@@ -321,9 +323,10 @@ void MainWindow::CenterParent(QWidget* parent, QWidget* child)
     child->move(centerparent);
 }
 
-const float textHeight = 20;
 void MainWindow::drawSheet(bool bHighlight)
 {
+    QFontMetrics fm(sheetFont);
+    float textHeight = fm.height() + 3;
     int maxSheetWidth = ui->sheetWidthBox->value();
 
     //First pass: Figure out dimensions of final image
@@ -378,6 +381,7 @@ void MainWindow::drawSheet(bool bHighlight)
     //Create image of the proper size and fill it with a good bg color
     mCurSheet = new QImage(iSizeX, iSizeY, QImage::Format_ARGB32);
     QPainter painter(mCurSheet);
+    painter.setFont(sheetFont);
     painter.setCompositionMode(QPainter::CompositionMode_Source);
     if(ui->SheetBgTransparent->isChecked() && bHighlight)
     {
@@ -510,14 +514,14 @@ void MainWindow::on_saveSheetButton_clicked()
     else if(lastSaveStr.contains(".bmp", Qt::CaseInsensitive))
         sSel = "Windows Bitmap (*.bmp)";
     else if(lastSaveStr.contains(".tiff", Qt::CaseInsensitive))
-        sSel = "TIFF Image(*.tiff)";
+        sSel = "TIFF Image (*.tiff)";
     else
-        sSel = "Sprite Sheet(*.sheet)";
+        sSel = "Sprite Sheet (*.sheet)";
 
     QString saveFilename = QFileDialog::getSaveFileName(this,
                                                         tr("Save Spritesheet"),
                                                         lastSaveStr,
-                                                        tr("PNG Image (*.png);;Windows Bitmap (*.bmp);;TIFF Image(*.tiff);;Sprite Sheet(*.sheet)"),
+                                                        tr("PNG Image (*.png);;Windows Bitmap (*.bmp);;TIFF Image (*.tiff);;Sprite Sheet (*.sheet)"),
                                                         &sSel);
 
     if(saveFilename.length())
@@ -746,6 +750,9 @@ void MainWindow::on_animNextFrameButton_clicked()
 
 void MainWindow::mouseCursorPos(int x, int y)
 {
+    QFontMetrics fm(sheetFont);
+    float textHeight = fm.height() + 3;
+
     //TODO
     if(mCurSheet)
     {
@@ -908,6 +915,7 @@ void MainWindow::closeEvent(QCloseEvent *event)
     settings.setValue("lastIconStr", lastIconStr);
     settings.setValue("lastOpenDir", lastOpenDir);
     settings.setValue("lastImportExportStr", lastImportExportStr);
+    settings.setValue("sheetFont", sheetFont.toString());
     //settings.setValue("", );
     QMainWindow::closeEvent(event);
 }
@@ -935,6 +943,11 @@ void MainWindow::readSettings()
     lastIconStr = settings.value("lastIconStr").toString();
     lastOpenDir = settings.value("lastOpenDir").toString();
     lastImportExportStr = settings.value("lastImportExportStr").toString();
+    QString sFontVal = settings.value("sheetFont").toString();
+    if(!sFontVal.size())
+        sheetFont = QFont("MS Shell Dlg 2", 8);
+    else
+        sheetFont.fromString(sFontVal);
 }
 
 void MainWindow::on_sheetWidthBox_valueChanged(int arg1)
@@ -982,53 +995,81 @@ void MainWindow::keyPressEvent(QKeyEvent* e)
         drawSheet();
     }
     //TODO Fix this
-    /*else if(e->key() == Qt::Key_Up)
+    else if(e->key() == Qt::Key_W)
     {
-        //Move back one anim
-        if(mCurAnim != mSheetFrames.begin() && mCurAnimName != mAnimNames.begin())
+        if(e->modifiers() & Qt::ShiftModifier)
         {
-            mCurAnim--;
-            mCurAnimName--;
+            on_prevAnimButton_clicked();
         }
-
-        drawSheet();
-
-        if(mCurAnimName != mAnimNames.end())
-            ui->animationNameEditor->setText(*mCurAnimName);
         else
-            ui->animationNameEditor->setText(QString(""));
-
-        if(mCurAnim != mSheetFrames.end())
-            mCurFrame = mCurAnim->begin();
-
-        drawAnimation();
-    }
-    else if(e->key() == Qt::Key_Down)
-    {
-        //Move forward one anim
-        if(mCurAnim != mSheetFrames.end() && mCurAnimName != mAnimNames.end())
         {
-            mCurAnim++;
-            mCurAnimName++;
-            if(mCurAnim == mSheetFrames.end() || mCurAnimName == mAnimNames.end())
+            //Move back one anim
+            if(mCurAnim != mSheetFrames.begin() && mCurAnimName != mAnimNames.begin())
             {
                 mCurAnim--;
                 mCurAnimName--;
             }
+
+            drawSheet();
+
+            if(mCurAnimName != mAnimNames.end())
+                ui->animationNameEditor->setText(*mCurAnimName);
+            else
+                ui->animationNameEditor->setText(QString(""));
+
+            if(mCurAnim != mSheetFrames.end())
+                mCurFrame = mCurAnim->begin();
+
+            drawAnimation();
         }
-
-        drawSheet();
-
-        if(mCurAnimName != mAnimNames.end())
-            ui->animationNameEditor->setText(*mCurAnimName);
-        else
-            ui->animationNameEditor->setText(QString(""));
-
-        if(mCurAnim != mSheetFrames.end())
-            mCurFrame = mCurAnim->begin();
-
-        drawAnimation();
     }
+    else if(e->key() == Qt::Key_S)
+    {
+        if(e->modifiers() & Qt::ShiftModifier)
+        {
+            on_nextAnimButton_clicked();
+        }
+        else
+        {
+            //Move forward one anim
+            if(mCurAnim != mSheetFrames.end() && mCurAnimName != mAnimNames.end())
+            {
+                mCurAnim++;
+                mCurAnimName++;
+                if(mCurAnim == mSheetFrames.end() || mCurAnimName == mAnimNames.end())
+                {
+                    mCurAnim--;
+                    mCurAnimName--;
+                }
+            }
+
+            drawSheet();
+
+            if(mCurAnimName != mAnimNames.end())
+                ui->animationNameEditor->setText(*mCurAnimName);
+            else
+                ui->animationNameEditor->setText(QString(""));
+
+            if(mCurAnim != mSheetFrames.end())
+                mCurFrame = mCurAnim->begin();
+
+            drawAnimation();
+        }
+    }
+    else if(e->key() == Qt::Key_Q)
+    {
+        on_openStripButton_clicked();
+    }
+    else if(e->key() == Qt::Key_A)
+    {
+        on_openImagesButton_clicked();
+    }
+    else if(e->key() == Qt::Key_E)
+    {
+        on_removeAnimButton_clicked();
+    }
+
+    /*
     else if(e->key() == Qt::Key_Left)
     {
         on_animPrevFrameButton_clicked();
@@ -1281,23 +1322,20 @@ void MainWindow::saveSheet(QString filename)
             {
                  s << imgList.size();
                  foreach(QImage img, imgList)
-                 {
                      s << img;
-                 }
             }
 
             //Save anim names
             s << mAnimNames.size();
             foreach(QString str, mAnimNames)
-            {
                 s << str;
-            }
 
             //Save other stuff
             s << sheetBgCol;
             s << frameBgCol;
             s << ui->FrameBgTransparent->isChecked() << ui->SheetBgTransparent->isChecked();
             s << ui->xSpacingBox->value() << ui->ySpacingBox->value() << ui->sheetWidthBox->value();
+            s << sheetFont.toString();
         }
     }
 }
@@ -1356,6 +1394,10 @@ void MainWindow::loadSheet()
             ui->xSpacingBox->setValue(xSpacing);
             ui->ySpacingBox->setValue(ySpacing);
             ui->sheetWidthBox->setValue(sheetWidth);
+            QString sFontStr;
+            s >> sFontStr;
+            if(sFontStr.size())
+                sheetFont.fromString(sFontStr);
 
             //Set stuff in the GUI correctly
             mCurAnim = mSheetFrames.begin();
@@ -1381,6 +1423,27 @@ void MainWindow::cleanMemory()
     mAnimNames.clear();
     mCurAnimName = mAnimNames.begin();
 }
+
+void MainWindow::on_fontButton_clicked()
+{
+    bool ok;
+    QFont font = QFontDialog::getFont(&ok, sheetFont, this);
+    if(ok)
+    {
+        sheetFont = font;
+        drawSheet();
+    }
+}
+
+
+
+
+
+
+
+
+
+
 
 
 

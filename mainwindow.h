@@ -70,6 +70,7 @@ private slots:
     void on_FrameBgTransparent_toggled(bool checked);
     void on_SheetBgTransparent_toggled(bool checked);
     void on_balanceAnimButton_clicked();
+    void on_fontButton_clicked();
 
 private:
     Ui::MainWindow *ui;
@@ -82,6 +83,7 @@ private:
 
     //Variables for drawing the current sheet/animation
     QImage* mCurSheet;
+    QFont   sheetFont;
     QList<QList<QImage> > mSheetFrames;
     QList<QList<QImage> >::iterator mCurAnim;
     QList<QImage>::iterator mCurFrame;

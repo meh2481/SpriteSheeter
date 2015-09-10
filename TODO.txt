@@ -2,6 +2,8 @@
 -"a batch setup, so that you can create sheets in quick succession with the same parameters."
 -Move frames around
 -Drawing on separate thread, or something to speed it up at least
--Larger anim names for larger sheets
 -Moving mouse around shouldn't cause lag when highlighting
--Undo/Redo
+-Undo/Redo - Snapshots or operation list?
+-Keep track of if saved/modified, and ask user on exit or new
+-Keep track of filename and show on top of window (with * for modified)
+-"An option for icon creation that simply crops rather than shrinks"
