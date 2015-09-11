@@ -28,9 +28,11 @@ MainWindow::MainWindow(QWidget *parent) :
     QObject::connect(ui->sheetPreview, SIGNAL(mouseReleased(int,int)), this, SLOT(mouseUp(int, int)));
     QObject::connect(ui->actionNew, SIGNAL(triggered()), this, SLOT(newFile()));
     QObject::connect(ui->actionSave, SIGNAL(triggered()), this, SLOT(saveFile()));
+    QObject::connect(ui->actionSaveAs, SIGNAL(triggered()), this, SLOT(saveFileAs()));
     QObject::connect(ui->actionImport_WIP_Sheet, SIGNAL(triggered(bool)), this, SLOT(loadSheet()));
     QObject::connect(ui->actionUndo, SIGNAL(triggered(bool)), this, SLOT(undo()));
     QObject::connect(ui->actionRedo, SIGNAL(triggered(bool)), this, SLOT(redo()));
+    QObject::connect(ui->actionEnableShortcuts, SIGNAL(toggled(bool)), this, SLOT(enableShortcuts(bool)));
     QObject::connect(ui->sheetPreview, SIGNAL(droppedFiles(QStringList)), this, SLOT(addImages(QStringList)));
     QObject::connect(ui->sheetPreview, SIGNAL(droppedFolders(QStringList)), this, SLOT(addFolders(QStringList)));
     QObject::connect(mBalanceWindow, SIGNAL(balance(int,int,balanceSheet::Pos,balanceSheet::Pos)), this, SLOT(balance(int,int,balanceSheet::Pos,balanceSheet::Pos)));
@@ -44,10 +46,11 @@ MainWindow::MainWindow(QWidget *parent) :
     transparentBg = new QImage("://bg");
     mCurAnim = mSheetFrames.begin();
     mCurAnimName = mAnimNames.begin();
+    bShortcuts = true;
 
     bDraggingSheetW = false;
     bFileModified = false;
-    sCurFilename = "[Untitled]";
+    sCurFilename = UNTITLED_IMAGE_STR;
     //TODO Store initial undo state
 
     animUpdateTimer = new QTimer(this);
@@ -509,30 +512,11 @@ void MainWindow::on_ySpacingBox_valueChanged(int arg1)
     Q_UNUSED(arg1);
 }
 
-void MainWindow::on_saveSheetButton_clicked()
+void MainWindow::genericSave(QString saveFilename)
 {
-    if(!mCurSheet || !mSheetFrames.size()) return;
-
-    drawSheet(false);   //Save a non-highlighted version
-
-    QString sSel;
-    if(lastSaveStr.contains(".png", Qt::CaseInsensitive))
-        sSel = "PNG Image (*.png)";
-    else if(lastSaveStr.contains(".bmp", Qt::CaseInsensitive))
-        sSel = "Windows Bitmap (*.bmp)";
-    else if(lastSaveStr.contains(".tiff", Qt::CaseInsensitive))
-        sSel = "TIFF Image (*.tiff)";
-    else
-        sSel = "Sprite Sheet (*.sheet)";
-
-    QString saveFilename = QFileDialog::getSaveFileName(this,
-                                                        tr("Save Spritesheet"),
-                                                        lastSaveStr,
-                                                        tr("PNG Image (*.png);;Windows Bitmap (*.bmp);;TIFF Image (*.tiff);;Sprite Sheet (*.sheet)"),
-                                                        &sSel);
-
     if(saveFilename.length())
     {
+        drawSheet(false);   //Save a non-highlighted version
         lastSaveStr = saveFilename;
         if(saveFilename.contains(".sheet", Qt::CaseInsensitive))
         {
@@ -558,8 +542,63 @@ void MainWindow::on_saveSheetButton_clicked()
                 //TODO Store file orig state
             }
         }
+        drawSheet(true);    //Redraw the highlighted version
     }
-    drawSheet(true);    //Redraw the highlighted version
+}
+
+//Save file
+void MainWindow::on_saveSheetButton_clicked()
+{
+    if(!mCurSheet || !mSheetFrames.size()) return;
+
+    if(!bFileModified) return;  //Don't bother saving if we already have
+
+    QString saveFilename;
+    if(sCurFilename == UNTITLED_IMAGE_STR)  //Haven't saved this yet
+    {
+        QString sSel;
+        if(lastSaveStr.contains(".sheet", Qt::CaseInsensitive))
+            sSel = "Sprite Sheet (*.sheet)";
+        else if(lastSaveStr.contains(".bmp", Qt::CaseInsensitive))
+            sSel = "Windows Bitmap (*.bmp)";
+        else if(lastSaveStr.contains(".tiff", Qt::CaseInsensitive))
+            sSel = "TIFF Image (*.tiff)";
+        else
+            sSel = "PNG Image (*.png)"; //Default to PNG the first time they use
+
+        saveFilename = QFileDialog::getSaveFileName(this,
+                                                    tr("Save Sheet"),
+                                                    lastSaveStr,
+                                                    tr("PNG Image (*.png);;Windows Bitmap (*.bmp);;TIFF Image (*.tiff);;Sprite Sheet (*.sheet)"),
+                                                    &sSel);
+    }
+    else
+        saveFilename = lastSaveStr;
+
+    genericSave(saveFilename);
+}
+
+void MainWindow::saveFileAs()
+{
+    if(!mCurSheet || !mSheetFrames.size()) return;
+
+    QString sSel;
+    if(lastSaveStr.contains(".sheet", Qt::CaseInsensitive))
+        sSel = "Sprite Sheet (*.sheet)";
+    else if(lastSaveStr.contains(".bmp", Qt::CaseInsensitive))
+        sSel = "Windows Bitmap (*.bmp)";
+    else if(lastSaveStr.contains(".tiff", Qt::CaseInsensitive))
+        sSel = "TIFF Image (*.tiff)";
+    else
+        sSel = "PNG Image (*.png)"; //Default to PNG the first time they use
+
+    QString saveFilename = QFileDialog::getSaveFileName(this,
+                                                        tr("Save Sheet As"),
+                                                        lastSaveStr,
+                                                        tr("PNG Image (*.png);;Windows Bitmap (*.bmp);;TIFF Image (*.tiff);;Sprite Sheet (*.sheet)"),
+                                                        &sSel);
+
+    genericSave(saveFilename);
 }
 
 void MainWindow::on_removeAnimButton_clicked()
@@ -939,6 +978,7 @@ void MainWindow::closeEvent(QCloseEvent *event)
     settings.setValue("lastOpenDir", lastOpenDir);
     settings.setValue("lastImportExportStr", lastImportExportStr);
     settings.setValue("sheetFont", sheetFont.toString());
+    settings.setValue("shortcuts", bShortcuts);
     //settings.setValue("", );
     QMainWindow::closeEvent(event);
 }
@@ -971,6 +1011,11 @@ void MainWindow::readSettings()
         sheetFont = QFont("MS Shell Dlg 2", 8);
     else
         sheetFont.fromString(sFontVal);
+    if(settings.value("shortcuts").isValid())
+    {
+        bShortcuts = settings.value("shortcuts").toBool();
+        ui->actionEnableShortcuts->setChecked(bShortcuts);
+    }
 }
 
 void MainWindow::on_sheetWidthBox_valueChanged(int arg1)
@@ -993,7 +1038,7 @@ void MainWindow::newFile()
     drawSheet();
     drawAnimation();
 
-    sCurFilename = "[Untitled]";
+    sCurFilename = UNTITLED_IMAGE_STR;
     bFileModified = false;
     fixWindowTitle();
 
@@ -1024,79 +1069,87 @@ void MainWindow::keyPressEvent(QKeyEvent* e)
         drawSheet();
         genUndoState();
     }
-    //TODO Fix this
-    else if(e->key() == Qt::Key_W)
+
+    //Shortcut keys if user enabled these
+    if(bShortcuts)
     {
-        if(e->modifiers() & Qt::ShiftModifier)
+        if(e->key() == Qt::Key_W)
         {
-            on_prevAnimButton_clicked();
-        }
-        else
-        {
-            //Move back one anim
-            if(mCurAnim != mSheetFrames.begin() && mCurAnimName != mAnimNames.begin())
+            if(e->modifiers() & Qt::ShiftModifier)
             {
-                mCurAnim--;
-                mCurAnimName--;
+                on_prevAnimButton_clicked();
             }
-
-            drawSheet();
-
-            if(mCurAnimName != mAnimNames.end())
-                ui->animationNameEditor->setText(*mCurAnimName);
             else
-                ui->animationNameEditor->setText(QString(""));
-
-            if(mCurAnim != mSheetFrames.end())
-                mCurFrame = mCurAnim->begin();
-
-            drawAnimation();
-        }
-    }
-    else if(e->key() == Qt::Key_S)
-    {
-        if(e->modifiers() & Qt::ShiftModifier)
-        {
-            on_nextAnimButton_clicked();
-        }
-        else
-        {
-            //Move forward one anim
-            if(mCurAnim != mSheetFrames.end() && mCurAnimName != mAnimNames.end())
             {
-                mCurAnim++;
-                mCurAnimName++;
-                if(mCurAnim == mSheetFrames.end() || mCurAnimName == mAnimNames.end())
+                //Move back one anim
+                if(mCurAnim != mSheetFrames.begin() && mCurAnimName != mAnimNames.begin())
                 {
                     mCurAnim--;
                     mCurAnimName--;
                 }
+
+                drawSheet();
+
+                if(mCurAnimName != mAnimNames.end())
+                    ui->animationNameEditor->setText(*mCurAnimName);
+                else
+                    ui->animationNameEditor->setText(QString(""));
+
+                if(mCurAnim != mSheetFrames.end())
+                    mCurFrame = mCurAnim->begin();
+
+                drawAnimation();
             }
-
-            drawSheet();
-
-            if(mCurAnimName != mAnimNames.end())
-                ui->animationNameEditor->setText(*mCurAnimName);
-            else
-                ui->animationNameEditor->setText(QString(""));
-
-            if(mCurAnim != mSheetFrames.end())
-                mCurFrame = mCurAnim->begin();
-
-            drawAnimation();
         }
-    }
-    else if(e->key() == Qt::Key_Q)
-    {
-        on_openStripButton_clicked();
-    }
-    else if(e->key() == Qt::Key_A)
-    {
-        on_openImagesButton_clicked();
-    }
-    else if(e->key() == Qt::Key_E)
-    {
-        on_removeAnimButton_clicked();
+        else if(e->key() == Qt::Key_S)
+        {
+            if(e->modifiers() & Qt::ShiftModifier)
+            {
+                on_nextAnimButton_clicked();
+            }
+            else
+            {
+                //Move forward one anim
+                if(mCurAnim != mSheetFrames.end() && mCurAnimName != mAnimNames.end())
+                {
+                    mCurAnim++;
+                    mCurAnimName++;
+                    if(mCurAnim == mSheetFrames.end() || mCurAnimName == mAnimNames.end())
+                    {
+                        mCurAnim--;
+                        mCurAnimName--;
+                    }
+                }
+
+                drawSheet();
+
+                if(mCurAnimName != mAnimNames.end())
+                    ui->animationNameEditor->setText(*mCurAnimName);
+                else
+                    ui->animationNameEditor->setText(QString(""));
+
+                if(mCurAnim != mSheetFrames.end())
+                    mCurFrame = mCurAnim->begin();
+
+                drawAnimation();
+            }
+        }
+        else if(e->key() == Qt::Key_Q)
+        {
+            on_openStripButton_clicked();
+        }
+        else if(e->key() == Qt::Key_A)
+        {
+            on_openImagesButton_clicked();
+        }
+        else if(e->key() == Qt::Key_E)
+        {
+            on_removeAnimButton_clicked();
+        }
+        else if(e->key() == Qt::Key_D)
+        {
+            on_saveSheetButton_clicked();
+        }
     }
 
     /*
@@ -1449,6 +1502,13 @@ void MainWindow::loadSheet()
             if(mCurAnim != mSheetFrames.end())
                 mCurFrame = mCurAnim->begin();
             drawAnimation();
+
+            QFileInfo fi(openFilename);
+            sCurFilename = fi.fileName();
+            bFileModified = false;
+            fixWindowTitle();
+            lastSaveStr = openFilename;
+            //TODO Store file orig state
         }
     }
 }
@@ -1535,7 +1595,10 @@ void MainWindow::on_animationNameEditor_editingFinished()
     genUndoState();
 }
 
-
+void MainWindow::enableShortcuts(bool b)
+{
+    bShortcuts = b;
+}
 
 
 

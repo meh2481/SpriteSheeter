@@ -16,6 +16,8 @@
 #define MINOR_VERSION 7
 #define REV_VERSION   0
 
+#define UNTITLED_IMAGE_STR "[Untitled]"
+
 namespace Ui {
 class MainWindow;
 }
@@ -43,6 +45,8 @@ public slots:
     void mouseUp(int x, int y);
     void newFile();
     void saveFile();
+    void saveFileAs();
+    void enableShortcuts(bool b);
     void undo();
     void redo();
     void saveSheet(QString filename = QString());
@@ -116,6 +120,7 @@ private:
     int curMouseY;
 
     bool bFileModified;
+    bool bShortcuts;
     QString sCurFilename;
 
     //Variables for dealing with the Qt draw engine
@@ -151,6 +156,8 @@ private:
 
     void fixWindowTitle();
     void genUndoState();
+
+    void genericSave(QString saveFilename);
 
 protected:
     //void changeEvent(QEvent *e);
