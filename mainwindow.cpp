@@ -814,7 +814,6 @@ void MainWindow::mouseCursorPos(int x, int y)
     QFontMetrics fm(sheetFont);
     float textHeight = fm.height() + 3;
 
-    //TODO
     if(mCurSheet)
     {
         //Update cursor if need be
@@ -957,6 +956,30 @@ void MainWindow::mouseUp(int x, int y)
 
 void MainWindow::closeEvent(QCloseEvent *event)
 {
+    //Make sure user has saved before closing
+    if(bFileModified)
+    {
+        QMessageBox::StandardButton dialog;
+        dialog = QMessageBox::warning(this, "Save Changes",
+                                      "Do you want to save changes to \"" + sCurFilename + "\"?",
+                                      QMessageBox::Discard | QMessageBox::Save | QMessageBox::Cancel);
+
+        if(dialog == QMessageBox::Save)
+        {
+            on_saveSheetButton_clicked();
+            if(bFileModified)   //If they still haven't saved...
+            {
+                event->ignore();
+                return;
+            }
+        }
+        else if(dialog != QMessageBox::Discard)
+        {
+            event->ignore();
+            return;
+        }
+    }
+
     QSettings settings("DaxarDev", "SpriteSheeter");
     //Save window geometry
     settings.setValue("geometry", saveGeometry());
@@ -1027,6 +1050,24 @@ void MainWindow::on_sheetWidthBox_valueChanged(int arg1)
 
 void MainWindow::newFile()
 {
+    //Don't overwrite changes when they create a new file
+    if(bFileModified)
+    {
+        QMessageBox::StandardButton dialog;
+        dialog = QMessageBox::warning(this, "Save Changes",
+                                      "Do you want to save changes to \"" + sCurFilename + "\"?",
+                                      QMessageBox::Discard | QMessageBox::Save | QMessageBox::Cancel);
+
+        if(dialog == QMessageBox::Save)
+        {
+            on_saveSheetButton_clicked();
+            if(bFileModified)   //If they still haven't saved...
+                return;
+        }
+        else if(dialog != QMessageBox::Discard)
+            return;
+    }
+
     if(mCurSheet)
         delete mCurSheet;
     mCurSheet = NULL;
@@ -1435,7 +1476,25 @@ void MainWindow::saveSheet(QString filename)
 
 void MainWindow::loadSheet()
 {
-    QString openFilename = QFileDialog::getOpenFileName(this, "Import WIP Sheet", lastImportExportStr, "Sprite Sheets (*.sheet)");
+    //Don't overwrite changes when they create a new file
+    if(bFileModified)
+    {
+        QMessageBox::StandardButton dialog;
+        dialog = QMessageBox::warning(this, "Save Changes",
+                                      "Do you want to save changes to \"" + sCurFilename + "\"?",
+                                      QMessageBox::Discard | QMessageBox::Save | QMessageBox::Cancel);
+
+        if(dialog == QMessageBox::Save)
+        {
+            on_saveSheetButton_clicked();
+            if(bFileModified)   //If they still haven't saved...
+                return;
+        }
+        else if(dialog != QMessageBox::Discard)
+            return;
+    }
+
+    QString openFilename = QFileDialog::getOpenFileName(this, "Open Sheet", lastImportExportStr, "Sprite Sheets (*.sheet)");
 
     if(openFilename.length())
     {

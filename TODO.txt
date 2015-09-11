@@ -6,3 +6,4 @@
 -Keep track of if saved/modified, and ask user on exit or new
 -"An option for icon creation that simply crops rather than shrinks"
 -Animation skip when W or S on top or bottom already
+-Save current anim and anim frame in .sheet

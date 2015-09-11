@@ -16,7 +16,7 @@
 #define MINOR_VERSION 7
 #define REV_VERSION   0
 
-#define UNTITLED_IMAGE_STR "[Untitled]"
+#define UNTITLED_IMAGE_STR "Untitled"
 
 namespace Ui {
 class MainWindow;
