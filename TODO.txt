@@ -1,4 +1,3 @@
--"More keyboard shortcuts"
 -"a batch setup, so that you can create sheets in quick succession with the same parameters."
 -Move frames around
 -Drawing on separate thread, or something to speed it up at least
@@ -6,3 +5,4 @@
 -Undo/Redo - Snapshots or operation list?
 -Keep track of if saved/modified, and ask user on exit or new
 -"An option for icon creation that simply crops rather than shrinks"
+-Animation skip when W or S on top or bottom already

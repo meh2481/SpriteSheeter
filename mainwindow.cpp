@@ -849,6 +849,7 @@ void MainWindow::mouseCursorPos(int x, int y)
     int curX = offsetX;
     int curY = offsetY;
     QList<QString>::iterator sName = mAnimNames.begin();
+    mCurSelectedInAnim = mSheetFrames.end();
     for(QList<QList<QImage> >::iterator ql = mSheetFrames.begin(); ql != mSheetFrames.end(); ql++)
     {
         int ySize = 0;
@@ -1053,7 +1054,7 @@ void MainWindow::saveFile()
 void MainWindow::keyPressEvent(QKeyEvent* e)
 {
     //Deleting current selected frame
-    if(e->key() == Qt::Key_Delete && mSheetFrames.size() && mCurAnim != mSheetFrames.end() && mCurSelected != mCurAnim->end())
+    if(e->key() == Qt::Key_Delete && mSheetFrames.size() && mCurAnim != mSheetFrames.end() && mCurSelected != mCurAnim->end() && mCurSelectedInAnim != mSheetFrames.end())
     {
         mCurSelectedInAnim->erase(mCurSelected);
         mCurSelected = mCurSelectedInAnim->end();
