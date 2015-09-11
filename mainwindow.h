@@ -12,6 +12,10 @@
 #define ICON_WIDTH 148
 #define ICON_HEIGHT 125
 
+#define MAJOR_VERSION 0
+#define MINOR_VERSION 7
+#define REV_VERSION   0
+
 namespace Ui {
 class MainWindow;
 }
@@ -72,6 +76,14 @@ private slots:
     void on_balanceAnimButton_clicked();
     void on_fontButton_clicked();
 
+    void on_xSpacingBox_editingFinished();
+
+    void on_ySpacingBox_editingFinished();
+
+    void on_sheetWidthBox_editingFinished();
+
+    void on_animationNameEditor_editingFinished();
+
 private:
     Ui::MainWindow *ui;
     importDialog *mImportWindow;
@@ -103,6 +115,9 @@ private:
     int curMouseX;
     int curMouseY;
 
+    bool bFileModified;
+    QString sCurFilename;
+
     //Variables for dealing with the Qt draw engine
     QGraphicsScene* animScene;
     QGraphicsPixmapItem* animItem;
@@ -133,6 +148,9 @@ private:
     void cleanMemory();
 
     void insertAnimHelper(QList<QImage> imgList, QString name);
+
+    void fixWindowTitle();
+    void genUndoState();
 
 protected:
     //void changeEvent(QEvent *e);

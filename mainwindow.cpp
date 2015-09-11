@@ -46,6 +46,9 @@ MainWindow::MainWindow(QWidget *parent) :
     mCurAnimName = mAnimNames.begin();
 
     bDraggingSheetW = false;
+    bFileModified = false;
+    sCurFilename = "[Untitled]";
+    //TODO Store initial undo state
 
     animUpdateTimer = new QTimer(this);
     QObject::connect(animUpdateTimer, SIGNAL(timeout()), this, SLOT(animUpdate()));
@@ -83,6 +86,8 @@ MainWindow::MainWindow(QWidget *parent) :
     colIcon.fill(frameBgCol);
     QIcon ic2(colIcon);
     ui->frameBgColSelect->setIcon(ic2);
+
+    fixWindowTitle();
 }
 
 MainWindow::~MainWindow()
@@ -141,6 +146,7 @@ void MainWindow::importImageList(QStringList& fileList, QString prepend, QString
 
     drawSheet();
     drawAnimation();
+    genUndoState();
 }
 
 void MainWindow::addFolders(QStringList l)
@@ -297,6 +303,7 @@ void MainWindow::importImage(QString s, int numxframes, int numyframes, bool bVe
 
     drawSheet();
     drawAnimation();
+    genUndoState();
 }
 
 //Example from http://www.qtforum.org/article/28852/center-any-child-window-center-parent.html
@@ -492,13 +499,13 @@ void MainWindow::drawSheet(bool bHighlight)
 //Redraw the sheet if either of these change
 void MainWindow::on_xSpacingBox_valueChanged(int arg1)
 {
-    drawSheet();
+    //drawSheet();
     Q_UNUSED(arg1);
 }
 
 void MainWindow::on_ySpacingBox_valueChanged(int arg1)
 {
-    drawSheet();
+    //drawSheet();
     Q_UNUSED(arg1);
 }
 
@@ -530,12 +537,25 @@ void MainWindow::on_saveSheetButton_clicked()
         if(saveFilename.contains(".sheet", Qt::CaseInsensitive))
         {
             saveSheet(saveFilename);
+            QFileInfo fi(saveFilename);
+            sCurFilename = fi.fileName();
+            bFileModified = false;
+            fixWindowTitle();
+            //TODO Store file orig state
         }
         else
         {
             if(!mCurSheet->save(saveFilename))
             {
                 QMessageBox::information(this,"Image Export","Error saving image " + saveFilename);
+            }
+            else
+            {
+                QFileInfo fi(saveFilename);
+                sCurFilename = fi.fileName();
+                bFileModified = false;
+                fixWindowTitle();
+                //TODO Store file orig state
             }
         }
     }
@@ -544,18 +564,16 @@ void MainWindow::on_saveSheetButton_clicked()
 
 void MainWindow::on_removeAnimButton_clicked()
 {
-    if(mCurAnim != mSheetFrames.end())
-    {
-        mCurAnim = mSheetFrames.erase(mCurAnim);
-        if(mCurAnim == mSheetFrames.end() && mCurAnim != mSheetFrames.begin())
-            mCurAnim--;
-    }
-    if(mCurAnimName != mAnimNames.end())
-    {
-        mCurAnimName = mAnimNames.erase(mCurAnimName);
-        if(mCurAnimName == mAnimNames.end() && mCurAnimName != mAnimNames.begin())
-            mCurAnimName--;
-    }
+    if(mCurAnim == mSheetFrames.end() || mCurAnimName == mAnimNames.end())
+        return;
+
+    mCurAnim = mSheetFrames.erase(mCurAnim);
+    if(mCurAnim == mSheetFrames.end() && mCurAnim != mSheetFrames.begin())
+        mCurAnim--;
+
+    mCurAnimName = mAnimNames.erase(mCurAnimName);
+    if(mCurAnimName == mAnimNames.end() && mCurAnimName != mAnimNames.begin())
+        mCurAnimName--;
 
     drawSheet();
 
@@ -568,30 +586,32 @@ void MainWindow::on_removeAnimButton_clicked()
         mCurFrame = mCurAnim->begin();
 
     drawAnimation();
+    genUndoState();
 }
 
 void MainWindow::on_animationNameEditor_textChanged(const QString &arg1)
 {
     if(mCurAnimName != mAnimNames.end())
         *mCurAnimName = arg1;
-    drawSheet();
+    //drawSheet();
 }
 
 void MainWindow::on_prevAnimButton_clicked()
 {
     //Move these back one
-    if(mCurAnim != mSheetFrames.begin() && mCurAnimName != mAnimNames.begin())
-    {
-        QList<QImage> curAnim = *mCurAnim;
-        mCurAnim = mSheetFrames.erase(mCurAnim);
-        mCurAnim--;
-        mCurAnim = mSheetFrames.insert(mCurAnim, curAnim);
+    if(mCurAnim == mSheetFrames.begin() || mCurAnimName == mAnimNames.begin())
+        return;
 
-        QString curName = *mCurAnimName;
-        mCurAnimName = mAnimNames.erase(mCurAnimName);
-        mCurAnimName--;
-        mCurAnimName = mAnimNames.insert(mCurAnimName, curName);
-    }
+    QList<QImage> curAnim = *mCurAnim;
+    mCurAnim = mSheetFrames.erase(mCurAnim);
+    mCurAnim--;
+    mCurAnim = mSheetFrames.insert(mCurAnim, curAnim);
+
+    QString curName = *mCurAnimName;
+    mCurAnimName = mAnimNames.erase(mCurAnimName);
+    mCurAnimName--;
+    mCurAnimName = mAnimNames.insert(mCurAnimName, curName);
+
 
     drawSheet();
 
@@ -604,24 +624,25 @@ void MainWindow::on_prevAnimButton_clicked()
         mCurFrame = mCurAnim->begin();
 
     drawAnimation();
+    genUndoState();
 }
 
 void MainWindow::on_nextAnimButton_clicked()
 {
-    if(mCurAnim != mSheetFrames.end() && mCurAnimName != mAnimNames.end())
-    {
-        QList<QImage> curAnim = *mCurAnim;
-        mCurAnim = mSheetFrames.erase(mCurAnim);
-        if(mCurAnim != mSheetFrames.end())
-            mCurAnim++;
-        mCurAnim = mSheetFrames.insert(mCurAnim, curAnim);
+    if(mCurAnim == mSheetFrames.end() || mCurAnimName == mAnimNames.end())
+        return;
 
-        QString curName = *mCurAnimName;
-        mCurAnimName = mAnimNames.erase(mCurAnimName);
-        if(mCurAnimName != mAnimNames.end())
-            mCurAnimName++;
-        mCurAnimName = mAnimNames.insert(mCurAnimName, curName);
-    }
+    QList<QImage> curAnim = *mCurAnim;
+    mCurAnim = mSheetFrames.erase(mCurAnim);
+    if(mCurAnim != mSheetFrames.end())
+        mCurAnim++;
+    mCurAnim = mSheetFrames.insert(mCurAnim, curAnim);
+
+    QString curName = *mCurAnimName;
+    mCurAnimName = mAnimNames.erase(mCurAnimName);
+    if(mCurAnimName != mAnimNames.end())
+        mCurAnimName++;
+    mCurAnimName = mAnimNames.insert(mCurAnimName, curName);
 
     drawSheet();
 
@@ -634,6 +655,7 @@ void MainWindow::on_nextAnimButton_clicked()
         mCurFrame = mCurAnim->begin();
 
     drawAnimation();
+    genUndoState();
 }
 
 void MainWindow::drawAnimation()
@@ -887,9 +909,10 @@ void MainWindow::mouseUp(int x, int y)
             ui->sheetWidthBox->setValue(mStartSheetW - (xStartDragSheetW - x));
             bDraggingSheetW = false;
             drawSheet();
+            genUndoState();
         }
     }
-    Q_UNUSED(y);    //TODO
+    Q_UNUSED(y);    //TODO drag anim frames around...?
 }
 
 void MainWindow::closeEvent(QCloseEvent *event)
@@ -952,7 +975,7 @@ void MainWindow::readSettings()
 
 void MainWindow::on_sheetWidthBox_valueChanged(int arg1)
 {
-    drawSheet();
+    //drawSheet();
     Q_UNUSED(arg1);
 }
 
@@ -969,6 +992,12 @@ void MainWindow::newFile()
 
     drawSheet();
     drawAnimation();
+
+    sCurFilename = "[Untitled]";
+    bFileModified = false;
+    fixWindowTitle();
+
+    //TODO Store file orig state, clear undo/redo
 }
 
 void MainWindow::saveFile()
@@ -993,6 +1022,7 @@ void MainWindow::keyPressEvent(QKeyEvent* e)
 
         mouseCursorPos(curMouseX, curMouseY);   //Select again
         drawSheet();
+        genUndoState();
     }
     //TODO Fix this
     else if(e->key() == Qt::Key_W)
@@ -1150,6 +1180,7 @@ bool MainWindow::eventFilter(QObject* obj, QEvent *event)
                 drawAnimation();
 
                 ui->animationNameEditor->selectAll();
+                genUndoState();
                 return true;
             }
             else if(keyEvent->key() == Qt::Key_Down)
@@ -1179,6 +1210,7 @@ bool MainWindow::eventFilter(QObject* obj, QEvent *event)
                 drawAnimation();
 
                 ui->animationNameEditor->selectAll();
+                genUndoState();
                 return true;
             }
         }
@@ -1199,6 +1231,7 @@ void MainWindow::on_frameBgColSelect_clicked()
         ui->frameBgColSelect->setIcon(ic);
         drawSheet();
         drawAnimation();
+        genUndoState();
     }
 }
 
@@ -1213,6 +1246,7 @@ void MainWindow::on_sheetBgColSelect_clicked()
         QIcon ic(colIcon);
         ui->sheetBgColSelect->setIcon(ic);
         drawSheet();
+        genUndoState();
     }
 }
 
@@ -1221,12 +1255,14 @@ void MainWindow::on_FrameBgTransparent_toggled(bool checked)
     ui->frameBgColSelect->setEnabled(!checked);
     drawSheet();
     drawAnimation();
+    genUndoState();
 }
 
 void MainWindow::on_SheetBgTransparent_toggled(bool checked)
 {
     ui->sheetBgColSelect->setEnabled(!checked);
     drawSheet();
+    genUndoState();
 }
 
 void MainWindow::on_balanceAnimButton_clicked()
@@ -1283,6 +1319,7 @@ void MainWindow::balance(int w, int h, balanceSheet::Pos vert, balanceSheet::Pos
      }
 
     drawSheet();
+    genUndoState();
 }
 
 
@@ -1336,6 +1373,8 @@ void MainWindow::saveSheet(QString filename)
             s << ui->FrameBgTransparent->isChecked() << ui->SheetBgTransparent->isChecked();
             s << ui->xSpacingBox->value() << ui->ySpacingBox->value() << ui->sheetWidthBox->value();
             s << sheetFont.toString();
+
+            //TODO Save current anim/anim frame
         }
     }
 }
@@ -1399,6 +1438,8 @@ void MainWindow::loadSheet()
             if(sFontStr.size())
                 sheetFont.fromString(sFontStr);
 
+            //TODO Load current anim/anim frame
+
             //Set stuff in the GUI correctly
             mCurAnim = mSheetFrames.begin();
             mCurAnimName = mAnimNames.begin();
@@ -1432,8 +1473,80 @@ void MainWindow::on_fontButton_clicked()
     {
         sheetFont = font;
         drawSheet();
+        genUndoState();
     }
 }
+
+void MainWindow::fixWindowTitle()
+{
+    QString sWindowStr;
+    QTextStream sWindowTitle(&sWindowStr);
+    if(bFileModified)
+        sWindowTitle << "*";
+    sWindowTitle << sCurFilename;
+    sWindowTitle << " - Sprite Sheeter v" << MAJOR_VERSION << "." << MINOR_VERSION;
+    if(REV_VERSION)
+        sWindowTitle << "." << REV_VERSION;
+    setWindowTitle(sWindowStr);
+}
+
+void MainWindow::genUndoState()
+{
+    //Set the window title if this is the first the file has been modified
+    if(!bFileModified)
+    {
+        bFileModified = true;
+        fixWindowTitle();
+    }
+
+    //TODO Gen undo point
+
+    //TODO Clear redo list
+
+    //TODO Enable undo menu button if it's disabled
+
+    //TODO Disable redo menu button
+}
+
+
+
+//TODO Only gen undo states here if different
+void MainWindow::on_xSpacingBox_editingFinished()
+{
+    drawSheet();
+    genUndoState();
+}
+
+void MainWindow::on_ySpacingBox_editingFinished()
+{
+    drawSheet();
+    genUndoState();
+}
+
+void MainWindow::on_sheetWidthBox_editingFinished()
+{
+    drawSheet();
+    genUndoState();
+}
+
+void MainWindow::on_animationNameEditor_editingFinished()
+{
+    drawSheet();
+    genUndoState();
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
