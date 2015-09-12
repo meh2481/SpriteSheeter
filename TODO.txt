@@ -1,6 +1,6 @@
--Move frames around
+-Let users move frames around somehow
 -Drawing on separate thread, or something to speed it up at least
 -Moving mouse around shouldn't cause lag when highlighting
--Undo/Redo - Snapshots or operation list?
 -Bug: Animation skip when W or S on top or bottom already
 -Don't count spacing boxes as modifications if there's no sprites in the sheet
+-Bug: Undo resets GUI if done on new file (But only just after launch?)

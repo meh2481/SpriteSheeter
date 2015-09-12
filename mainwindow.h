@@ -8,6 +8,7 @@
 #include "balancesheet.h"
 #include "iconexport.h"
 #include "sheeteditorview.h"
+#include <QStack>
 
 #define DRAG_HANDLE_SIZE 5
 
@@ -112,6 +113,9 @@ private:
     QColor sheetBgCol;
     QColor frameBgCol;
 
+    QStack<QByteArray*> undoList;
+    QStack<QByteArray*> redoList;
+
     QString lastIconStr;
     QString lastOpenDir;
 
@@ -137,6 +141,7 @@ private:
     int mStartSheetW;
     int xStartDragSheetW;
     bool bDraggingSheetW;
+    bool bLoadMutex;
 
     //For clicking to select an animation
     QList<QRect> mAnimRects;
@@ -157,6 +162,10 @@ private:
 
     void fixWindowTitle();
     void genUndoState();
+    void pushUndo();
+    void clearUndo();
+    void clearRedo();
+    void updateUndoRedoMenu();  //Update the menu icons to active/inactive as needed
 
     void genericSave(QString saveFilename);
     void saveToStream(QDataStream& s);

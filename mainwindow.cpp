@@ -49,11 +49,14 @@ MainWindow::MainWindow(QWidget *parent) :
     mCurAnim = mSheetFrames.begin();
     mCurAnimName = mAnimNames.begin();
     bShortcuts = true;
+    bLoadMutex = false;
 
     bDraggingSheetW = false;
     bFileModified = false;
     sCurFilename = UNTITLED_IMAGE_STR;
     //TODO Store initial undo state
+    pushUndo();
+    updateUndoRedoMenu();
 
     animUpdateTimer = new QTimer(this);
     QObject::connect(animUpdateTimer, SIGNAL(timeout()), this, SLOT(animUpdate()));
@@ -97,6 +100,8 @@ MainWindow::MainWindow(QWidget *parent) :
 
 MainWindow::~MainWindow()
 {
+    clearUndo();
+    clearRedo();
     if(transparentBg)
         delete transparentBg;
     if(mCurSheet)
@@ -1012,6 +1017,7 @@ void MainWindow::closeEvent(QCloseEvent *event)
 
 void MainWindow::readSettings()
 {
+    bLoadMutex = true;
     QSettings settings("DaxarDev", "SpriteSheeter");
     if(settings.value("xSpacing", -1).toInt() == -1)    //No settings are here
         return;
@@ -1043,6 +1049,20 @@ void MainWindow::readSettings()
         bShortcuts = settings.value("shortcuts").toBool();
         ui->actionEnableShortcuts->setChecked(bShortcuts);
     }
+
+    //Fill in frame/sheet colors
+    QPixmap colIcon(32, 32);
+    colIcon.fill(sheetBgCol);
+    QIcon ic(colIcon);
+    ui->sheetBgColSelect->setIcon(ic);
+    colIcon.fill(frameBgCol);
+    ic = QIcon(colIcon);
+    ui->frameBgColSelect->setIcon(ic);
+
+    ui->frameBgColSelect->setEnabled(!ui->FrameBgTransparent->isChecked());
+    ui->sheetBgColSelect->setEnabled(!ui->SheetBgTransparent->isChecked());
+
+    bLoadMutex = false;
 }
 
 void MainWindow::on_sheetWidthBox_valueChanged(int arg1)
@@ -1088,6 +1108,10 @@ void MainWindow::newFile()
     fixWindowTitle();
 
     //TODO Store file orig state, clear undo/redo
+    clearUndo();
+    clearRedo();
+    pushUndo();
+    updateUndoRedoMenu();
 }
 
 void MainWindow::saveFile()
@@ -1318,6 +1342,7 @@ void MainWindow::on_sheetBgColSelect_clicked()
 
 void MainWindow::on_FrameBgTransparent_toggled(bool checked)
 {
+    if(bLoadMutex) return;
     ui->frameBgColSelect->setEnabled(!checked);
     drawSheet();
     drawAnimation();
@@ -1326,6 +1351,7 @@ void MainWindow::on_FrameBgTransparent_toggled(bool checked)
 
 void MainWindow::on_SheetBgTransparent_toggled(bool checked)
 {
+    if(bLoadMutex) return;
     ui->sheetBgColSelect->setEnabled(!checked);
     drawSheet();
     genUndoState();
@@ -1391,15 +1417,41 @@ void MainWindow::balance(int w, int h, balanceSheet::Pos vert, balanceSheet::Pos
 
 void MainWindow::undo()
 {
-    //TODO
+    if(undoList.size() > 1)
+    {
+        bFileModified = true;
+        //Save our redo point
+        QByteArray* ba = undoList.pop();
+        redoList.push(ba);
+
+        //Undo
+        cleanMemory();
+        ba = undoList.top();
+        QDataStream s(ba, QIODevice::ReadOnly);
+        loadFromStream(s);
+
+        updateUndoRedoMenu();
+    }
 }
 
 void MainWindow::redo()
 {
-    //TODO
+    if(redoList.size())
+    {
+        bFileModified = true;
+        //Save this back on our undo list (top of undo list is current state)
+        QByteArray* ba = redoList.pop();
+        undoList.push(ba);
+
+        //Load this state
+        cleanMemory();
+        QDataStream s(ba, QIODevice::ReadOnly);
+        loadFromStream(s);
+
+        updateUndoRedoMenu();
+    }
 }
 
-//TODO Save to generic data stream
 void MainWindow::saveSheet(QString filename)
 {
     if(!filename.size())
@@ -1468,6 +1520,10 @@ void MainWindow::loadSheet()
             fixWindowTitle();
             lastSaveStr = openFilename;
             //TODO Store file orig state
+            clearUndo();
+            clearRedo();
+            pushUndo();
+            updateUndoRedoMenu();
         }
     }
 }
@@ -1516,6 +1572,7 @@ void MainWindow::saveToStream(QDataStream& s)
 
 void MainWindow::loadFromStream(QDataStream& s)
 {
+    bLoadMutex = true;
     //Grab sheet frames
     int numAnims = 0;
     s >> numAnims;
@@ -1546,10 +1603,22 @@ void MainWindow::loadFromStream(QDataStream& s)
     //Read other stuff
     s >> sheetBgCol;
     s >> frameBgCol;
+
+    //Fill in frame/sheet colors
+    QPixmap colIcon(32, 32);
+    colIcon.fill(sheetBgCol);
+    QIcon ic(colIcon);
+    ui->sheetBgColSelect->setIcon(ic);
+    colIcon.fill(frameBgCol);
+    ic = QIcon(colIcon);
+    ui->frameBgColSelect->setIcon(ic);
+
     bool bSheetBg, bFrameBg;
     s >> bFrameBg >> bSheetBg;
     ui->FrameBgTransparent->setChecked(bFrameBg);
     ui->SheetBgTransparent->setChecked(bSheetBg);
+    ui->frameBgColSelect->setEnabled(!bFrameBg);
+    ui->sheetBgColSelect->setEnabled(!bSheetBg);
     int xSpacing, ySpacing, sheetWidth;
     s >> xSpacing >> ySpacing >> sheetWidth;
     ui->xSpacingBox->setValue(xSpacing);
@@ -1611,6 +1680,7 @@ void MainWindow::loadFromStream(QDataStream& s)
         ui->animationNameEditor->setText(*mCurAnimName);
 
     drawAnimation();
+    bLoadMutex = false;
 }
 
 void MainWindow::cleanMemory()
@@ -1659,16 +1729,46 @@ void MainWindow::genUndoState()
         fixWindowTitle();
     }
 
-    //TODO Gen undo point
+    //Gen undo point
+    pushUndo();
 
-    //TODO Clear redo list
+    //Clear redo list
+    clearRedo();
 
-    //TODO Enable undo menu button if it's disabled
-
-    //TODO Disable redo menu button
+    updateUndoRedoMenu();
 }
 
+void MainWindow::pushUndo()
+{
+    QByteArray* baUndoPt = new QByteArray();
+    QDataStream s(baUndoPt, QIODevice::WriteOnly);
+    saveToStream(s);
+    undoList.push(baUndoPt);
+}
 
+void MainWindow::clearUndo()
+{
+    while(undoList.size())
+    {
+        QByteArray* ba = undoList.pop();
+        delete ba;
+    }
+}
+
+void MainWindow::clearRedo()
+{
+    while(redoList.size())
+    {
+        QByteArray* ba = redoList.pop();
+        delete ba;
+    }
+}
+
+void MainWindow::updateUndoRedoMenu()
+{
+    ui->actionRedo->setEnabled(redoList.size() > 0);
+    ui->actionUndo->setEnabled(undoList.size() > 1);
+}
 
 //TODO Only gen undo states here if different
 void MainWindow::on_xSpacingBox_editingFinished()
