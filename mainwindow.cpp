@@ -1421,44 +1421,7 @@ void MainWindow::saveSheet(QString filename)
             QDataStream s(&f);
             s.setVersion(QDataStream::Qt_5_4);
 
-            //Save sheet frames
-            int curAnim = 0, curFrame = 0;
-            int cnt = 0;
-            s << mSheetFrames.size();
-            //foreach(QList<QImage> imgList, mSheetFrames)
-            for(QList<QList<QImage> >::iterator i = mSheetFrames.begin(); i != mSheetFrames.end(); i++)
-            {
-                 //s << imgList.size();
-                 //foreach(QImage img, imgList)
-                 //    s << img;
-                if(i == mCurAnim)
-                    curAnim = cnt;
-                cnt++;
-
-                s << i->size();
-                int innercnt = 0;
-                for(QList<QImage>::iterator j = i->begin(); j != i->end(); j++)
-                {
-                    if(i == mCurAnim && j == mCurFrame)
-                        curFrame = innercnt;
-                    innercnt++;
-
-                    s << *j;
-                }
-            }
-
-            //Save anim names
-            s << mAnimNames.size();
-            foreach(QString str, mAnimNames)
-                s << str;
-
-            //Save other stuff
-            s << sheetBgCol;
-            s << frameBgCol;
-            s << ui->FrameBgTransparent->isChecked() << ui->SheetBgTransparent->isChecked();
-            s << ui->xSpacingBox->value() << ui->ySpacingBox->value() << ui->sheetWidthBox->value();
-            s << sheetFont.toString();
-            s << curAnim << curFrame;
+            saveToStream(s);
         }
     }
 }
@@ -1497,100 +1460,7 @@ void MainWindow::loadSheet()
             //Clean up memory
             cleanMemory();
 
-            //Grab sheet frames
-            int numAnims = 0;
-            s >> numAnims;
-            for(int i = 0; i < numAnims; i++)
-            {
-                QList<QImage> imgList;
-                int numFrames = 0;
-                s >> numFrames;
-                for(int j = 0; j < numFrames; j++)
-                {
-                    QImage img;
-                    s >> img;
-                    imgList.push_back(img);
-                }
-                mSheetFrames.push_back(imgList);
-            }
-
-            //Grab anim names
-            int numAnimNames = 0;
-            s >> numAnimNames;
-            for(int i = 0; i < numAnimNames; i++)
-            {
-                QString str;
-                s >> str;
-                mAnimNames.push_back(str);
-            }
-
-            //Read other stuff
-            s >> sheetBgCol;
-            s >> frameBgCol;
-            bool bSheetBg, bFrameBg;
-            s >> bFrameBg >> bSheetBg;
-            ui->FrameBgTransparent->setChecked(bFrameBg);
-            ui->SheetBgTransparent->setChecked(bSheetBg);
-            int xSpacing, ySpacing, sheetWidth;
-            s >> xSpacing >> ySpacing >> sheetWidth;
-            ui->xSpacingBox->setValue(xSpacing);
-            ui->ySpacingBox->setValue(ySpacing);
-            ui->sheetWidthBox->setValue(sheetWidth);
-            QString sFontStr;
-            s >> sFontStr;
-            if(s.status() == QDataStream::Ok)
-                sheetFont.fromString(sFontStr);
-            int curAnim = 0, curAnimFrame = 0;  //Read current anim/anim frame
-            s >> curAnim >> curAnimFrame;
-            if(s.status() != QDataStream::Ok)
-                curAnim = curAnimFrame = 0;
-
-            //Done reading
-
-
-            //Default to beginning of animation and frame lists...
-            mCurAnim = mSheetFrames.begin();
-            mCurAnimName = mAnimNames.begin();
-            if(mCurAnim != mSheetFrames.end())
-                mCurFrame = mCurAnim->begin();
-
-            //Set to correct anim and frame...
-            int cnt = 0;
-            for(QList<QList<QImage> >::iterator i = mSheetFrames.begin(); i != mSheetFrames.end(); i++, cnt++)
-            {
-                if(cnt == curAnim)
-                {
-                    mCurFrame = i->begin();
-                    int innercnt = 0;
-                    for(QList<QImage>::iterator j = i->begin(); j != i->end(); j++, innercnt++)
-                    {
-                        if(innercnt == curAnimFrame)
-                        {
-                            mCurFrame = j;
-                            break;
-                        }
-                    }
-                    break;
-                }
-            }
-
-            //Set to correct anim name...
-            cnt = 0;
-            for(QList<QString>::iterator i = mAnimNames.begin(); i != mAnimNames.end(); i++, cnt++)
-            {
-                if(cnt == curAnim)
-                {
-                    mCurAnimName = i;
-                    break;
-                }
-            }
-
-            //Reset GUI stuff!
-            drawSheet();
-            if(mCurAnimName != mAnimNames.end())
-                ui->animationNameEditor->setText(*mCurAnimName);
-
-            drawAnimation();
+            loadFromStream(s);
 
             QFileInfo fi(openFilename);
             sCurFilename = fi.fileName();
@@ -1600,6 +1470,147 @@ void MainWindow::loadSheet()
             //TODO Store file orig state
         }
     }
+}
+
+void MainWindow::saveToStream(QDataStream& s)
+{
+    //Save sheet frames
+    int curAnim = 0, curFrame = 0;
+    int cnt = 0;
+    s << mSheetFrames.size();
+    //foreach(QList<QImage> imgList, mSheetFrames)
+    for(QList<QList<QImage> >::iterator i = mSheetFrames.begin(); i != mSheetFrames.end(); i++)
+    {
+         //s << imgList.size();
+         //foreach(QImage img, imgList)
+         //    s << img;
+        if(i == mCurAnim)
+            curAnim = cnt;
+        cnt++;
+
+        s << i->size();
+        int innercnt = 0;
+        for(QList<QImage>::iterator j = i->begin(); j != i->end(); j++)
+        {
+            if(i == mCurAnim && j == mCurFrame)
+                curFrame = innercnt;
+            innercnt++;
+
+            s << *j;
+        }
+    }
+
+    //Save anim names
+    s << mAnimNames.size();
+    foreach(QString str, mAnimNames)
+        s << str;
+
+    //Save other stuff
+    s << sheetBgCol;
+    s << frameBgCol;
+    s << ui->FrameBgTransparent->isChecked() << ui->SheetBgTransparent->isChecked();
+    s << ui->xSpacingBox->value() << ui->ySpacingBox->value() << ui->sheetWidthBox->value();
+    s << sheetFont.toString();
+    s << curAnim << curFrame;
+}
+
+void MainWindow::loadFromStream(QDataStream& s)
+{
+    //Grab sheet frames
+    int numAnims = 0;
+    s >> numAnims;
+    for(int i = 0; i < numAnims; i++)
+    {
+        QList<QImage> imgList;
+        int numFrames = 0;
+        s >> numFrames;
+        for(int j = 0; j < numFrames; j++)
+        {
+            QImage img;
+            s >> img;
+            imgList.push_back(img);
+        }
+        mSheetFrames.push_back(imgList);
+    }
+
+    //Grab anim names
+    int numAnimNames = 0;
+    s >> numAnimNames;
+    for(int i = 0; i < numAnimNames; i++)
+    {
+        QString str;
+        s >> str;
+        mAnimNames.push_back(str);
+    }
+
+    //Read other stuff
+    s >> sheetBgCol;
+    s >> frameBgCol;
+    bool bSheetBg, bFrameBg;
+    s >> bFrameBg >> bSheetBg;
+    ui->FrameBgTransparent->setChecked(bFrameBg);
+    ui->SheetBgTransparent->setChecked(bSheetBg);
+    int xSpacing, ySpacing, sheetWidth;
+    s >> xSpacing >> ySpacing >> sheetWidth;
+    ui->xSpacingBox->setValue(xSpacing);
+    ui->ySpacingBox->setValue(ySpacing);
+    ui->sheetWidthBox->setValue(sheetWidth);
+    QString sFontStr;
+    s >> sFontStr;
+    if(s.status() == QDataStream::Ok)
+        sheetFont.fromString(sFontStr);
+    int curAnim = 0, curAnimFrame = 0;  //Read current anim/anim frame
+    s >> curAnim >> curAnimFrame;
+    if(s.status() != QDataStream::Ok)
+        curAnim = curAnimFrame = 0;
+
+    //Done reading
+
+
+    //Default to beginning of animation and frame lists...
+    mCurAnim = mSheetFrames.begin();
+    mCurAnimName = mAnimNames.begin();
+    if(mCurAnim != mSheetFrames.end())
+        mCurFrame = mCurAnim->begin();
+
+    //Set to correct anim and frame...
+    int cnt = 0;
+    for(QList<QList<QImage> >::iterator i = mSheetFrames.begin(); i != mSheetFrames.end(); i++, cnt++)
+    {
+        if(cnt == curAnim)
+        {
+            mCurFrame = i->begin();
+            mCurAnim = i;
+            int innercnt = 0;
+            for(QList<QImage>::iterator j = i->begin(); j != i->end(); j++, innercnt++)
+            {
+                if(innercnt == curAnimFrame)
+                {
+                    mCurFrame = j;
+                    break;
+                }
+            }
+            break;
+        }
+    }
+
+    //Set to correct anim name...
+    cnt = 0;
+    for(QList<QString>::iterator i = mAnimNames.begin(); i != mAnimNames.end(); i++, cnt++)
+    {
+        if(cnt == curAnim)
+        {
+            mCurAnimName = i;
+            break;
+        }
+    }
+
+    //Reset GUI stuff!
+    drawSheet();
+    if(mCurAnimName != mAnimNames.end())
+        ui->animationNameEditor->setText(*mCurAnimName);
+
+    drawAnimation();
 }
 
 void MainWindow::cleanMemory()

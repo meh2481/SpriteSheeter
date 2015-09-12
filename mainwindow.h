@@ -159,6 +159,8 @@ private:
     void genUndoState();
 
     void genericSave(QString saveFilename);
+    void saveToStream(QDataStream& s);
+    void loadFromStream(QDataStream& s);
 
 protected:
     //void changeEvent(QEvent *e);
