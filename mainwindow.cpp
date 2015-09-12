@@ -1722,6 +1722,13 @@ void MainWindow::fixWindowTitle()
 
 void MainWindow::genUndoState()
 {
+    if(mSheetFrames.size() == 0 && sCurFilename == UNTITLED_IMAGE_STR && undoList.size() < 2)
+    {
+        clearUndo();
+        pushUndo(); //Save this as our starting state
+        return;   //Don't generate undo states on empty sheet
+    }
+
     //Set the window title if this is the first the file has been modified
     if(!bFileModified)
     {

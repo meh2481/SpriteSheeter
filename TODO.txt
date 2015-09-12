@@ -2,5 +2,5 @@
 -Drawing on separate thread, or something to speed it up at least
 -Moving mouse around shouldn't cause lag when highlighting
 -Bug: Animation skip when W or S on top or bottom already
--Don't count spacing boxes as modifications if there's no sprites in the sheet
--Bug: Undo resets GUI if done on new file (But only just after launch?)
+-Bug: Attempting to open a non-image crashes the program
+-Bug: Sometimes during undo/redo the GUI resets? Figure out how and why
