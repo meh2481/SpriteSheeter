@@ -3,4 +3,4 @@
 -Moving mouse around shouldn't cause lag when highlighting
 -Undo/Redo - Snapshots or operation list?
 -Bug: Animation skip when W or S on top or bottom already
--Save current anim and anim frame in .sheet
+-Don't count spacing boxes as modifications if there's no sprites in the sheet

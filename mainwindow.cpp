@@ -1399,6 +1399,7 @@ void MainWindow::redo()
     //TODO
 }
 
+//TODO Save to generic data stream
 void MainWindow::saveSheet(QString filename)
 {
     if(!filename.size())
@@ -1418,14 +1419,32 @@ void MainWindow::saveSheet(QString filename)
         if(f.open(QIODevice::WriteOnly))
         {
             QDataStream s(&f);
+            s.setVersion(QDataStream::Qt_5_4);
 
             //Save sheet frames
+            int curAnim = 0, curFrame = 0;
+            int cnt = 0;
             s << mSheetFrames.size();
-            foreach(QList<QImage> imgList, mSheetFrames)
+            //foreach(QList<QImage> imgList, mSheetFrames)
+            for(QList<QList<QImage> >::iterator i = mSheetFrames.begin(); i != mSheetFrames.end(); i++)
             {
-                 s << imgList.size();
-                 foreach(QImage img, imgList)
-                     s << img;
+                 //s << imgList.size();
+                 //foreach(QImage img, imgList)
+                 //    s << img;
+                if(i == mCurAnim)
+                    curAnim = cnt;
+                cnt++;
+
+                s << i->size();
+                int innercnt = 0;
+                for(QList<QImage>::iterator j = i->begin(); j != i->end(); j++)
+                {
+                    if(i == mCurAnim && j == mCurFrame)
+                        curFrame = innercnt;
+                    innercnt++;
+
+                    s << *j;
+                }
             }
 
             //Save anim names
@@ -1439,8 +1458,7 @@ void MainWindow::saveSheet(QString filename)
             s << ui->FrameBgTransparent->isChecked() << ui->SheetBgTransparent->isChecked();
             s << ui->xSpacingBox->value() << ui->ySpacingBox->value() << ui->sheetWidthBox->value();
             s << sheetFont.toString();
-
-            //TODO Save current anim/anim frame
+            s << curAnim << curFrame;
         }
     }
 }
@@ -1474,6 +1492,7 @@ void MainWindow::loadSheet()
         if(f.open(QIODevice::ReadOnly))
         {
             QDataStream s(&f);
+            s.setVersion(QDataStream::Qt_5_4);
 
             //Clean up memory
             cleanMemory();
@@ -1519,19 +1538,58 @@ void MainWindow::loadSheet()
             ui->sheetWidthBox->setValue(sheetWidth);
             QString sFontStr;
             s >> sFontStr;
-            if(sFontStr.size())
+            if(s.status() == QDataStream::Ok)
                 sheetFont.fromString(sFontStr);
+            int curAnim = 0, curAnimFrame = 0;  //Read current anim/anim frame
+            s >> curAnim >> curAnimFrame;
+            if(s.status() != QDataStream::Ok)
+                curAnim = curAnimFrame = 0;
 
-            //TODO Load current anim/anim frame
+            //Done reading
 
-            //Set stuff in the GUI correctly
+
+            //Default to beginning of animation and frame lists...
             mCurAnim = mSheetFrames.begin();
             mCurAnimName = mAnimNames.begin();
+            if(mCurAnim != mSheetFrames.end())
+                mCurFrame = mCurAnim->begin();
+
+            //Set to correct anim and frame...
+            int cnt = 0;
+            for(QList<QList<QImage> >::iterator i = mSheetFrames.begin(); i != mSheetFrames.end(); i++, cnt++)
+            {
+                if(cnt == curAnim)
+                {
+                    mCurFrame = i->begin();
+                    int innercnt = 0;
+                    for(QList<QImage>::iterator j = i->begin(); j != i->end(); j++, innercnt++)
+                    {
+                        if(innercnt == curAnimFrame)
+                        {
+                            mCurFrame = j;
+                            break;
+                        }
+                    }
+                    break;
+                }
+            }
+
+            //Set to correct anim name...
+            cnt = 0;
+            for(QList<QString>::iterator i = mAnimNames.begin(); i != mAnimNames.end(); i++, cnt++)
+            {
+                if(cnt == curAnim)
+                {
+                    mCurAnimName = i;
+                    break;
+                }
+            }
+
+            //Reset GUI stuff!
             drawSheet();
             if(mCurAnimName != mAnimNames.end())
                 ui->animationNameEditor->setText(*mCurAnimName);
-            if(mCurAnim != mSheetFrames.end())
-                mCurFrame = mCurAnim->begin();
+
             drawAnimation();
 
             QFileInfo fi(openFilename);
