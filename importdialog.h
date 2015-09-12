@@ -32,6 +32,8 @@ private slots:
     void on_okButton_clicked();
     void on_allButton_clicked();
 
+    void on_cancelButton_clicked();
+
 private:
     Ui::importDialog *ui;
 

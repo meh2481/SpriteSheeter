@@ -17,18 +17,21 @@ SOURCES += main.cpp\
         importdialog.cpp \
 	    Graphics_view_zoom.cpp \
         sheeteditorview.cpp \
-		balancesheet.cpp
+		balancesheet.cpp \
+		iconexport.cpp
 
 HEADERS  += mainwindow.h \
         importdialog.h \
 	    Graphics_view_zoom.h \
         sheeteditorview.h \
 	    animpreview.h \
-		balancesheet.h
+		balancesheet.h \
+		iconexport.h
 
 FORMS    += mainwindow.ui \
             importdialog.ui \
-			balancesheet.ui
+			balancesheet.ui \
+			iconexport.ui
 	
 RC_FILE = spritesheetertest1.rc
 

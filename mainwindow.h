@@ -6,11 +6,10 @@
 #include <QColorDialog>
 #include "importdialog.h"
 #include "balancesheet.h"
+#include "iconexport.h"
 #include "sheeteditorview.h"
 
 #define DRAG_HANDLE_SIZE 5
-#define ICON_WIDTH 148
-#define ICON_HEIGHT 125
 
 #define MAJOR_VERSION 0
 #define MINOR_VERSION 7
@@ -35,6 +34,7 @@ public:
 signals:
     void setImportImg(QString s);
     void setBalanceDefWH(int w, int h);
+    void setIconImage(QImage img);
 
 public slots:
     void importNext(int numx, int numy, bool bVert, bool bSplit);
@@ -92,6 +92,7 @@ private:
     Ui::MainWindow *ui;
     importDialog *mImportWindow;
     balanceSheet *mBalanceWindow;
+    iconExport   *mIconExportWindow;
     QStringList mOpenFiles;
     QString curImportImage;
     QString lastSaveStr;

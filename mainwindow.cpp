@@ -18,6 +18,7 @@ MainWindow::MainWindow(QWidget *parent) :
     ui->setupUi(this);
     mImportWindow = new importDialog(this);
     mBalanceWindow = new balanceSheet(this);
+    mIconExportWindow = new iconExport(this);
 
     //Connect all our signals & slots up
     QObject::connect(mImportWindow, SIGNAL(importOK(int, int, bool, bool)), this, SLOT(importNext(int, int, bool, bool)));
@@ -37,6 +38,7 @@ MainWindow::MainWindow(QWidget *parent) :
     QObject::connect(ui->sheetPreview, SIGNAL(droppedFolders(QStringList)), this, SLOT(addFolders(QStringList)));
     QObject::connect(mBalanceWindow, SIGNAL(balance(int,int,balanceSheet::Pos,balanceSheet::Pos)), this, SLOT(balance(int,int,balanceSheet::Pos,balanceSheet::Pos)));
     QObject::connect(this, SIGNAL(setBalanceDefWH(int,int)), mBalanceWindow, SLOT(defaultWH(int,int)));
+    QObject::connect(this, SIGNAL(setIconImage(QImage)), mIconExportWindow, SLOT(setImage(QImage)));
 
     animItem = NULL;
     animScene = NULL;
@@ -107,6 +109,7 @@ MainWindow::~MainWindow()
         delete sheetItem;
     if(msheetScene)
         delete msheetScene;
+    delete mIconExportWindow;
     delete animUpdateTimer;
     delete mImportWindow;
     delete mBalanceWindow;
@@ -1210,40 +1213,8 @@ void MainWindow::on_saveFrameButton_clicked()
     if(mCurAnim == mSheetFrames.end() || !mCurAnim->size() || mCurFrame == mCurAnim->end())
         return;
 
-    QString sSel = "PNG Image (*.png)";
-    QString saveFilename = QFileDialog::getSaveFileName(this,
-                                                        tr("Save TSR Icon"),
-                                                        lastIconStr,
-                                                        tr("PNG Image (*.png);;Windows Bitmap (*.bmp);;TIFF Image(*.tiff)"),
-                                                        &sSel);
-
-    if(saveFilename.length())
-    {
-        QImage icon(*mCurFrame);
-
-        if(icon.width()* 2 <= ICON_WIDTH && icon.height() * 2 <= ICON_HEIGHT)   //Scale image up
-            icon = icon.scaledToWidth(icon.width()*2, Qt::FastTransformation);
-        else if(icon.width() > ICON_WIDTH || icon.height() > ICON_HEIGHT)       //Scale image down
-        {
-            //Scale down X or Y as appropriate to fit the whole image
-            float wFac = (float)ICON_WIDTH / (float)icon.width();
-            if(wFac * icon.height() > ICON_HEIGHT)
-                icon = icon.scaledToHeight(ICON_HEIGHT, Qt::SmoothTransformation);
-            else
-                icon = icon.scaledToWidth(ICON_WIDTH, Qt::SmoothTransformation);
-        }
-
-        //icon = icon.copy(0, 0, ICON_WIDTH, ICON_HEIGHT);
-        QImage saveIcon(ICON_WIDTH, ICON_HEIGHT, QImage::Format_ARGB32);
-        saveIcon.fill(QColor(0,0,0,0));
-        QPainter paint(&saveIcon);
-        paint.drawImage((ICON_WIDTH - icon.width())/2, (ICON_HEIGHT - icon.height())/2, icon);
-        paint.end();
-
-        saveIcon.save(saveFilename);
-
-        lastIconStr = saveFilename;
-    }
+    setIconImage(*mCurFrame);
+    mIconExportWindow->show();
 }
 
 bool MainWindow::eventFilter(QObject* obj, QEvent *event)

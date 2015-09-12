@@ -103,6 +103,12 @@ void importDialog::restoreSettings()
     ui->checkSplitAnimations->setChecked(settings.value("splitAnimations").toBool());
 }
 
+void importDialog::on_cancelButton_clicked()
+{
+    this->hide();
+}
+
+
 
 
 
