@@ -382,7 +382,7 @@ void MainWindow::drawSheet(bool bHighlight)
             hiliteH += ySize;
 
         iSizeY += offsetY + ySize;
-        if(sName->length())
+        if(sName->length() && ui->animNameEnabled->isChecked())
             iSizeY += textHeight;
         sName++;
 
@@ -428,14 +428,14 @@ void MainWindow::drawSheet(bool bHighlight)
         //Highlight our current anim red
         if(bHighlight && sName == mCurAnimName)
         {
-            if(sName->length())
+            if(sName->length() && ui->animNameEnabled->isChecked())
                 painter.fillRect(0, curY-offsetY, mCurSheet->width(), hiliteH + textHeight + offsetY*2, QColor(128,0,0,255));
             else
                 painter.fillRect(0, curY-offsetY, mCurSheet->width(), hiliteH + offsetY*2, QColor(128,0,0,255));
         }
 
         //Draw label for animation
-        if(sName->length())
+        if(sName->length() && ui->animNameEnabled->isChecked())
         {
             painter.setPen(QColor(255,255,255,255));
             painter.drawText(QRectF(offsetX,curY,1000,textHeight), Qt::AlignLeft|Qt::AlignVCenter, *sName);
@@ -1011,6 +1011,7 @@ void MainWindow::closeEvent(QCloseEvent *event)
     settings.setValue("lastImportExportStr", lastImportExportStr);
     settings.setValue("sheetFont", sheetFont.toString());
     settings.setValue("shortcuts", bShortcuts);
+    settings.setValue("animNames", ui->animNameEnabled->isChecked());
     //settings.setValue("", );
     QMainWindow::closeEvent(event);
 }
@@ -1049,6 +1050,8 @@ void MainWindow::readSettings()
         bShortcuts = settings.value("shortcuts").toBool();
         ui->actionEnableShortcuts->setChecked(bShortcuts);
     }
+    if(settings.value("animNames").isValid())
+        ui->animNameEnabled->setChecked(settings.value("animNames").toBool());
 
     //Fill in frame/sheet colors
     QPixmap colIcon(32, 32);
@@ -1568,6 +1571,7 @@ void MainWindow::saveToStream(QDataStream& s)
     s << ui->xSpacingBox->value() << ui->ySpacingBox->value() << ui->sheetWidthBox->value();
     s << sheetFont.toString();
     s << curAnim << curFrame;
+    s << ui->animNameEnabled->isChecked();
 }
 
 void MainWindow::loadFromStream(QDataStream& s)
@@ -1632,6 +1636,10 @@ void MainWindow::loadFromStream(QDataStream& s)
     s >> curAnim >> curAnimFrame;
     if(s.status() != QDataStream::Ok)
         curAnim = curAnimFrame = 0;
+    bool bNamesEnabled;
+    s >> bNamesEnabled;
+    if(s.status() == QDataStream::Ok)
+        ui->animNameEnabled->setChecked(bNamesEnabled);
 
     //Done reading
 
@@ -1716,7 +1724,7 @@ void MainWindow::fixWindowTitle()
     sWindowTitle << sCurFilename;
     sWindowTitle << " - Sprite Sheeter v" << MAJOR_VERSION << "." << MINOR_VERSION;
     if(REV_VERSION)
-        sWindowTitle << "." << REV_VERSION;
+        sWindowTitle << " r" << REV_VERSION;
     setWindowTitle(sWindowStr);
 }
 
@@ -1805,6 +1813,22 @@ void MainWindow::on_animationNameEditor_editingFinished()
 void MainWindow::enableShortcuts(bool b)
 {
     bShortcuts = b;
+}
+
+void MainWindow::on_animNameEnabled_toggled(bool checked)
+{
+    if(checked)
+    {
+        ui->animationNameEditor->setEnabled(true);
+        ui->fontButton->setEnabled(true);
+    }
+    else
+    {
+        ui->animationNameEditor->setEnabled(false);
+        ui->fontButton->setEnabled(false);
+    }
+    drawSheet();
+    genUndoState();
 }
 
 

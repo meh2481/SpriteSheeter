@@ -4,3 +4,4 @@
 -Bug: Animation skip when W or S on top or bottom already
 -Bug: Attempting to open a non-image crashes the program
 -Bug: Sometimes during undo/redo the GUI resets? Figure out how and why
+-"I changed the font, and now after removing the text entirely, the height for the font area is still there but at 0 height (hope that makes sense) which is resulting in double the Y Spacing appear at the top of an animation. So rather than 3, it's now 6, but the spacing between the sprites are still just 3."

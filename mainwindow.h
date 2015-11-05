@@ -14,7 +14,7 @@
 
 #define MAJOR_VERSION 0
 #define MINOR_VERSION 7
-#define REV_VERSION   0
+#define REV_VERSION   1
 
 #define UNTITLED_IMAGE_STR "Untitled"
 
@@ -80,14 +80,11 @@ private slots:
     void on_SheetBgTransparent_toggled(bool checked);
     void on_balanceAnimButton_clicked();
     void on_fontButton_clicked();
-
     void on_xSpacingBox_editingFinished();
-
     void on_ySpacingBox_editingFinished();
-
     void on_sheetWidthBox_editingFinished();
-
     void on_animationNameEditor_editingFinished();
+    void on_animNameEnabled_toggled(bool checked);
 
 private:
     Ui::MainWindow *ui;

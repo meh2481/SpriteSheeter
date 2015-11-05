@@ -524,6 +524,16 @@
            </layout>
           </item>
           <item>
+           <widget class="QCheckBox" name="animNameEnabled">
+            <property name="text">
+             <string>Enable Animation Names</string>
+            </property>
+            <property name="checked">
+             <bool>true</bool>
+            </property>
+           </widget>
+          </item>
+          <item>
            <widget class="QPushButton" name="saveFrameButton">
             <property name="text">
              <string>Save Frame as TSR Icon...</string>
