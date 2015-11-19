@@ -10,6 +10,7 @@
 #include <QDebug>
 #include <QFontDialog>
 #include <QFontMetrics>
+#include "FreeImage.h"
 
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
@@ -167,7 +168,7 @@ void MainWindow::addFolders(QStringList l)
         QDir folder(s);
         QStringList fileFilters;
         //Filter out only image files
-        fileFilters << "*.png" << "*.bmp" << "*.gif" << "*.pbm" << "*.pgm" << "*.ppm" << "*.tif" << "*.tiff" << "*.xbm" << "*.xpm" << "*.tga";
+        fileFilters << "*.png" << "*.bmp" << "*.gif" << "*.pbm" << "*.pgm" << "*.ppm" << "*.tif" << "*.tiff" << "*.xbm" << "*.xpm" << "*.tga" << "*.jpg" << "*.jpeg";
         QStringList files = folder.entryList(fileFilters, QDir::Files, QDir::Name); //Get list of all files in this folder
 
         importImageList(files, s + '/', folder.dirName());
@@ -1012,12 +1013,14 @@ void MainWindow::closeEvent(QCloseEvent *event)
     settings.setValue("sheetFont", sheetFont.toString());
     settings.setValue("shortcuts", bShortcuts);
     settings.setValue("animNames", ui->animNameEnabled->isChecked());
+    settings.setValue("lastGIFStr", lastGIFStr);
     //settings.setValue("", );
     QMainWindow::closeEvent(event);
 }
 
 void MainWindow::readSettings()
 {
+    //Read in settings from config (registry or wherever it is)
     bLoadMutex = true;
     QSettings settings("DaxarDev", "SpriteSheeter");
     if(settings.value("xSpacing", -1).toInt() == -1)    //No settings are here
@@ -1052,6 +1055,12 @@ void MainWindow::readSettings()
     }
     if(settings.value("animNames").isValid())
         ui->animNameEnabled->setChecked(settings.value("animNames").toBool());
+    if(settings.value("lastGIFStr").isValid())
+        lastGIFStr = settings.value("lastGIFStr").toString();
+
+
+
+    //Other initialization stuff!
 
     //Fill in frame/sheet colors
     QPixmap colIcon(32, 32);
@@ -1829,6 +1838,75 @@ void MainWindow::on_animNameEnabled_toggled(bool checked)
     }
     drawSheet();
     genUndoState();
+}
+
+FIBITMAP* imageFromPixels(uint8_t* imgData, uint32_t width, uint32_t height)
+{
+    //Fortunately, both Qt and FreeImage seem to like BGRA
+    return FreeImage_ConvertFromRawBits(imgData, width, height, ((((32 * width) + 31) / 32) * 4), 32, FI_RGBA_RED, FI_RGBA_GREEN, FI_RGBA_BLUE, true);
+}
+
+void MainWindow::on_ExportAnimButton_clicked()
+{
+    if(!mCurSheet || mSheetFrames.empty() || mCurAnim == mSheetFrames.end()) return;
+
+    QString saveFilename = QFileDialog::getSaveFileName(this,
+                                                        tr("Save GIF Animation"),
+                                                        lastGIFStr,
+                                                        tr("GIF Image (*.gif)"));
+
+    if(saveFilename.length())
+    {
+        //qDebug() << "save filename: " << saveFilename.toStdString().c_str() << endl;
+        lastGIFStr = saveFilename;
+
+        FIMULTIBITMAP* bmp = FreeImage_OpenMultiBitmap(FIF_GIF, saveFilename.toStdString().c_str(), true, false);
+
+        for(QList<QImage>::iterator i = mCurAnim->begin(); i != mCurAnim->end(); i++)
+        {
+            //Create image and 256-color image
+            QImage imgTemp(*i);
+            imgTemp = imgTemp.convertToFormat(QImage::Format_ARGB32);
+            QByteArray bytes((char*) imgTemp.bits(), imgTemp.byteCount());
+            FIBITMAP* page = imageFromPixels((uint8_t*)bytes.data(), imgTemp.width(), imgTemp.height());
+            RGBQUAD q;
+            q.rgbBlue = 255;
+            q.rgbGreen = 0;
+            q.rgbRed = 255;
+            q.rgbReserved = 255;
+            FreeImage_SetBackgroundColor(page, &q);
+            FIBITMAP* page24bit = FreeImage_ConvertTo24Bits(page);
+            FreeImage_SetBackgroundColor(page24bit, &q);
+            FIBITMAP* page8bit = FreeImage_ColorQuantize(page24bit, FIQ_WUQUANT);
+            FreeImage_SetBackgroundColor(page8bit, &q);
+            //FreeImage_SetTransparentIndex(page8bit, 0);
+
+            //qDebug() << FreeImage_GetWidth(page) << "," << FreeImage_GetHeight(page) << endl;
+            qDebug() << FreeImage_GetWidth(page8bit) << "," << FreeImage_GetHeight(page8bit) << endl;
+
+            //FreeImage_Save(FIF_PNG, page, saveFilename.toStdString().c_str());  //TODO
+
+            //Append metadata
+            FreeImage_SetMetadata(FIMD_ANIMATION, page8bit, NULL, NULL);
+            FITAG *tag = FreeImage_CreateTag();
+            if(tag)
+            {
+                FreeImage_SetTagKey(tag, "FrameTime");
+                FreeImage_SetTagType(tag, FIDT_LONG);
+                FreeImage_SetTagCount(tag, 1);
+                FreeImage_SetTagLength(tag, 4);
+                DWORD dwFrameTime = (DWORD)((1000.0f / ui->animationSpeedSpinbox->value()) + 0.5f);
+                FreeImage_SetTagValue(tag, &dwFrameTime);
+                FreeImage_SetMetadata(FIMD_ANIMATION, page8bit, FreeImage_GetTagKey(tag), tag);
+                FreeImage_DeleteTag(tag);
+            }
+            FreeImage_AppendPage(bmp, page8bit);
+            FreeImage_Unload(page);
+            FreeImage_Unload(page8bit);
+        }
+
+        FreeImage_CloseMultiBitmap(bmp, GIF_DEFAULT);
+    }
 }
 
 

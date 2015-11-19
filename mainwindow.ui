@@ -541,6 +541,16 @@
            </widget>
           </item>
           <item>
+           <widget class="QPushButton" name="ExportAnimButton">
+            <property name="toolTip">
+             <string>Export the currently selected animation as a GIF image (Note: May degrade quality)</string>
+            </property>
+            <property name="text">
+             <string>Save Animation as GIF Image...</string>
+            </property>
+           </widget>
+          </item>
+          <item>
            <widget class="QPushButton" name="balanceAnimButton">
             <property name="text">
              <string>Balance/Resize Animation...</string>

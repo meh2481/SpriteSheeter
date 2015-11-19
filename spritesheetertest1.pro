@@ -26,7 +26,8 @@ HEADERS  += mainwindow.h \
         sheeteditorview.h \
 	    animpreview.h \
 		balancesheet.h \
-		iconexport.h
+		iconexport.h \
+		FreeImage.h
 
 FORMS    += mainwindow.ui \
             importdialog.ui \
@@ -38,3 +39,5 @@ RC_FILE = spritesheetertest1.rc
 RESOURCES = spritesheetertest1.qrc
 
 DISTFILES +=
+
+win32:LIBS += -L"$$_PRO_FILE_PWD_/lib/" -lFreeImage

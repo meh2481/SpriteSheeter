@@ -14,7 +14,7 @@
 
 #define MAJOR_VERSION 0
 #define MINOR_VERSION 7
-#define REV_VERSION   1
+#define REV_VERSION   2
 
 #define UNTITLED_IMAGE_STR "Untitled"
 
@@ -86,6 +86,8 @@ private slots:
     void on_animationNameEditor_editingFinished();
     void on_animNameEnabled_toggled(bool checked);
 
+    void on_ExportAnimButton_clicked();
+
 private:
     Ui::MainWindow *ui;
     importDialog *mImportWindow;
@@ -115,6 +117,7 @@ private:
 
     QString lastIconStr;
     QString lastOpenDir;
+    QString lastGIFStr;
 
     QColorDialog colorSelect;
 
