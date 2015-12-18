@@ -53,6 +53,7 @@ MainWindow::MainWindow(QWidget *parent) :
     bLoadMutex = false;
 
     bDraggingSheetW = false;
+    m_bDraggingSelected = false;
     bFileModified = false;
     sCurFilename = UNTITLED_IMAGE_STR;
     //TODO Store initial undo state
@@ -846,116 +847,106 @@ void MainWindow::mouseCursorPos(int x, int y)
     }
     statusBar()->showMessage(QString::number(x) + ", " + QString::number(y));
 
-    QList<QImage>::iterator mPrevSelected = mCurSelected;
-    //bool bUsePrev = true;
-    //for(QList<QList<QImage> >::iterator ql = mSheetFrames.begin(); ql != mSheetFrames.end(); ql++)
-    //{
-    //    if(mPrevSelected == ql->end())
-    //        bUsePrev = false;
-    //}
-
-    if(mCurAnim != mSheetFrames.end())
-        mCurSelected = mCurAnim->end();
-
-    int maxSheetWidth = ui->sheetWidthBox->value();
-    int offsetX = ui->xSpacingBox->value();
-    int offsetY = ui->ySpacingBox->value();
-    int curX = offsetX;
-    int curY = offsetY;
-
-    int prevX, prevY, newX, newY;
-    prevX = prevY = newX = newY = -1;
-
-    //bool bDone = false;
-    QList<QString>::iterator sName = mAnimNames.begin();
-    mCurSelectedInAnim = mSheetFrames.end();
-    for(QList<QList<QImage> >::iterator ql = mSheetFrames.begin(); ql != mSheetFrames.end(); ql++)
+    if(!m_bDraggingSelected)    //If we're not dragging a frame currently
     {
-        int ySize = 0;
+        QList<QImage>::iterator mPrevSelected = mCurSelected;
 
-        if(sName->length())
-            curY += textHeight;
-        sName++;
+        if(mCurAnim != mSheetFrames.end())
+            mCurSelected = mCurAnim->end();
 
-        for(QList<QImage>::iterator img = ql->begin(); img != ql->end(); img++)
+        int maxSheetWidth = ui->sheetWidthBox->value();
+        int offsetX = ui->xSpacingBox->value();
+        int offsetY = ui->ySpacingBox->value();
+        int curX = offsetX;
+        int curY = offsetY;
+
+        int prevX, prevY, newX, newY;
+        prevX = prevY = newX = newY = -1;
+
+        QList<QString>::iterator sName = mAnimNames.begin();
+        mCurSelectedInAnim = mSheetFrames.end();
+        for(QList<QList<QImage> >::iterator ql = mSheetFrames.begin(); ql != mSheetFrames.end(); ql++)
         {
-            //Test to see if we should start next line
-            if(curX + img->width() + offsetX > maxSheetWidth)
+            int ySize = 0;
+
+            if(sName->length())
+                curY += textHeight;
+            sName++;
+
+            for(QList<QImage>::iterator img = ql->begin(); img != ql->end(); img++)
             {
-                curY += offsetY + ySize;
-                ySize = 0;
-                curX = offsetX;
+                //Test to see if we should start next line
+                if(curX + img->width() + offsetX > maxSheetWidth)
+                {
+                    curY += offsetY + ySize;
+                    ySize = 0;
+                    curX = offsetX;
+                }
+
+                //Found previous image; store draw coordinates
+                if(img == mPrevSelected)
+                {
+                    prevX = curX;
+                    prevY = curY;
+                }
+
+                //Check and see if we're overlapping this portion of the image
+                //painter.fillRect(curX, curY, img.width(), img.height(), Qt::transparent);
+                if(x >= curX && x < curX + img->width() &&
+                   y >= curY && y < curY + img->height())
+                {
+                    mCurSelected = img;
+                    mCurSelectedInAnim = ql;
+                    newX = curX;
+                    newY = curY;    //Store draw coordinates
+                }
+
+                if(img->height() > ySize)
+                    ySize = img->height();
+                curX += img->width() + offsetX;
             }
 
-            //Found previous image; store draw coordinates
-            if(img == mPrevSelected)
-            {
-                prevX = curX;
-                prevY = curY;
-            }
-
-            //Check and see if we're overlapping this portion of the image
-            //painter.fillRect(curX, curY, img.width(), img.height(), Qt::transparent);
-            if(x >= curX && x < curX + img->width() &&
-               y >= curY && y < curY + img->height())
-            {
-                mCurSelected = img;
-                mCurSelectedInAnim = ql;
-                newX = curX;
-                newY = curY;    //Store draw coordinates
-                //bDone = true;
-                //break;
-            }
-
-            if(img->height() > ySize)
-                ySize = img->height();
-            curX += img->width() + offsetX;
+            curY += offsetY + ySize;
+            curX = offsetX;
         }
-       // if(bDone) break;
 
-        curY += offsetY + ySize;
-        curX = offsetX;
-    }
-
-    if(mPrevSelected != mCurSelected)
-    {
-        //Redraw both
-
-        QPainter painter(mCurSheet);
-        painter.setCompositionMode(QPainter::CompositionMode_SourceOver);
-        if(ui->FrameBgTransparent->isChecked())
+        if(mPrevSelected != mCurSelected)
         {
-            QBrush bgTexBrush(*transparentBg);
+            //Redraw both
+            QPainter painter(mCurSheet);
+            painter.setCompositionMode(QPainter::CompositionMode_SourceOver);
+            if(ui->FrameBgTransparent->isChecked())
+            {
+                QBrush bgTexBrush(*transparentBg);
+                if(newX > 0)
+                    painter.fillRect(newX, newY, mCurSelected->width(), mCurSelected->height(), bgTexBrush);
+                if(prevX > 0)
+                    painter.fillRect(prevX, prevY, mPrevSelected->width(), mPrevSelected->height(), bgTexBrush);
+            }
+            else
+            {
+                if(newX > 0)
+                    painter.fillRect(newX, newY, mCurSelected->width(), mCurSelected->height(), QBrush(frameBgCol));
+                if(prevX > 0)
+                    painter.fillRect(prevX, prevY, mPrevSelected->width(), mPrevSelected->height(), QBrush(frameBgCol));
+            }
+
+            //Draw images back
             if(newX > 0)
-                painter.fillRect(newX, newY, mCurSelected->width(), mCurSelected->height(), bgTexBrush);
+                painter.drawImage(newX, newY, *mCurSelected);
             if(prevX > 0)
-                painter.fillRect(prevX, prevY, mPrevSelected->width(), mPrevSelected->height(), bgTexBrush);
-        }
-        else
-        {
+                painter.drawImage(prevX, prevY, *mPrevSelected);
+
+            //If we're highlighting this image, draw blue overtop
             if(newX > 0)
-                painter.fillRect(newX, newY, mCurSelected->width(), mCurSelected->height(), QBrush(frameBgCol));
-            if(prevX > 0)
-                painter.fillRect(prevX, prevY, mPrevSelected->width(), mPrevSelected->height(), QBrush(frameBgCol));
+                painter.fillRect(newX, newY, mCurSelected->width(), mCurSelected->height(), QBrush(QColor(0,0,255,100)));
+
+            painter.end();
+
+            //Update the GUI to show this image
+            if(sheetItem != NULL)
+                sheetItem->setPixmap(QPixmap::fromImage(*mCurSheet));
         }
-
-        //Draw images back
-        if(newX > 0)
-            painter.drawImage(newX, newY, *mCurSelected);
-        if(prevX > 0)
-            painter.drawImage(prevX, prevY, *mPrevSelected);
-
-        //If we're highlighting this image, draw blue overtop
-        if(newX > 0)
-        {
-            painter.fillRect(newX, newY, mCurSelected->width(), mCurSelected->height(), QBrush(QColor(0,0,255,100)));
-        }
-
-        painter.end();
-
-        //Update the GUI to show this image
-        if(sheetItem != NULL)
-            sheetItem->setPixmap(QPixmap::fromImage(*mCurSheet));
     }
 
     curMouseY = y;
@@ -1006,6 +997,10 @@ void MainWindow::mouseDown(int x, int y)
                     name++;
                 }
             }
+
+            //Start dragging if we should...
+            if(mCurSelectedInAnim != mSheetFrames.end())
+                m_bDraggingSelected = true;
         }
     }
 }
@@ -1021,8 +1016,57 @@ void MainWindow::mouseUp(int x, int y)
             drawSheet();
             genUndoState();
         }
+
+        if(m_bDraggingSelected)
+        {
+            m_bDraggingSelected = false;
+            if(!mAnimRects.empty() && !mSheetFrames.empty())
+            {
+                QList<QList<QImage> >::iterator i = mSheetFrames.begin();
+                QList<QString>::iterator name = mAnimNames.begin();
+                bool bDropped = false;
+                foreach(QRect r, mAnimRects)
+                {
+                    if(r.contains(x,y))
+                    {
+                        //TODO Drop off in position...
+
+
+                        bDropped = true;
+                        break;
+                    }
+                    i++;
+                    name++;
+                }
+
+                if(!bDropped)
+                {
+                    if(y > mCurSheet->height())
+                    {
+                        //Create new anim for this frame
+                        QImage img = *mCurSelected;
+                        mCurSelectedInAnim->erase(mCurSelected);
+                        mCurFrame = mCurAnim->begin();
+                        if(mCurFrame == mCurAnim->end())
+                        {
+                            //We erased this whole animation; clean up
+                            on_removeAnimButton_clicked();  //Simulate deleting this anim
+                        }
+                        QList<QImage> qNewAnim;
+                        qNewAnim.push_back(img);
+                        mSheetFrames.push_back(qNewAnim);
+                        mAnimNames.push_back("");
+                        mCurAnimName = mAnimNames.end();
+                        mCurAnimName--;
+                        mCurAnim = mSheetFrames.end();
+                        mCurAnim--;
+                        mCurFrame = mCurAnim->begin();
+                    }
+                }
+            }
+            drawSheet();
+        }
     }
-    Q_UNUSED(y);    //TODO drag anim frames around...?
 }
 
 void MainWindow::closeEvent(QCloseEvent *event)

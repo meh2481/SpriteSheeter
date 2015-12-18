@@ -1,6 +1,5 @@
 -Let users move frames around in animations / between animations
 -Drawing on separate thread, or something to speed it up at least
--Moving mouse around shouldn't cause lag when highlighting
 -Bug: Animation skip when W or S on top or bottom already
 -Bug: Attempting to open a non-image crashes the program
 -Select folders and apply defaults to create sheets from subfolders (Batch processing; see http://www.vg-resource.com/thread-27036-post-602625.html#pid602625)
