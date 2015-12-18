@@ -1,9 +1,9 @@
--Let users move frames around somehow
+-Let users move frames around in animations / between animations
 -Drawing on separate thread, or something to speed it up at least
 -Moving mouse around shouldn't cause lag when highlighting
 -Bug: Animation skip when W or S on top or bottom already
 -Bug: Attempting to open a non-image crashes the program
--Bug: Sometimes during undo/redo the GUI resets? Figure out how and why
--"I changed the font, and now after removing the text entirely, the height for the font area is still there but at 0 height (hope that makes sense) which is resulting in double the Y Spacing appear at the top of an animation. So rather than 3, it's now 6, but the spacing between the sprites are still just 3."
--Export animation preview to animated GIF (see http://sourceforge.net/p/freeimage/discussion/36111/thread/ea987d97/)
 -Select folders and apply defaults to create sheets from subfolders (Batch processing; see http://www.vg-resource.com/thread-27036-post-602625.html#pid602625)
+-Import animated gif
+-Add debug log & test balance/resize; reports of crashing
+-Offset frames by a few pixels l/r/u/d; not to be confused with moving frames around in an animation

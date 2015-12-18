@@ -464,7 +464,7 @@ void MainWindow::drawSheet(bool bHighlight)
             else if(!ui->FrameBgTransparent->isChecked())
             {
                 painter.setCompositionMode(QPainter::CompositionMode_SourceOver);
-                painter.fillRect(QRect(curX, curY, img->width(), img->height()), QBrush(frameBgCol));
+                painter.fillRect(curX, curY, img->width(), img->height(), QBrush(frameBgCol));
             }
 
             painter.drawImage(curX, curY, *img);
@@ -472,7 +472,7 @@ void MainWindow::drawSheet(bool bHighlight)
             //If we're highlighting this image, draw blue overtop
             if(bHighlight && mCurSelected == img)
             {
-                painter.fillRect(QRect(curX, curY, img->width(), img->height()), QBrush(QColor(0,0,255,100)));
+                painter.fillRect(curX, curY, img->width(), img->height(), QBrush(QColor(0,0,255,100)));
                 painter.setCompositionMode(QPainter::CompositionMode_Source);
             }
 
@@ -503,7 +503,7 @@ void MainWindow::drawSheet(bool bHighlight)
         sheetItem->setPixmap(QPixmap::fromImage(*mCurSheet));
 
     //Set the new rect of the scene
-    msheetScene->setSceneRect(-100, -100, mCurSheet->width()+200, mCurSheet->height()+200);
+    msheetScene->setSceneRect(-SCENE_BOUNDS, -SCENE_BOUNDS, mCurSheet->width()+SCENE_BOUNDS*2, mCurSheet->height()+SCENE_BOUNDS*2);
 
     ui->sheetPreview->show();
 }
@@ -847,6 +847,12 @@ void MainWindow::mouseCursorPos(int x, int y)
     statusBar()->showMessage(QString::number(x) + ", " + QString::number(y));
 
     QList<QImage>::iterator mPrevSelected = mCurSelected;
+    //bool bUsePrev = true;
+    //for(QList<QList<QImage> >::iterator ql = mSheetFrames.begin(); ql != mSheetFrames.end(); ql++)
+    //{
+    //    if(mPrevSelected == ql->end())
+    //        bUsePrev = false;
+    //}
 
     if(mCurAnim != mSheetFrames.end())
         mCurSelected = mCurAnim->end();
@@ -856,6 +862,11 @@ void MainWindow::mouseCursorPos(int x, int y)
     int offsetY = ui->ySpacingBox->value();
     int curX = offsetX;
     int curY = offsetY;
+
+    int prevX, prevY, newX, newY;
+    prevX = prevY = newX = newY = -1;
+
+    //bool bDone = false;
     QList<QString>::iterator sName = mAnimNames.begin();
     mCurSelectedInAnim = mSheetFrames.end();
     for(QList<QList<QImage> >::iterator ql = mSheetFrames.begin(); ql != mSheetFrames.end(); ql++)
@@ -876,6 +887,13 @@ void MainWindow::mouseCursorPos(int x, int y)
                 curX = offsetX;
             }
 
+            //Found previous image; store draw coordinates
+            if(img == mPrevSelected)
+            {
+                prevX = curX;
+                prevY = curY;
+            }
+
             //Check and see if we're overlapping this portion of the image
             //painter.fillRect(curX, curY, img.width(), img.height(), Qt::transparent);
             if(x >= curX && x < curX + img->width() &&
@@ -883,18 +901,62 @@ void MainWindow::mouseCursorPos(int x, int y)
             {
                 mCurSelected = img;
                 mCurSelectedInAnim = ql;
+                newX = curX;
+                newY = curY;    //Store draw coordinates
+                //bDone = true;
+                //break;
             }
 
             if(img->height() > ySize)
                 ySize = img->height();
             curX += img->width() + offsetX;
         }
+       // if(bDone) break;
+
         curY += offsetY + ySize;
         curX = offsetX;
     }
 
     if(mPrevSelected != mCurSelected)
-        drawSheet();
+    {
+        //Redraw both
+
+        QPainter painter(mCurSheet);
+        painter.setCompositionMode(QPainter::CompositionMode_SourceOver);
+        if(ui->FrameBgTransparent->isChecked())
+        {
+            QBrush bgTexBrush(*transparentBg);
+            if(newX > 0)
+                painter.fillRect(newX, newY, mCurSelected->width(), mCurSelected->height(), bgTexBrush);
+            if(prevX > 0)
+                painter.fillRect(prevX, prevY, mPrevSelected->width(), mPrevSelected->height(), bgTexBrush);
+        }
+        else
+        {
+            if(newX > 0)
+                painter.fillRect(newX, newY, mCurSelected->width(), mCurSelected->height(), QBrush(frameBgCol));
+            if(prevX > 0)
+                painter.fillRect(prevX, prevY, mPrevSelected->width(), mPrevSelected->height(), QBrush(frameBgCol));
+        }
+
+        //Draw images back
+        if(newX > 0)
+            painter.drawImage(newX, newY, *mCurSelected);
+        if(prevX > 0)
+            painter.drawImage(prevX, prevY, *mPrevSelected);
+
+        //If we're highlighting this image, draw blue overtop
+        if(newX > 0)
+        {
+            painter.fillRect(newX, newY, mCurSelected->width(), mCurSelected->height(), QBrush(QColor(0,0,255,100)));
+        }
+
+        painter.end();
+
+        //Update the GUI to show this image
+        if(sheetItem != NULL)
+            sheetItem->setPixmap(QPixmap::fromImage(*mCurSheet));
+    }
 
     curMouseY = y;
     curMouseX = x;
@@ -1881,6 +1943,7 @@ FIBITMAP* imageFromPixels(uint8_t* imgData, uint32_t width, uint32_t height)
     return curImg;
 }
 
+//(see http://sourceforge.net/p/freeimage/discussion/36111/thread/ea987d97/) for discussion of FreeImage gif saving...
 void MainWindow::on_ExportAnimButton_clicked()
 {
     if(!mCurSheet || mSheetFrames.empty() || mCurAnim == mSheetFrames.end()) return;
@@ -1896,6 +1959,7 @@ void MainWindow::on_ExportAnimButton_clicked()
 
         //Open GIF image for writing
         FIMULTIBITMAP* bmp = FreeImage_OpenMultiBitmap(FIF_GIF, saveFilename.toStdString().c_str(), true, false);
+        DWORD dwFrameTime = (DWORD)((1000.0f / (float)ui->animationSpeedSpinbox->value()) + 0.5f); //Framerate of gif image
 
         for(QList<QImage>::iterator i = mCurAnim->begin(); i != mCurAnim->end(); i++)
         {
@@ -1903,7 +1967,7 @@ void MainWindow::on_ExportAnimButton_clicked()
             QImage imgTemp(*i);
             //Gotta get Qt image in proper format first
             imgTemp = imgTemp.convertToFormat(QImage::Format_ARGB32);
-            QByteArray bytes((char*) imgTemp.bits(), imgTemp.byteCount());
+            QByteArray bytes((char*)imgTemp.bits(), imgTemp.byteCount());
             //Make 32-bit image with magenta instead of transparency first...
             FIBITMAP* page = imageFromPixels((uint8_t*)bytes.data(), imgTemp.width(), imgTemp.height());
             //Turn this into an 8-bit image next
@@ -1933,7 +1997,6 @@ void MainWindow::on_ExportAnimButton_clicked()
                 FreeImage_SetTagType(tag, FIDT_LONG);
                 FreeImage_SetTagCount(tag, 1);
                 FreeImage_SetTagLength(tag, 4);
-                DWORD dwFrameTime = (DWORD)((1000.0f / ui->animationSpeedSpinbox->value()) + 0.5f);
                 FreeImage_SetTagValue(tag, &dwFrameTime);
                 FreeImage_SetMetadata(FIMD_ANIMATION, page8bit, FreeImage_GetTagKey(tag), tag);
                 FreeImage_DeleteTag(tag);

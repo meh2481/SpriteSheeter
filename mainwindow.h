@@ -11,6 +11,7 @@
 #include <QStack>
 
 #define DRAG_HANDLE_SIZE 5
+#define SCENE_BOUNDS    200
 
 #define MAJOR_VERSION 0
 #define MINOR_VERSION 7
