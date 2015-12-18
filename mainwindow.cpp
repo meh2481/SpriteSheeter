@@ -1037,8 +1037,8 @@ void MainWindow::mouseCursorPos(int x, int y)
 
             if(rcDraw.width() && rcDraw.height())
             {
-                //Draw new place, in black
-                painter.fillRect(rcDraw, QBrush(QColor(0,0,0,255)));
+                //Draw new place, in blue (highlight color)
+                painter.fillRect(rcDraw, QBrush(QColor(0,0,255,255)));
             }
             if(m_rLastDragHighlight.width() && m_rLastDragHighlight.height())
             {
