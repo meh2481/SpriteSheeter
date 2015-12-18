@@ -104,6 +104,8 @@ private:
     QFont   sheetFont;
     QList<QList<QImage> > mSheetFrames;
     QList<QList<QImage> >::iterator mCurAnim;
+    QList<QList<QImage> >::iterator m_selDragToAnim;
+    QList<QImage>::iterator m_selDragToPos;
     QList<QImage>::iterator mCurFrame;
     QList<QImage>::iterator mCurSelected;
     QList<QList<QImage> >::iterator mCurSelectedInAnim;

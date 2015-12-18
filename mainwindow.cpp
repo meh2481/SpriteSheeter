@@ -847,18 +847,17 @@ void MainWindow::mouseCursorPos(int x, int y)
     }
     statusBar()->showMessage(QString::number(x) + ", " + QString::number(y));
 
+    int maxSheetWidth = ui->sheetWidthBox->value();
+    int offsetX = ui->xSpacingBox->value();
+    int offsetY = ui->ySpacingBox->value();
+    int curX = offsetX;
+    int curY = offsetY;
     if(!m_bDraggingSelected)    //If we're not dragging a frame currently
     {
         QList<QImage>::iterator mPrevSelected = mCurSelected;
 
         if(mCurAnim != mSheetFrames.end())
             mCurSelected = mCurAnim->end();
-
-        int maxSheetWidth = ui->sheetWidthBox->value();
-        int offsetX = ui->xSpacingBox->value();
-        int offsetY = ui->ySpacingBox->value();
-        int curX = offsetX;
-        int curY = offsetY;
 
         int prevX, prevY, newX, newY;
         prevX = prevY = newX = newY = -1;
@@ -948,6 +947,58 @@ void MainWindow::mouseCursorPos(int x, int y)
                 sheetItem->setPixmap(QPixmap::fromImage(*mCurSheet));
         }
     }
+    else
+    {
+        //Currently dragging something
+        QList<QString>::iterator sName = mAnimNames.begin();
+        m_selDragToAnim = mSheetFrames.end();
+        for(QList<QList<QImage> >::iterator ql = mSheetFrames.begin(); ql != mSheetFrames.end(); ql++)
+        {
+            int ySize = 0;
+
+            if(sName->length())
+                curY += textHeight;
+            sName++;
+
+            for(QList<QImage>::iterator img = ql->begin(); img != ql->end(); img++)
+            {
+                //Test to see if we should start next line
+                if(curX + img->width() + offsetX > maxSheetWidth)
+                {
+                    curY += offsetY + ySize;
+                    ySize = 0;
+                    curX = offsetX;
+                }
+
+                //Check if inserting BEFORE first image of a row
+                if(curX == offsetX &&
+                   x < curX + img->width() / 2 &&
+                   y >= curY - offsetY/2 &&
+                   y < curY + img->height() + offsetY/2)
+                {
+                    m_selDragToPos = img;
+                    m_selDragToAnim = ql;
+                }
+                //Check and see if we're dragging PAST this image. If so, we'll insert AFTER it.
+                else if(x >= curX + img->width() / 2 &&
+                        y >= curY - offsetY/2 &&
+                        y < curY + img->height() + offsetY/2)
+                {
+                    m_selDragToPos = img;
+                    m_selDragToPos++;
+                    m_selDragToAnim = ql;
+                }
+
+                if(img->height() > ySize)
+                    ySize = img->height();
+                curX += img->width() + offsetX;
+            }
+
+            curY += offsetY + ySize;
+            curX = offsetX;
+        }
+
+    }
 
     curMouseY = y;
     curMouseX = x;
@@ -1000,7 +1051,10 @@ void MainWindow::mouseDown(int x, int y)
 
             //Start dragging if we should...
             if(mCurSelectedInAnim != mSheetFrames.end())
+            {
                 m_bDraggingSelected = true;
+                m_selDragToAnim = mSheetFrames.end();
+            }
         }
     }
 }
@@ -1029,8 +1083,42 @@ void MainWindow::mouseUp(int x, int y)
                 {
                     if(r.contains(x,y))
                     {
-                        //TODO Drop off in position...
-
+                        //Drop off in position...
+                        if(m_selDragToAnim != mSheetFrames.end())
+                        {
+                            //If we're dragging within an animation, just swap positions
+                            if(m_selDragToAnim == mCurSelectedInAnim)
+                            {
+                                int startpos = mCurSelected - mCurSelectedInAnim->begin();
+                                int endpos = m_selDragToPos - m_selDragToAnim->begin();
+                                if(startpos != endpos && startpos != endpos-1)  //Make sure we're not dragging into itself
+                                {
+                                    if(endpos < startpos)
+                                        endpos++;
+                                    if(endpos <= 0)
+                                        m_selDragToAnim->move(startpos, 0);
+                                    else
+                                        m_selDragToAnim->move(startpos, endpos-1);
+                                }
+                                mCurFrame = mCurAnim->begin();
+                            }
+                            else    //Move to another anim
+                            {
+                                QImage img = *mCurSelected;
+                                m_selDragToAnim->insert(m_selDragToPos, img);
+                                mCurSelectedInAnim->erase(mCurSelected);
+                                mCurAnim = mCurSelectedInAnim;
+                                mCurFrame = mCurAnim->begin();
+                                if(mCurFrame == mCurAnim->end())
+                                {
+                                    //We erased this whole animation; clean up
+                                    on_removeAnimButton_clicked();  //Simulate deleting this anim
+                                }
+                                //mCurAnim = m_selDragToAnim;
+                                //mCurFrame = mCurAnim->begin();
+                            }
+                            genUndoState();
+                        }
 
                         bDropped = true;
                         break;
@@ -1061,10 +1149,13 @@ void MainWindow::mouseUp(int x, int y)
                         mCurAnim = mSheetFrames.end();
                         mCurAnim--;
                         mCurFrame = mCurAnim->begin();
+                        genUndoState();
                     }
                 }
             }
             drawSheet();
+            drawAnimation();
+            mouseCursorPos(x,y);
         }
     }
 }
