@@ -1020,6 +1020,14 @@ void MainWindow::mouseCursorPos(int x, int y)
             curY += offsetY + ySize;
             curX = offsetX;
         }
+        //if(rcDraw.width() == 0 && rcDraw.height() == 0) //Didn't hit anything
+        {
+            //Check and see if below image
+            if(x >= 0 && x <= mCurSheet->width() && y > mCurSheet->height())
+            {
+                rcDraw.setCoords(0, mCurSheet->height() - offsetY - 1, mCurSheet->width(), mCurSheet->height());
+            }
+        }
 
         //See if we should draw handle showing where we'll insert this frame
         if(rcDraw != m_rLastDragHighlight)  //Update last drawing place
