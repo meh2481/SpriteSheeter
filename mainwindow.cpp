@@ -54,6 +54,7 @@ MainWindow::MainWindow(QWidget *parent) :
 
     bDraggingSheetW = false;
     m_bDraggingSelected = false;
+    m_bSetDraggingCursor = false;
     bFileModified = false;
     sCurFilename = UNTITLED_IMAGE_STR;
     //TODO Store initial undo state
@@ -830,11 +831,12 @@ void MainWindow::mouseCursorPos(int x, int y)
         if(x <= mCurSheet->width() &&
            x >= mCurSheet->width() - DRAG_HANDLE_SIZE &&
            y <= mCurSheet->height() &&
-           y >= 0)
+           y >= 0 &&
+           !m_bDraggingSelected)
         {
              ui->sheetPreview->setCursor(Qt::SizeHorCursor);
         }
-        else if(!bDraggingSheetW)
+        else if(!bDraggingSheetW && !m_bDraggingSelected)
             ui->sheetPreview->setCursor(Qt::ArrowCursor);
 
         //See if we're resizing the sheet
@@ -950,6 +952,14 @@ void MainWindow::mouseCursorPos(int x, int y)
     else
     {
         //Currently dragging something
+        if(!m_bSetDraggingCursor)
+        {
+            m_bSetDraggingCursor = true;
+            QPixmap pMap;
+            pMap.convertFromImage(*mCurSelected);
+            ui->sheetPreview->setCursor(QCursor(pMap));
+        }
+
         QList<QString>::iterator sName = mAnimNames.begin();
         m_selDragToAnim = mSheetFrames.end();
         for(QList<QList<QImage> >::iterator ql = mSheetFrames.begin(); ql != mSheetFrames.end(); ql++)
@@ -1053,6 +1063,7 @@ void MainWindow::mouseDown(int x, int y)
             if(mCurSelectedInAnim != mSheetFrames.end())
             {
                 m_bDraggingSelected = true;
+                m_bSetDraggingCursor = false;
                 m_selDragToAnim = mSheetFrames.end();
             }
         }

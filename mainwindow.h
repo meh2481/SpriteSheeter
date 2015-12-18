@@ -110,6 +110,7 @@ private:
     QList<QImage>::iterator mCurSelected;
     QList<QList<QImage> >::iterator mCurSelectedInAnim;
     bool m_bDraggingSelected;
+    bool m_bSetDraggingCursor;
     QList<QString> mAnimNames;
     QList<QString>::iterator mCurAnimName;
     QImage* transparentBg;
