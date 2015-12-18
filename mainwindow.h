@@ -111,11 +111,14 @@ private:
     QList<QList<QImage> >::iterator mCurSelectedInAnim;
     bool m_bDraggingSelected;
     bool m_bSetDraggingCursor;
+    QRect m_rLastDragHighlight;
+    bool m_bLastDragInAnim;
     QList<QString> mAnimNames;
     QList<QString>::iterator mCurAnimName;
     QImage* transparentBg;
     QColor sheetBgCol;
     QColor frameBgCol;
+    QColor animHighlightCol;
 
     QStack<QByteArray*> undoList;
     QStack<QByteArray*> redoList;
