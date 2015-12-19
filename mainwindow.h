@@ -179,6 +179,8 @@ private:
     void saveToStream(QDataStream& s);
     void loadFromStream(QDataStream& s);
 
+    bool loadAnimatedGIF(QString sFilename);    //Returns false on non-multi-page gif or failure, true on success
+
 protected:
     //void changeEvent(QEvent *e);
     bool eventFilter(QObject* obj, QEvent *event);

@@ -229,6 +229,16 @@ void MainWindow::openImportDiag()
 
     curImportImage = mOpenFiles.takeFirst();    //Pop first filename and use it
 
+    //Test for/filter out animated .gif
+    if(curImportImage.endsWith(".gif", Qt::CaseInsensitive))
+    {
+        if(loadAnimatedGIF(curImportImage)) //If this fails, fall through and treat this image as per normal
+        {
+            openImportDiag();   //Recursively call so we get the next image
+            return;             //Break out here so we don't add it accidentally
+        }
+    }
+
     //Strip the file path from the image name
     int last = curImportImage.lastIndexOf("/");
     if(last == -1)
@@ -2212,7 +2222,47 @@ void MainWindow::on_ExportAnimButton_clicked()
     }
 }
 
+bool MainWindow::loadAnimatedGIF(QString sFilename)
+{
+    FIMULTIBITMAP* bmp = FreeImage_OpenMultiBitmap(FIF_GIF, sFilename.toStdString().c_str(), false, true);
 
+    if(bmp == NULL) return false;
+
+    int numFrames = FreeImage_GetPageCount(bmp);
+
+    if(numFrames < 2)   //If only one frame in this image, pass it along as a multi-frame single-image bitmap
+    {
+        FreeImage_CloseMultiBitmap(bmp);
+        return false;
+    }
+
+    //Grab all the frames and stick them in a Qt-friendly format
+    QList<QImage> frameList;
+    for(int i = 0; i < numFrames; i++)
+    {
+        FIBITMAP* frame = FreeImage_LockPage(bmp, i);
+        FIBITMAP* frame32bit = FreeImage_ConvertTo32Bits(frame);
+
+        QImage imgResult(FreeImage_GetBits(frame32bit), FreeImage_GetWidth(frame32bit), FreeImage_GetHeight(frame32bit), FreeImage_GetPitch(frame32bit), QImage::Format_ARGB32);
+        frameList.push_back(imgResult.mirrored());
+
+        FreeImage_Unload(frame32bit);   //Qt expects the memory to be available the whole time wut? Luckily, we have to mirror it anyway so it doesn't matter
+        FreeImage_UnlockPage(bmp, frame, false);
+    }
+
+    QString fileName = QFileInfo(sFilename).baseName();
+    insertAnimHelper(frameList, fileName);
+
+    if(mCurAnim != mSheetFrames.end())
+        mCurFrame = mCurAnim->begin();
+
+    drawSheet();
+    drawAnimation();
+    genUndoState();
+
+    FreeImage_CloseMultiBitmap(bmp);
+    return true;
+}
 
 
 
