@@ -9,13 +9,14 @@
 #include "iconexport.h"
 #include "sheeteditorview.h"
 #include <QStack>
+#include <QTextStream>
 
 #define DRAG_HANDLE_SIZE 5
-#define SCENE_BOUNDS    200
+#define SCENE_BOUNDS    300
 
 #define MAJOR_VERSION 0
-#define MINOR_VERSION 7
-#define REV_VERSION   2
+#define MINOR_VERSION 8
+#define REV_VERSION   0
 
 #define UNTITLED_IMAGE_STR "Untitled"
 
@@ -126,6 +127,9 @@ private:
     QString lastIconStr;
     QString lastOpenDir;
     QString lastGIFStr;
+
+    QFile* errlogfile;
+    QTextStream* errlog;
 
     QColorDialog colorSelect;
 

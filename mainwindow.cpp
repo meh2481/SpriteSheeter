@@ -102,6 +102,12 @@ MainWindow::MainWindow(QWidget *parent) :
     ui->frameBgColSelect->setIcon(ic2);
 
     fixWindowTitle();
+
+    errlogfile = new QFile("debug.log");
+    if(errlogfile->open(QIODevice::Append | QIODevice::WriteOnly | QIODevice::Text))
+    {
+        errlog = new QTextStream(errlogfile);
+    }
 }
 
 MainWindow::~MainWindow()
@@ -1663,12 +1669,14 @@ void MainWindow::on_balanceAnimButton_clicked()
 
 void MainWindow::balance(int w, int h, balanceSheet::Pos vert, balanceSheet::Pos horiz)
 {
-    if(mCurAnim == mSheetFrames.end() || !mCurAnim->size() || mCurFrame == mCurAnim->end())
+    *errlog << "enter function balance()" << endl;
+    if(mCurAnim == mSheetFrames.end() || !mCurAnim->size())
         return;
 
     QMutableListIterator<QImage> it(*mCurAnim);
     while(it.hasNext())
     {
+        *errlog << "balance() loop begin" << endl;
         QImage img = it.next();
 
         //Use vert/horiz
@@ -1687,16 +1695,24 @@ void MainWindow::balance(int w, int h, balanceSheet::Pos vert, balanceSheet::Pos
         else
             xPos = w - img.width();
 
+        *errlog << "balance() create final image" << endl;
         QImage final(w, h, QImage::Format_ARGB32);
         final.fill(QColor(0,0,0,0));
         QPainter painter(&final);
+        *errlog << "balance() draw new img size" << endl;
         painter.drawImage(xPos, yPos, img);
         painter.end();
         it.setValue(final);
      }
 
+    mCurFrame = mCurAnim->begin();
+    *errlog << "balance() draw sheet" << endl;
     drawSheet();
+    *errlog << "balance() draw animation" << endl;
+    drawAnimation();
+    *errlog << "balance() gen undo" << endl;
     genUndoState();
+    *errlog << "balance() end" << endl;
 }
 
 
