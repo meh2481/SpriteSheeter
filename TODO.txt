@@ -4,3 +4,5 @@
 -Select folders and apply defaults to create sheets from subfolders (Batch processing; see http://www.vg-resource.com/thread-27036-post-602625.html#pid602625)
 -Add debug log & test balance/resize; reports of crashing
 -Offset frames by a few pixels l/r/u/d; not to be confused with moving frames around in an animation
+-Help feature with kb shortcuts/usage/etc
+-DDS support
