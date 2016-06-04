@@ -6,3 +6,6 @@
 -Offset frames by a few pixels l/r/u/d; not to be confused with moving frames around in an animation
 -Help feature with kb shortcuts/usage/etc
 -DDS support
+-Reverse animation order
+-Remove duplicate frames in animation
+-Bug: Dragging between rows sometimes turns red on multi-line animations
