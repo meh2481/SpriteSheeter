@@ -14,9 +14,11 @@
 #define DRAG_HANDLE_SIZE 5
 #define SCENE_BOUNDS    300
 
-#define MAJOR_VERSION 0
-#define MINOR_VERSION 8
+#define MAJOR_VERSION 1
+#define MINOR_VERSION 0
 #define REV_VERSION   0
+
+#define CURSOR_SZ 64
 
 #define UNTITLED_IMAGE_STR "Untitled"
 
@@ -47,7 +49,6 @@ public slots:
     void mouseDown(int x, int y);
     void mouseUp(int x, int y);
     void newFile();
-    void saveFile();
     void saveFileAs();
     void enableShortcuts(bool b);
     void undo();
@@ -127,9 +128,6 @@ private:
     QString lastIconStr;
     QString lastOpenDir;
     QString lastGIFStr;
-
-    QFile* errlogfile;
-    QTextStream* errlog;
 
     QColorDialog colorSelect;
 

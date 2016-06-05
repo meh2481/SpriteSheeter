@@ -29,7 +29,7 @@ MainWindow::MainWindow(QWidget *parent) :
     QObject::connect(ui->sheetPreview, SIGNAL(mousePressed(int,int)), this, SLOT(mouseDown(int, int)));
     QObject::connect(ui->sheetPreview, SIGNAL(mouseReleased(int,int)), this, SLOT(mouseUp(int, int)));
     QObject::connect(ui->actionNew, SIGNAL(triggered()), this, SLOT(newFile()));
-    QObject::connect(ui->actionSave, SIGNAL(triggered()), this, SLOT(saveFile()));
+    QObject::connect(ui->actionSave, SIGNAL(triggered()), this, SLOT(on_saveSheetButton_clicked()));
     QObject::connect(ui->actionSaveAs, SIGNAL(triggered()), this, SLOT(saveFileAs()));
     QObject::connect(ui->actionImport_WIP_Sheet, SIGNAL(triggered(bool)), this, SLOT(loadSheet()));
     QObject::connect(ui->actionUndo, SIGNAL(triggered(bool)), this, SLOT(undo()));
@@ -102,12 +102,6 @@ MainWindow::MainWindow(QWidget *parent) :
     ui->frameBgColSelect->setIcon(ic2);
 
     fixWindowTitle();
-
-    errlogfile = new QFile("debug.log");
-    if(errlogfile->open(QIODevice::Append | QIODevice::WriteOnly | QIODevice::Text))
-    {
-        errlog = new QTextStream(errlogfile);
-    }
 }
 
 MainWindow::~MainWindow()
@@ -974,9 +968,14 @@ void MainWindow::mouseCursorPos(int x, int y)
         //Currently dragging something
         if(!m_bSetDraggingCursor)
         {
+            //Haven't set cursor yet; do so
             m_bSetDraggingCursor = true;
             QPixmap pMap;
             pMap.convertFromImage(*mCurSelected);
+            if(pMap.width() > pMap.height() && pMap.width() > CURSOR_SZ)
+                pMap = pMap.scaledToWidth(CURSOR_SZ, Qt::SmoothTransformation);
+            else if(pMap.width() <= pMap.height() && pMap.height() > CURSOR_SZ)
+                pMap = pMap.scaledToHeight(CURSOR_SZ, Qt::SmoothTransformation);
             ui->sheetPreview->setCursor(QCursor(pMap));
         }
 
@@ -1406,11 +1405,6 @@ void MainWindow::newFile()
     updateUndoRedoMenu();
 }
 
-void MainWindow::saveFile()
-{
-    on_saveSheetButton_clicked();
-}
-
 void MainWindow::keyPressEvent(QKeyEvent* e)
 {
     //Deleting current selected frame
@@ -1670,14 +1664,14 @@ void MainWindow::on_balanceAnimButton_clicked()
 
 void MainWindow::balance(int w, int h, BalanceSheetDialog::Pos vert, BalanceSheetDialog::Pos horiz)
 {
-    *errlog << "enter function balance()" << endl;
+    qDebug() << "enter function balance()" << endl;
     if(mCurAnim == mSheetFrames.end() || !mCurAnim->size())
         return;
 
     QMutableListIterator<QImage> it(*mCurAnim);
     while(it.hasNext())
     {
-        *errlog << "balance() loop begin" << endl;
+        qDebug() << "balance() loop begin" << endl;
         QImage img = it.next();
 
         //Use vert/horiz
@@ -1696,26 +1690,25 @@ void MainWindow::balance(int w, int h, BalanceSheetDialog::Pos vert, BalanceShee
         else
             xPos = w - img.width();
 
-        *errlog << "balance() create final image" << endl;
+        qDebug() << "balance() create final image" << endl;
         QImage final(w, h, QImage::Format_ARGB32);
         final.fill(QColor(0,0,0,0));
         QPainter painter(&final);
-        *errlog << "balance() draw new img size" << endl;
+        qDebug() << "balance() draw new img size" << endl;
         painter.drawImage(xPos, yPos, img);
         painter.end();
         it.setValue(final);
      }
 
     mCurFrame = mCurAnim->begin();
-    *errlog << "balance() draw sheet" << endl;
+    qDebug() << "balance() draw sheet" << endl;
     drawSheet();
-    *errlog << "balance() draw animation" << endl;
+    qDebug() << "balance() draw animation" << endl;
     drawAnimation();
-    *errlog << "balance() gen undo" << endl;
+    qDebug() << "balance() gen undo" << endl;
     genUndoState();
-    *errlog << "balance() end" << endl;
+    qDebug() << "balance() end" << endl;
 }
-
 
 void MainWindow::undo()
 {
@@ -2130,12 +2123,6 @@ void MainWindow::on_animNameEnabled_toggled(bool checked)
     genUndoState();
 }
 
-/*FIBITMAP* imageFromPixels(uint8_t* imgData, uint32_t width, uint32_t height)
-{
-    //Fortunately, both Qt and FreeImage seem to like BGRA
-    return FreeImage_ConvertFromRawBits(imgData, width, height, ((((32 * width) + 31) / 32) * 4), 32, FI_RGBA_RED, FI_RGBA_GREEN, FI_RGBA_BLUE, true);
-}*/
-
 FIBITMAP* imageFromPixels(uint8_t* imgData, uint32_t width, uint32_t height)
 {
     FIBITMAP* curImg = FreeImage_Allocate(width, height, 32);
@@ -2201,7 +2188,7 @@ void MainWindow::on_ExportAnimButton_clicked()
             //Turn this into an 8-bit image next
             FIBITMAP* page8bit = FreeImage_ColorQuantize(page, FIQ_WUQUANT);
 
-            //Set transparency table from magenta. !Hopefully this was preserved during quantization!
+            //Set transparency table from magenta. *Hopefully this was preserved during quantization!*
             RGBQUAD *Palette = FreeImage_GetPalette(page8bit);
             BYTE Transparency[256];
             for (unsigned i = 0; i < 256; i++)
