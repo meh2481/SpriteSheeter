@@ -5,9 +5,10 @@
 -Add debug log & test balance/resize; reports of crashing
 -Offset frames by a few pixels l/r/u/d; not to be confused with moving frames around in an animation
 -Help feature with kb shortcuts/usage/etc
--DDS support
+-Rather than specifying image types manually, remove filter entirely or add ALL actual file types we support
 -Reverse animation order
 -Remove duplicate frames in animation
 -Bug: Dragging between rows sometimes turns red on multi-line animations
 -Scale down cursor when dragging if too large
 -Arrow keys should scroll through animation frames
+-Panning should allow greater distance; should calculate how large viewport is and let you pan off until image is half-off screen or such

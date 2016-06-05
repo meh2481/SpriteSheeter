@@ -13,26 +13,28 @@ TEMPLATE = app
 
 
 SOURCES += main.cpp\
-        mainwindow.cpp \
-        importdialog.cpp \
-	    Graphics_view_zoom.cpp \
-        sheeteditorview.cpp \
-		balancesheet.cpp \
-		iconexport.cpp
+    SheetEditorView.cpp \
+    ZoomableGraphicsView.cpp \
+    MainWindow.cpp \
+    ImportDialog.cpp \
+    IconExportDialog.cpp \
+    BalanceSheetDialog.cpp
 
-HEADERS  += mainwindow.h \
-        importdialog.h \
-	    Graphics_view_zoom.h \
-        sheeteditorview.h \
-	    animpreview.h \
-		balancesheet.h \
-		iconexport.h \
-		FreeImage.h
+HEADERS  += \
+		FreeImage.h \
+    ZoomableGraphicsView.h \
+    SheetEditorView.h \
+    MainWindow.h \
+    ImportDialog.h \
+    IconExportDialog.h \
+    BalanceSheetDialog.h \
+    AnimPreview.h
 
-FORMS    += mainwindow.ui \
-            importdialog.ui \
-			balancesheet.ui \
-			iconexport.ui
+FORMS    += \
+    BalanceSheetDialog.ui \
+    IconExportDialog.ui \
+    ImportDialog.ui \
+    MainWindow.ui
 	
 RC_FILE = spritesheetertest1.rc
 

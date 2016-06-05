@@ -4,10 +4,10 @@
 #include <QMainWindow>
 #include <QTimer>
 #include <QColorDialog>
-#include "importdialog.h"
-#include "balancesheet.h"
-#include "iconexport.h"
-#include "sheeteditorview.h"
+#include "ImportDialog.h"
+#include "BalanceSheetDialog.h"
+#include "IconExportDialog.h"
+#include "SheetEditorView.h"
 #include <QStack>
 #include <QTextStream>
 
@@ -56,7 +56,7 @@ public slots:
     void loadSheet();
     void addImages(QStringList l);
     void addFolders(QStringList l);
-    void balance(int w, int h, balanceSheet::Pos vert, balanceSheet::Pos horiz);
+    void balance(int w, int h, BalanceSheetDialog::Pos vert, BalanceSheetDialog::Pos horiz);
 
 private slots:
     void on_openImagesButton_clicked();
@@ -92,9 +92,9 @@ private slots:
 
 private:
     Ui::MainWindow *ui;
-    importDialog *mImportWindow;
-    balanceSheet *mBalanceWindow;
-    iconExport   *mIconExportWindow;
+    ImportDialog *mImportWindow;
+    BalanceSheetDialog *mBalanceWindow;
+    IconExportDialog   *mIconExportWindow;
     QStringList mOpenFiles;
     QString curImportImage;
     QString lastSaveStr;

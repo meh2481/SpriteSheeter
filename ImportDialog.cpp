@@ -1,19 +1,18 @@
-#include "importdialog.h"
-#include "ui_importdialog.h"
+#include "ImportDialog.h"
+#include "ui_ImportDialog.h"
 #include <QSettings>
 
-importDialog::importDialog(QWidget *parent) : QDialog(parent),
+ImportDialog::ImportDialog(QWidget *parent) : QDialog(parent),
     ui(new Ui::importDialog)
 {
     ui->setupUi(this);
 
     scene = NULL;
-    //view = NULL;
     item = NULL;
     restoreSettings();
 }
 
-importDialog::~importDialog()
+ImportDialog::~ImportDialog()
 {
     saveSettings();
     if(item)
@@ -23,7 +22,7 @@ importDialog::~importDialog()
     delete ui;
 }
 
-void importDialog::setPreviewImage(QString sImg)
+void ImportDialog::setPreviewImage(QString sImg)
 {
     if(!sImg.isEmpty())
     {
@@ -50,36 +49,33 @@ void importDialog::setPreviewImage(QString sImg)
     }
 }
 
-void importDialog::on_okButton_clicked()
+void ImportDialog::on_okButton_clicked()
 {
     this->hide();
     importOK(ui->xFramesBox->value(), ui->yFramesBox->value(), ui->vertFirst->isChecked(), ui->checkSplitAnimations->isChecked());
 }
 
-void importDialog::on_allButton_clicked()
+void ImportDialog::on_allButton_clicked()
 {
     this->hide();
     importAll(ui->xFramesBox->value(), ui->yFramesBox->value(), ui->vertFirst->isChecked(), ui->checkSplitAnimations->isChecked());
 }
 
-void importDialog::showEvent(QShowEvent *)
+void ImportDialog::showEvent(QShowEvent *)
 {
     ui->imagePreview->fitInView(scene->sceneRect(),Qt::KeepAspectRatio);
 }
 
-void importDialog::resizeEvent(QResizeEvent* event)
+void ImportDialog::resizeEvent(QResizeEvent* event)
 {
    QDialog::resizeEvent(event);
 
    ui->imagePreview->fitInView(scene->sceneRect(),Qt::KeepAspectRatio);
 }
 
-void importDialog::saveSettings()
+void ImportDialog::saveSettings()
 {
     QSettings settings("DaxarDev", "SpriteSheeterImport");
-    //Save window geometry
-    //settings.setValue("geometry", saveGeometry());
-    //settings.setValue("windowState", saveState());
     //Save other GUI settings
     settings.setValue("xFrames", ui->xFramesBox->value());
     settings.setValue("yFrames", ui->yFramesBox->value());
@@ -89,11 +85,9 @@ void importDialog::saveSettings()
     //settings.setValue("", );
 }
 
-void importDialog::restoreSettings()
+void ImportDialog::restoreSettings()
 {
     QSettings settings("DaxarDev", "SpriteSheeterImport");
-    //restoreGeometry(settings.value("geometry").toByteArray());
-    //restoreState(settings.value("windowState").toByteArray());
     if(settings.value("xFrames", -1).toInt() == -1)    //No settings are here
         return;
     ui->xFramesBox->setValue(settings.value("xFrames").toInt());
@@ -103,7 +97,7 @@ void importDialog::restoreSettings()
     ui->checkSplitAnimations->setChecked(settings.value("splitAnimations").toBool());
 }
 
-void importDialog::on_cancelButton_clicked()
+void ImportDialog::on_cancelButton_clicked()
 {
     this->hide();
 }

@@ -10,13 +10,13 @@ namespace Ui {
 class importDialog;
 }
 
-class importDialog : public QDialog
+class ImportDialog : public QDialog
 {
     Q_OBJECT
 
 public:
-    explicit importDialog(QWidget *parent = 0);
-    ~importDialog();
+    explicit ImportDialog(QWidget *parent = 0);
+    ~ImportDialog();
 
     void showEvent(QShowEvent *);
     void resizeEvent(QResizeEvent* event);

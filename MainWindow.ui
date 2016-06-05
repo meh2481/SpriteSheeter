@@ -162,7 +162,7 @@
          </layout>
         </item>
         <item>
-         <widget class="sheetEditorView" name="sheetPreview" native="true">
+         <widget class="SheetEditorView" name="sheetPreview" native="true">
           <property name="sizePolicy">
            <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
             <horstretch>4</horstretch>
@@ -335,7 +335,7 @@
              </widget>
             </item>
             <item>
-             <widget class="animPreview" name="animationPreview" native="true">
+             <widget class="AnimPreview" name="animationPreview" native="true">
               <property name="sizePolicy">
                <sizepolicy hsizetype="Expanding" vsizetype="Preferred">
                 <horstretch>0</horstretch>
@@ -786,14 +786,14 @@
  <layoutdefault spacing="6" margin="11"/>
  <customwidgets>
   <customwidget>
-   <class>sheetEditorView</class>
+   <class>SheetEditorView</class>
    <extends>QWidget</extends>
-   <header>sheeteditorview.h</header>
+   <header>SheetEditorView.h</header>
   </customwidget>
   <customwidget>
-   <class>animPreview</class>
+   <class>AnimPreview</class>
    <extends>QWidget</extends>
-   <header>animpreview.h</header>
+   <header>AnimPreview.h</header>
   </customwidget>
  </customwidgets>
  <resources>

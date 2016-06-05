@@ -10,13 +10,13 @@ namespace Ui {
 class balanceSheet;
 }
 
-class balanceSheet : public QDialog
+class BalanceSheetDialog : public QDialog
 {
     Q_OBJECT
 
 public:
-    explicit balanceSheet(QWidget *parent = 0);
-    ~balanceSheet();
+    explicit BalanceSheetDialog(QWidget *parent = 0);
+    ~BalanceSheetDialog();
 
     typedef int Pos;
     static const Pos Up = 0;
@@ -27,7 +27,7 @@ public:
 
 signals:
 
-    void balance(int w, int h, balanceSheet::Pos vert, balanceSheet::Pos horiz);
+    void balance(int w, int h, BalanceSheetDialog::Pos vert, BalanceSheetDialog::Pos horiz);
 
 public slots:
     void defaultWH(int w, int h);

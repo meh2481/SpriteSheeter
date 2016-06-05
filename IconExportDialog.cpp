@@ -1,11 +1,11 @@
-#include "iconexport.h"
-#include "ui_iconexport.h"
+#include "IconExportDialog.h"
+#include "ui_IconExportDialog.h"
 #include <QSettings>
 #include <QFileDialog>
 #include <QMouseEvent>
 #include <QDebug>
 
-iconExport::iconExport(QWidget *parent) : QDialog(parent),
+IconExportDialog::IconExportDialog(QWidget *parent) : QDialog(parent),
     ui(new Ui::iconExport)
 {
     ui->setupUi(this);
@@ -23,7 +23,7 @@ iconExport::iconExport(QWidget *parent) : QDialog(parent),
     loadSettings();
 }
 
-iconExport::~iconExport()
+IconExportDialog::~IconExportDialog()
 {
     saveSettings();
     if(transparentBg)
@@ -35,13 +35,13 @@ iconExport::~iconExport()
     delete ui;
 }
 
-void iconExport::setImage(QImage img)
+void IconExportDialog::setImage(QImage img)
 {
     iconImg = img;
     drawPreview();
 }
 
-void iconExport::on_fitXButton_clicked()
+void IconExportDialog::on_fitXButton_clicked()
 {
     iconScale = ((float)ICON_WIDTH)/((float)iconImg.width());
     if(iconScale > 1.0f)
@@ -54,7 +54,7 @@ void iconExport::on_fitXButton_clicked()
     on_centerButton_clicked();
 }
 
-void iconExport::on_fitYButton_clicked()
+void IconExportDialog::on_fitYButton_clicked()
 {
     iconScale = ((float)ICON_HEIGHT)/((float)iconImg.height());
     if(iconScale > 1.0f)
@@ -67,7 +67,7 @@ void iconExport::on_fitYButton_clicked()
     on_centerButton_clicked();
 }
 
-void iconExport::on_resetButton_clicked()
+void IconExportDialog::on_resetButton_clicked()
 {
     ui->offsetXBox->setValue(0);
     ui->offsetYBox->setValue(0);
@@ -77,31 +77,31 @@ void iconExport::on_resetButton_clicked()
     drawPreview();
 }
 
-void iconExport::updateScaleText()
+void IconExportDialog::updateScaleText()
 {
     QString sScaleText = QString::number(iconScale, 'f', 2);
     sScaleText += "x";
     ui->scaleFacBox->setText(sScaleText);
 }
 
-void iconExport::on_horizontalSlider_sliderMoved(int position)
+void IconExportDialog::on_horizontalSlider_sliderMoved(int position)
 {
     Q_UNUSED(position);
 }
 
-void iconExport::on_offsetXBox_valueChanged(int arg1)
+void IconExportDialog::on_offsetXBox_valueChanged(int arg1)
 {
     drawPreview();
     Q_UNUSED(arg1);
 }
 
-void iconExport::on_offsetYBox_valueChanged(int arg1)
+void IconExportDialog::on_offsetYBox_valueChanged(int arg1)
 {
     drawPreview();
     Q_UNUSED(arg1);
 }
 
-void iconExport::on_centerButton_clicked()
+void IconExportDialog::on_centerButton_clicked()
 {
     int x = iconImg.width()*iconScale;
     int y = iconImg.height()*iconScale;
@@ -110,7 +110,7 @@ void iconExport::on_centerButton_clicked()
     drawPreview();
 }
 
-void iconExport::on_saveIconBtn_clicked()
+void IconExportDialog::on_saveIconBtn_clicked()
 {
     QString sSel = "PNG Image (*.png)";
     if(lastIconStr.contains(".bmp", Qt::CaseInsensitive))
@@ -146,12 +146,12 @@ void iconExport::on_saveIconBtn_clicked()
     }
 }
 
-void iconExport::on_cancelBtn_clicked()
+void IconExportDialog::on_cancelBtn_clicked()
 {
     this->hide();
 }
 
-void iconExport::drawPreview()
+void IconExportDialog::drawPreview()
 {
     if(!iconImg.isNull())
     {
@@ -165,7 +165,7 @@ void iconExport::drawPreview()
         painter.setCompositionMode(QPainter::CompositionMode_SourceOver);
         painter.fillRect(0, 0, ICON_WIDTH, ICON_HEIGHT, bgTexBrush);
 
-        //TODO: Scale image
+        //Scale image
         Qt::TransformationMode mode = Qt::SmoothTransformation;
         if(iconScale > 1.0f)
             mode = Qt::FastTransformation;
@@ -195,7 +195,7 @@ void iconExport::drawPreview()
     }
 }
 
-void iconExport::on_horizontalSlider_valueChanged(int value)
+void IconExportDialog::on_horizontalSlider_valueChanged(int value)
 {
     if(value >= 0)
         iconScale = value + 1;
@@ -207,17 +207,16 @@ void iconExport::on_horizontalSlider_valueChanged(int value)
     drawPreview();
 }
 
-void iconExport::saveSettings()
+void IconExportDialog::saveSettings()
 {
     QSettings settings("DaxarDev", "SpriteSheeterIcon");
     settings.setValue("offsetXBox", ui->offsetXBox->value());
     settings.setValue("offsetYBox", ui->offsetYBox->value());
     settings.setValue("horizontalSlider", ui->horizontalSlider->value());
     settings.setValue("lastIconStr", lastIconStr);
-    //settings.setValue("", );
 }
 
-void iconExport::loadSettings()
+void IconExportDialog::loadSettings()
 {
     QSettings settings("DaxarDev", "SpriteSheeterIcon");
     if(settings.value("offsetXBox", -1).toInt() == -1)    //No settings are here
@@ -228,7 +227,7 @@ void iconExport::loadSettings()
     lastIconStr = settings.value("lastIconStr").toString();
 }
 
-bool iconExport::eventFilter(QObject *obj, QEvent *event)
+bool IconExportDialog::eventFilter(QObject *obj, QEvent *event)
 {
     if(obj == ui->iconPreview->viewport())
     {

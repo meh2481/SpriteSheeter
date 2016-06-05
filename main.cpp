@@ -1,5 +1,5 @@
-#include "mainwindow.h"
-#include "importdialog.h"
+#include "MainWindow.h"
+#include "ImportDialog.h"
 #include <QApplication>
 
 int main(int argc, char *argv[])

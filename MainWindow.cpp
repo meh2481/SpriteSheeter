@@ -1,7 +1,7 @@
-#include "mainwindow.h"
-#include "ui_mainwindow.h"
-#include "Graphics_view_zoom.h"
-#include "sheeteditorview.h"
+#include "MainWindow.h"
+#include "ui_MainWindow.h"
+#include "ZoomableGraphicsView.h"
+#include "SheetEditorView.h"
 #include <QFileDialog>
 #include <QDesktopWidget>
 #include <QFile>
@@ -17,9 +17,9 @@ MainWindow::MainWindow(QWidget *parent) :
     ui(new Ui::MainWindow)
 {
     ui->setupUi(this);
-    mImportWindow = new importDialog(this);
-    mBalanceWindow = new balanceSheet(this);
-    mIconExportWindow = new iconExport(this);
+    mImportWindow = new ImportDialog(this);
+    mBalanceWindow = new BalanceSheetDialog(this);
+    mIconExportWindow = new IconExportDialog(this);
 
     //Connect all our signals & slots up
     QObject::connect(mImportWindow, SIGNAL(importOK(int, int, bool, bool)), this, SLOT(importNext(int, int, bool, bool)));
@@ -37,7 +37,7 @@ MainWindow::MainWindow(QWidget *parent) :
     QObject::connect(ui->actionEnableShortcuts, SIGNAL(toggled(bool)), this, SLOT(enableShortcuts(bool)));
     QObject::connect(ui->sheetPreview, SIGNAL(droppedFiles(QStringList)), this, SLOT(addImages(QStringList)));
     QObject::connect(ui->sheetPreview, SIGNAL(droppedFolders(QStringList)), this, SLOT(addFolders(QStringList)));
-    QObject::connect(mBalanceWindow, SIGNAL(balance(int,int,balanceSheet::Pos,balanceSheet::Pos)), this, SLOT(balance(int,int,balanceSheet::Pos,balanceSheet::Pos)));
+    QObject::connect(mBalanceWindow, SIGNAL(balance(int,int,BalanceSheetDialog::Pos,BalanceSheetDialog::Pos)), this, SLOT(balance(int,int,BalanceSheetDialog::Pos,BalanceSheetDialog::Pos)));
     QObject::connect(this, SIGNAL(setBalanceDefWH(int,int)), mBalanceWindow, SLOT(defaultWH(int,int)));
     QObject::connect(this, SIGNAL(setIconImage(QImage)), mIconExportWindow, SLOT(setImage(QImage)));
 
@@ -78,10 +78,10 @@ MainWindow::MainWindow(QWidget *parent) :
     ui->splitter->setStretchFactor(0, 1);
     ui->splitter->setStretchFactor(1, 0);
 
-    Graphics_view_zoom* z = new Graphics_view_zoom(ui->sheetPreview);
+    ZoomableGraphicsView* z = new ZoomableGraphicsView(ui->sheetPreview);
     z->set_modifiers(Qt::NoModifier);
 
-    z = new Graphics_view_zoom(ui->animationPreview);
+    z = new ZoomableGraphicsView(ui->animationPreview);
     z->set_modifiers(Qt::NoModifier);
 
     sheetBgCol = QColor(0, 128, 128, 255);
@@ -179,7 +179,8 @@ void MainWindow::addFolders(QStringList l)
         QDir folder(s);
         QStringList fileFilters;
         //Filter out only image files
-        fileFilters << "*.png" << "*.bmp" << "*.gif" << "*.pbm" << "*.pgm" << "*.ppm" << "*.tif" << "*.tiff" << "*.xbm" << "*.xpm" << "*.tga" << "*.jpg" << "*.jpeg";
+        //TODO: Rather than specifying manually, remove filter entirely or add ALL actual file types we support
+        fileFilters << "*.png" << "*.dds" << "*.bmp" << "*.gif" << "*.pbm" << "*.pgm" << "*.ppm" << "*.tif" << "*.tiff" << "*.xbm" << "*.xpm" << "*.tga" << "*.jpg" << "*.jpeg";
         QStringList files = folder.entryList(fileFilters, QDir::Files, QDir::Name); //Get list of all files in this folder
 
         importImageList(files, s + '/', folder.dirName());
@@ -1667,7 +1668,7 @@ void MainWindow::on_balanceAnimButton_clicked()
     CenterParent(this, mBalanceWindow);
 }
 
-void MainWindow::balance(int w, int h, balanceSheet::Pos vert, balanceSheet::Pos horiz)
+void MainWindow::balance(int w, int h, BalanceSheetDialog::Pos vert, BalanceSheetDialog::Pos horiz)
 {
     *errlog << "enter function balance()" << endl;
     if(mCurAnim == mSheetFrames.end() || !mCurAnim->size())
@@ -1681,16 +1682,16 @@ void MainWindow::balance(int w, int h, balanceSheet::Pos vert, balanceSheet::Pos
 
         //Use vert/horiz
         int xPos, yPos;
-        if(vert == balanceSheet::Up)
+        if(vert == BalanceSheetDialog::Up)
             yPos = 0;
-        else if(vert == balanceSheet::Mid)
+        else if(vert == BalanceSheetDialog::Mid)
             yPos = (h/2)-(img.height()/2);
         else
             yPos = h - img.height();
 
-        if(horiz == balanceSheet::Left)
+        if(horiz == BalanceSheetDialog::Left)
             xPos = 0;
-        else if(horiz == balanceSheet::Mid)
+        else if(horiz == BalanceSheetDialog::Mid)
             xPos = (w/2)-(img.width()/2);
         else
             xPos = w - img.width();

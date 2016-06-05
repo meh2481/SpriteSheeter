@@ -15,13 +15,13 @@ namespace Ui {
 class iconExport;
 }
 
-class iconExport : public QDialog
+class IconExportDialog : public QDialog
 {
     Q_OBJECT
 
 public:
-    explicit iconExport(QWidget *parent = 0);
-    ~iconExport();
+    explicit IconExportDialog(QWidget *parent = 0);
+    ~IconExportDialog();
 
 signals:
 

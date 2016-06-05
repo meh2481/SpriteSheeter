@@ -31,10 +31,10 @@
  * (see QWheelEvent::angleDelta).
  * The default zoom factor base is 1.0015.
  */
-class Graphics_view_zoom : public QObject {
+class ZoomableGraphicsView : public QObject {
   Q_OBJECT
 public:
-  Graphics_view_zoom(QGraphicsView* view);
+  ZoomableGraphicsView(QGraphicsView* view);
   void gentle_zoom(double factor);
   void set_modifiers(Qt::KeyboardModifiers modifiers);
   void set_zoom_factor_base(double value);

@@ -1,21 +1,21 @@
-#include "sheeteditorview.h"
+#include "SheetEditorView.h"
 #include <QMimeData>
 #include <QDebug>
 #include <QDir>
 
-sheetEditorView::sheetEditorView(QWidget * parent) : QGraphicsView(parent)
+SheetEditorView::SheetEditorView(QWidget * parent) : QGraphicsView(parent)
 {
     _pan = false;
     _panStartX = _panStartY = 0;
     setAcceptDrops(true);
 }
 
-sheetEditorView::~sheetEditorView()
+SheetEditorView::~SheetEditorView()
 {
 
 }
 
-void sheetEditorView::dragEnterEvent(QDragEnterEvent *e)
+void SheetEditorView::dragEnterEvent(QDragEnterEvent *e)
 {
     if(e->mimeData()->hasUrls())
     {
@@ -23,7 +23,7 @@ void sheetEditorView::dragEnterEvent(QDragEnterEvent *e)
     }
 }
 
-void sheetEditorView::dropEvent(QDropEvent *e)
+void SheetEditorView::dropEvent(QDropEvent *e)
 {
     QStringList sFiles;
     QStringList sFolders;
@@ -39,7 +39,7 @@ void sheetEditorView::dropEvent(QDropEvent *e)
     droppedFolders(sFolders);
 }
 
-void sheetEditorView::dragMoveEvent(QDragMoveEvent *e)
+void SheetEditorView::dragMoveEvent(QDragMoveEvent *e)
 {
     if(e->mimeData()->hasUrls())
     {
