@@ -1,6 +1,7 @@
 -Drawing on separate thread
-	-- "Rendering" in status bar
+	-- "Rendering" or ideally % complete in status bar
 -Bug: Attempting to open a non-image crashes the program
+	-- Test if fixed or opening all images still applies this
 -Select folders and apply defaults to create sheets from subfolders (Batch processing; see http://www.vg-resource.com/thread-27036-post-602625.html#pid602625)
 -Add debug log & test balance/resize; reports of crashing
 -Offset frames by a few pixels l/r/u/d; not to be confused with moving frames around in an animation
@@ -11,3 +12,4 @@
 -Dragging to start or end of sheet finnicky if you go over the edge; fix
 -Panning should allow greater distance; should calculate how large viewport is and let you pan off until image is half-off screen or such
 -Add recent documents to File menu
+-Check if need MSVC runtime

@@ -15,7 +15,7 @@
   </property>
   <property name="windowIcon">
    <iconset resource="spritesheetertest1.qrc">
-    <normaloff>:/images/icon.png</normaloff>:/images/icon.png</iconset>
+    <normaloff>:/images/icon2.png</normaloff>:/images/icon2.png</iconset>
   </property>
   <widget class="QWidget" name="centralWidget">
    <layout class="QHBoxLayout" name="horizontalLayout">
@@ -614,7 +614,7 @@
                 </property>
                 <property name="icon">
                  <iconset resource="spritesheetertest1.qrc">
-                  <normaloff>:/images/icon.png</normaloff>:/images/icon.png</iconset>
+                  <normaloff>:/images/icon2.png</normaloff>:/images/icon2.png</iconset>
                 </property>
                </widget>
               </item>
@@ -665,7 +665,7 @@
                 </property>
                 <property name="icon">
                  <iconset resource="spritesheetertest1.qrc">
-                  <normaloff>:/images/icon.png</normaloff>:/images/icon.png</iconset>
+                  <normaloff>:/images/icon2.png</normaloff>:/images/icon2.png</iconset>
                 </property>
                </widget>
               </item>
