@@ -1447,19 +1447,19 @@ void MainWindow::keyPressEvent(QKeyEvent* e)
                 {
                     mCurAnim--;
                     mCurAnimName--;
+
+                    drawSheet();
+
+                    if(mCurAnimName != mAnimNames.end())
+                        ui->animationNameEditor->setText(*mCurAnimName);
+                    else
+                        ui->animationNameEditor->setText(QString(""));
+
+                    if(mCurAnim != mSheetFrames.end())
+                        mCurFrame = mCurAnim->begin();
+
+                    drawAnimation();
                 }
-
-                drawSheet();
-
-                if(mCurAnimName != mAnimNames.end())
-                    ui->animationNameEditor->setText(*mCurAnimName);
-                else
-                    ui->animationNameEditor->setText(QString(""));
-
-                if(mCurAnim != mSheetFrames.end())
-                    mCurFrame = mCurAnim->begin();
-
-                drawAnimation();
             }
         }
         else if(e->key() == Qt::Key_S)
@@ -1480,19 +1480,21 @@ void MainWindow::keyPressEvent(QKeyEvent* e)
                         mCurAnim--;
                         mCurAnimName--;
                     }
+                    else
+                    {
+                        drawSheet();
+
+                        if(mCurAnimName != mAnimNames.end())
+                            ui->animationNameEditor->setText(*mCurAnimName);
+                        else
+                            ui->animationNameEditor->setText(QString(""));
+
+                        if(mCurAnim != mSheetFrames.end())
+                            mCurFrame = mCurAnim->begin();
+
+                        drawAnimation();
+                    }
                 }
-
-                drawSheet();
-
-                if(mCurAnimName != mAnimNames.end())
-                    ui->animationNameEditor->setText(*mCurAnimName);
-                else
-                    ui->animationNameEditor->setText(QString(""));
-
-                if(mCurAnim != mSheetFrames.end())
-                    mCurFrame = mCurAnim->begin();
-
-                drawAnimation();
             }
         }
         else if(e->key() == Qt::Key_Q)
@@ -1512,16 +1514,6 @@ void MainWindow::keyPressEvent(QKeyEvent* e)
             on_saveSheetButton_clicked();
         }
     }
-
-    /*
-    else if(e->key() == Qt::Key_Left)
-    {
-        on_animPrevFrameButton_clicked();
-    }
-    else if(e->key() == Qt::Key_Right)
-    {
-        on_animNextFrameButton_clicked();
-    }*/
 }
 
 void MainWindow::on_saveFrameButton_clicked()
