@@ -145,7 +145,7 @@
              <string>Import single animation from list of images (Q)</string>
             </property>
             <property name="text">
-             <string>Import Image Sequence...</string>
+             <string>Add Frame Sequence...</string>
             </property>
            </widget>
           </item>
@@ -155,7 +155,7 @@
              <string>Load a single image as an animation sheet with multiple frames (A)</string>
             </property>
             <property name="text">
-             <string>Import Image as Animation Sheet...</string>
+             <string>Import Sheet...</string>
             </property>
            </widget>
           </item>
@@ -439,6 +439,13 @@
            </layout>
           </item>
           <item>
+           <widget class="QPushButton" name="saveFrameButton">
+            <property name="text">
+             <string>Save Current Frame as TSR Icon...</string>
+            </property>
+           </widget>
+          </item>
+          <item>
            <layout class="QHBoxLayout" name="horizontalLayout_6">
             <item>
              <widget class="QLabel" name="label_2">
@@ -509,7 +516,7 @@
           <item>
            <widget class="QCheckBox" name="animNameEnabled">
             <property name="text">
-             <string>Enable Animation Names</string>
+             <string>Show Animation Names</string>
             </property>
             <property name="checked">
              <bool>true</bool>
@@ -517,28 +524,55 @@
            </widget>
           </item>
           <item>
-           <widget class="QPushButton" name="saveFrameButton">
-            <property name="text">
-             <string>Save Frame as TSR Icon...</string>
+           <layout class="QHBoxLayout" name="horizontalLayout_15">
+            <property name="topMargin">
+             <number>0</number>
             </property>
-           </widget>
+            <item>
+             <widget class="QPushButton" name="balanceAnimButton">
+              <property name="text">
+               <string>Balance/Resize Animation...</string>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QPushButton" name="ExportAnimButton">
+              <property name="toolTip">
+               <string>Export the currently selected animation as a GIF image (Note: May degrade quality)</string>
+              </property>
+              <property name="text">
+               <string>Save Animation as GIF Image...</string>
+              </property>
+             </widget>
+            </item>
+           </layout>
           </item>
           <item>
-           <widget class="QPushButton" name="ExportAnimButton">
-            <property name="toolTip">
-             <string>Export the currently selected animation as a GIF image (Note: May degrade quality)</string>
+           <layout class="QHBoxLayout" name="horizontalLayout_16">
+            <property name="topMargin">
+             <number>0</number>
             </property>
-            <property name="text">
-             <string>Save Animation as GIF Image...</string>
-            </property>
-           </widget>
-          </item>
-          <item>
-           <widget class="QPushButton" name="balanceAnimButton">
-            <property name="text">
-             <string>Balance/Resize Animation...</string>
-            </property>
-           </widget>
+            <item>
+             <widget class="QPushButton" name="reverseAnimButton">
+              <property name="toolTip">
+               <string>Reverse the order of the frames in the current animation</string>
+              </property>
+              <property name="text">
+               <string>Reverse Animation Order</string>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QPushButton" name="removeDuplicateFramesButton">
+              <property name="toolTip">
+               <string>Delete identical frames from the current animation</string>
+              </property>
+              <property name="text">
+               <string>Remove Duplicate Frames</string>
+              </property>
+             </widget>
+            </item>
+           </layout>
           </item>
           <item>
            <spacer name="verticalSpacer">
@@ -788,7 +822,7 @@
   <customwidget>
    <class>SheetEditorView</class>
    <extends>QWidget</extends>
-   <header>SheetEditorView.h</header>
+   <header>sheeteditorview.h</header>
   </customwidget>
   <customwidget>
    <class>AnimPreview</class>

@@ -1,4 +1,5 @@
--Drawing on separate thread, or something to speed it up at least
+-Drawing on separate thread
+	-- "Rendering" in status bar
 -Bug: Animation skip when W or S on top or bottom already
 -Bug: Attempting to open a non-image crashes the program
 -Select folders and apply defaults to create sheets from subfolders (Batch processing; see http://www.vg-resource.com/thread-27036-post-602625.html#pid602625)
@@ -7,8 +8,6 @@
 -Help feature with kb shortcuts/usage/etc
 -"About" feature linking to forum topic & etc
 -Rather than specifying image types manually, remove filter entirely or add ALL actual file types we support
--Reverse animation order
--Remove duplicate frames in animation
 -Bug: Dragging between rows sometimes turns red on multi-line animations
 -Dragging to start or end of sheet finnicky if you go over the edge; fix
 -Arrow keys should scroll through animation frames

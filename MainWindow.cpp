@@ -11,6 +11,7 @@
 #include <QFontDialog>
 #include <QFontMetrics>
 #include "FreeImage.h"
+#include <string.h>
 
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
@@ -407,14 +408,19 @@ void MainWindow::drawSheet(bool bHighlight)
             iSizeX = iCurSizeX;
     }
 
-    if(mCurSheet)
-        delete mCurSheet;
-
     if(bHighlight)
         iSizeX += DRAG_HANDLE_SIZE;
 
+    //Only recreate sheet if we have to
+    if(mCurSheet && (iSizeX != mCurSheet->width() || iSizeY != mCurSheet->height()))
+    {
+        delete mCurSheet;
+        mCurSheet = new QImage(iSizeX, iSizeY, QImage::Format_ARGB32);
+    }
+    else if(!mCurSheet)
+        mCurSheet = new QImage(iSizeX, iSizeY, QImage::Format_ARGB32);
+
     //Create image of the proper size and fill it with a good bg color
-    mCurSheet = new QImage(iSizeX, iSizeY, QImage::Format_ARGB32);
     QPainter painter(mCurSheet);
     painter.setFont(sheetFont);
     painter.setCompositionMode(QPainter::CompositionMode_Source);
@@ -2266,6 +2272,53 @@ bool MainWindow::loadAnimatedGIF(QString sFilename)
 
     FreeImage_CloseMultiBitmap(bmp);
     return true;
+}
+
+void MainWindow::on_reverseAnimButton_clicked()
+{
+    if(mCurAnim == mSheetFrames.end()) return;
+    if(mCurAnim->size() < 2) return;
+    QList<QImage> newList = *mCurAnim;
+    mCurAnim->clear();
+    foreach(QImage img, newList)
+        mCurAnim->prepend(img);
+
+
+    mCurFrame = mCurAnim->begin();
+    drawSheet();
+    drawAnimation();
+    genUndoState();
+}
+
+void MainWindow::on_removeDuplicateFramesButton_clicked()
+{
+    if(mCurAnim == mSheetFrames.end()) return;
+    if(mCurAnim->size() < 2) return;
+    bool bFoundDuplicates = false;
+
+    for(int tester = 0; tester < mCurAnim->size(); tester++)
+    {
+        for(int testee = tester+1; testee < mCurAnim->size(); testee++)
+        {
+            if((*mCurAnim)[testee].width() != (*mCurAnim)[tester].width() || (*mCurAnim)[testee].height() != (*mCurAnim)[tester].height()) continue;
+            if((*mCurAnim)[testee].byteCount() != (*mCurAnim)[tester].byteCount()) continue;
+
+            if(std::strncmp((const char*)(*mCurAnim)[testee].bits(), (const char*)(*mCurAnim)[tester].bits(), (*mCurAnim)[testee].byteCount()) == 0)
+            {
+                bFoundDuplicates = true;
+                mCurAnim->removeAt(testee);
+                testee--;
+            }
+        }
+    }
+
+    if(bFoundDuplicates)
+    {
+        mCurFrame = mCurAnim->begin();
+        drawSheet();
+        drawAnimation();
+        genUndoState();
+    }
 }
 
 

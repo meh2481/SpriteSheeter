@@ -18,7 +18,8 @@ SOURCES += main.cpp\
     MainWindow.cpp \
     ImportDialog.cpp \
     IconExportDialog.cpp \
-    BalanceSheetDialog.cpp
+    BalanceSheetDialog.cpp \
+    Animation.cpp
 
 HEADERS  += \
 		FreeImage.h \
@@ -28,7 +29,8 @@ HEADERS  += \
     ImportDialog.h \
     IconExportDialog.h \
     BalanceSheetDialog.h \
-    AnimPreview.h
+    AnimPreview.h \
+    Animation.h
 
 FORMS    += \
     BalanceSheetDialog.ui \

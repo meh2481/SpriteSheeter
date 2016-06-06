@@ -88,8 +88,9 @@ private slots:
     void on_sheetWidthBox_editingFinished();
     void on_animationNameEditor_editingFinished();
     void on_animNameEnabled_toggled(bool checked);
-
     void on_ExportAnimButton_clicked();
+    void on_reverseAnimButton_clicked();
+    void on_removeDuplicateFramesButton_clicked();
 
 private:
     Ui::MainWindow *ui;
