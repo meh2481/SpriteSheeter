@@ -22,7 +22,7 @@ ImportDialog::~ImportDialog()
     delete ui;
 }
 
-void ImportDialog::setPreviewImage(QString sImg)
+bool ImportDialog::setPreviewImage(QString sImg)
 {
     if(!sImg.isEmpty())
     {
@@ -45,8 +45,11 @@ void ImportDialog::setPreviewImage(QString sImg)
             scene->setSceneRect(0, 0, image.width(), image.height());
 
             ui->imagePreview->show();
+
+            return true;
         }
     }
+    return false;
 }
 
 void ImportDialog::on_okButton_clicked()

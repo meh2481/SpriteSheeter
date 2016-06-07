@@ -38,7 +38,7 @@ public:
     void keyPressEvent(QKeyEvent* e);
 
 signals:
-    void setImportImg(QString s);
+    bool setImportImg(QString s);
     void setBalanceDefWH(int w, int h);
     void setIconImage(QImage img);
 

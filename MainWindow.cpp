@@ -199,7 +199,7 @@ void MainWindow::on_openImagesButton_clicked()
 
 void MainWindow::on_openStripButton_clicked()
 {
-    mOpenFiles = QFileDialog::getOpenFileNames(this, "Import Image Sequence", lastOpenDir, "All Files (*.*)");
+    mOpenFiles = QFileDialog::getOpenFileNames(this, "Import Frame Sequence", lastOpenDir, "All Files (*.*)");
     if(mOpenFiles.size())
     {
         QString s = (*mOpenFiles.begin());
@@ -255,11 +255,12 @@ void MainWindow::openImportDiag()
     QString windowTitle = "Animation for image " + s;
     mImportWindow->setModal(true);
     mImportWindow->setWindowTitle(windowTitle);
-    setImportImg(curImportImage);
-
-    mImportWindow->show();
-    //Center on parent
-    CenterParent(this, mImportWindow);
+    if(setImportImg(curImportImage))
+    {
+        mImportWindow->show();
+        //Center on parent
+        CenterParent(this, mImportWindow);
+    }
 }
 
 void MainWindow::insertAnimHelper(QList<QImage> imgList, QString name)

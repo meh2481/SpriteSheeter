@@ -26,7 +26,7 @@ signals:
     void importAll(int numx, int numy, bool bVert, bool bSplit);
 
 public slots:
-    void setPreviewImage(QString sImg);
+    bool setPreviewImage(QString sImg);
 
 private slots:
     void on_okButton_clicked();
