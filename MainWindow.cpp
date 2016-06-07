@@ -21,6 +21,8 @@ MainWindow::MainWindow(QWidget *parent) :
     mImportWindow = new ImportDialog(this);
     mBalanceWindow = new BalanceSheetDialog(this);
     mIconExportWindow = new IconExportDialog(this);
+    mRecentDocuments = new RecentDocuments(this);
+    mRecentDocuments->init(ui->menuFile, ui->actionQuit);
 
     //Connect all our signals & slots up
     QObject::connect(mImportWindow, SIGNAL(importOK(int, int, bool, bool)), this, SLOT(importNext(int, int, bool, bool)));
@@ -41,6 +43,7 @@ MainWindow::MainWindow(QWidget *parent) :
     QObject::connect(mBalanceWindow, SIGNAL(balance(int,int,BalanceSheetDialog::Pos,BalanceSheetDialog::Pos)), this, SLOT(balance(int,int,BalanceSheetDialog::Pos,BalanceSheetDialog::Pos)));
     QObject::connect(this, SIGNAL(setBalanceDefWH(int,int)), mBalanceWindow, SLOT(defaultWH(int,int)));
     QObject::connect(this, SIGNAL(setIconImage(QImage)), mIconExportWindow, SLOT(setImage(QImage)));
+    QObject::connect(mRecentDocuments, SIGNAL(openFile(QString)), this, SLOT(loadSheet(QString)));
 
     animItem = NULL;
     animScene = NULL;
@@ -1760,6 +1763,7 @@ void MainWindow::saveSheet(QString filename)
     if(filename.length())
     {
         lastImportExportStr = filename;
+        mRecentDocuments->addDocument(filename);
         QFile f(filename);
         if(f.open(QIODevice::WriteOnly))
         {
@@ -1771,7 +1775,7 @@ void MainWindow::saveSheet(QString filename)
     }
 }
 
-void MainWindow::loadSheet()
+void MainWindow::loadSheet(QString openFilename)
 {
     //Don't overwrite changes when they create a new file
     if(bFileModified)
@@ -1791,11 +1795,13 @@ void MainWindow::loadSheet()
             return;
     }
 
-    QString openFilename = QFileDialog::getOpenFileName(this, "Open Sheet", lastImportExportStr, "Sprite Sheets (*.sheet)");
+    if(!openFilename.length())
+        openFilename = QFileDialog::getOpenFileName(this, "Open Sheet", lastImportExportStr, "Sprite Sheets (*.sheet)");
 
     if(openFilename.length())
     {
         lastImportExportStr = openFilename;
+        mRecentDocuments->addDocument(openFilename);
         QFile f(openFilename);
         if(f.open(QIODevice::ReadOnly))
         {

@@ -11,5 +11,5 @@
 -Bug: Dragging between rows sometimes turns red on multi-line animations
 -Dragging to start or end of sheet finnicky if you go over the edge; fix
 -Panning should allow greater distance; should calculate how large viewport is and let you pan off until image is half-off screen or such
--Add recent documents to File menu
 -Check if need MSVC runtime
+-Update file case in repo

@@ -21,19 +21,14 @@ void Animation::setMaxWidth(int width)
     maxWidth = width;
 }
 
-void Animation::redraw()
-{
-
-}
-
 QImage* Animation::getImage()
 {
     return curRender;   //TODO test if null or whatever
 }
 
-void Animation::addFrame(QImage* img, int pos = 0)
+void Animation::addFrame(QImage* img, int pos)
 {
-    frames.insert(img, pos);
+    frames.insert(pos, img);
 }
 
 QImage* Animation::getFrame(int pos)

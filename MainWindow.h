@@ -8,6 +8,7 @@
 #include "BalanceSheetDialog.h"
 #include "IconExportDialog.h"
 #include "SheetEditorView.h"
+#include "RecentDocuments.h"
 #include <QStack>
 #include <QTextStream>
 
@@ -54,7 +55,7 @@ public slots:
     void undo();
     void redo();
     void saveSheet(QString filename = QString());
-    void loadSheet();
+    void loadSheet(QString openFilename = QString());
     void addImages(QStringList l);
     void addFolders(QStringList l);
     void balance(int w, int h, BalanceSheetDialog::Pos vert, BalanceSheetDialog::Pos horiz);
@@ -97,6 +98,7 @@ private:
     ImportDialog *mImportWindow;
     BalanceSheetDialog *mBalanceWindow;
     IconExportDialog   *mIconExportWindow;
+    RecentDocuments    *mRecentDocuments;
     QStringList mOpenFiles;
     QString curImportImage;
     QString lastSaveStr;
