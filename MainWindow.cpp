@@ -529,7 +529,14 @@ void MainWindow::drawSheet(bool bHighlight)
         sheetItem->setPixmap(QPixmap::fromImage(*mCurSheet));
 
     //Set the new rect of the scene
-    msheetScene->setSceneRect(-SCENE_BOUNDS, -SCENE_BOUNDS, mCurSheet->width()+SCENE_BOUNDS*2, mCurSheet->height()+SCENE_BOUNDS*2);
+    //Scale based on minimum scene bounds, and current viewport aspect ratio
+    int scene_bounds = SCENE_BOUNDS;
+    if(scene_bounds < mCurSheet->width()/2.0)
+        scene_bounds = mCurSheet->width()/2.0;
+    if(scene_bounds < mCurSheet->height()/2.0)
+        scene_bounds = mCurSheet->height()/2.0;
+    float hFac = (float)ui->sheetPreview->width()/(float)ui->sheetPreview->height();
+    msheetScene->setSceneRect(-scene_bounds*hFac, -scene_bounds, mCurSheet->width()+scene_bounds*2*hFac, mCurSheet->height()+scene_bounds*2);
 
     ui->sheetPreview->show();
 }
@@ -1178,7 +1185,7 @@ void MainWindow::mouseUp(int x, int y)
                 bool bDropped = false;
                 foreach(QRect r, mAnimRects)
                 {
-                    if(r.contains(x,y))
+                    if(y >= r.top() && y <= r.bottom())//r.contains(x,y))
                     {
                         //Drop off in position...
                         if(m_selDragToAnim != mSheetFrames.end())

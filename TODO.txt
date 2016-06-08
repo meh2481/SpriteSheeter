@@ -6,9 +6,12 @@
 -Help feature with kb shortcuts/usage/etc
 -"About" feature linking to forum topic & etc
 -Rather than specifying image types manually, remove filter entirely or add ALL actual file types we support
--Bug: Dragging between rows sometimes turns red on multi-line animations
--Dragging to start or end of sheet finnicky if you go over the edge; fix
--Panning should allow greater distance; should calculate how large viewport is and let you pan off until image is half-off screen or such
--Check if need MSVC runtime
+-Bug: Dragging between rows turns red on multi-line animations? Need to confirm
 -Update file case in repo
 -Default w/h of balance window shouldn't be handled by MainWindow
+
+
+
+-Users will need Microsoft Visual C++ 2015 Redistributable (x86) https://www.microsoft.com/en-us/download/details.aspx?id=48145
+--if complains about missing MSVCP140.dll
+--vc_redist.x86.exe

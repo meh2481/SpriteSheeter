@@ -31,7 +31,7 @@ protected:
 
     void mousePressEvent(QMouseEvent *event)
     {
-        if(event->button() == Qt::MidButton)
+        if(event->button() == Qt::MidButton || event->button() == Qt::RightButton)
         {
             _pan = true;
             _panStartX = event->x();
@@ -50,7 +50,7 @@ protected:
 
     void mouseReleaseEvent(QMouseEvent *event)
     {
-        if(event->button() == Qt::MidButton)
+        if(event->button() == Qt::MidButton || event->button() == Qt::RightButton)
         {
             _pan = false;
             setCursor(Qt::ArrowCursor);
