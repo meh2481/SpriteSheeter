@@ -92,6 +92,7 @@ private slots:
     void on_ExportAnimButton_clicked();
     void on_reverseAnimButton_clicked();
     void on_removeDuplicateFramesButton_clicked();
+    void on_actionAbout_triggered();
 
 private:
     Ui::MainWindow *ui;

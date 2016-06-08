@@ -2327,6 +2327,17 @@ void MainWindow::on_removeDuplicateFramesButton_clicked()
     }
 }
 
+void MainWindow::on_actionAbout_triggered()
+{
+    QString nameVersion = "Sprite Sheeter v" + QString::number(MAJOR_VERSION) + "." + QString::number(MINOR_VERSION);
+    if(REV_VERSION)
+        nameVersion += " r" + QString::number(REV_VERSION);
+    QString aboutText = "<h3>" + nameVersion + "</h3>" +
+            "<p>Author: <a href=\"http://www.vg-resource.com/user-23255.html\">Daxar</a></p>" +
+            "<p>Questions/comments? Ping me on the Spriters Resource forum!</p>";
+    QMessageBox::about(this, "About Sprite Sheeter", aboutText);
+}
+
 
 
 

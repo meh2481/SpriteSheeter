@@ -1,17 +1,19 @@
--Drawing on separate thread
-	-- "Rendering" or ideally % complete in status bar
+v1.0:
+-Animations extracted to their own class and rendered separately from one another
+-Threaded rendering of animations
 -Select folders and apply defaults to create sheets from subfolders (Batch processing; see http://www.vg-resource.com/thread-27036-post-602625.html#pid602625)
+
+
+Other misc TODO:
 -Add debug log & test balance/resize; reports of crashing
 -Offset frames by a few pixels l/r/u/d; not to be confused with moving frames around in an animation
--Help feature with kb shortcuts/usage/etc
--"About" feature linking to forum topic & etc
 -Rather than specifying image types manually, remove filter entirely or add ALL actual file types we support
 -Bug: Dragging between rows turns red on multi-line animations? Need to confirm
 -Update file case in repo
 -Default w/h of balance window shouldn't be handled by MainWindow
 
 
-
+NOTE:
 -Users will need Microsoft Visual C++ 2015 Redistributable (x86) https://www.microsoft.com/en-us/download/details.aspx?id=48145
 --if complains about missing MSVCP140.dll
 --vc_redist.x86.exe
