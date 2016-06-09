@@ -449,16 +449,16 @@ void MainWindow::drawSheet(bool bHighlight)
     for(QList<QList<QImage> >::iterator ql = mSheetFrames.begin(); ql != mSheetFrames.end(); ql++)
     {
         QRect r;
-        r.setRect(0,curY-offsetY,iSizeX,0);
+        r.setRect(0,curY-offsetY/2.0,iSizeX,0);
         int ySize = 0;
 
         //Highlight our current anim red
         if(bHighlight && sName == mCurAnimName)
         {
             if(sName->length() && ui->animNameEnabled->isChecked())
-                painter.fillRect(0, curY, mCurSheet->width(), hiliteH + textHeight + offsetY, animHighlightCol);
+                painter.fillRect(0, curY-offsetY/2.0, mCurSheet->width(), hiliteH + textHeight + offsetY, animHighlightCol);
             else
-                painter.fillRect(0, curY, mCurSheet->width(), hiliteH + offsetY, animHighlightCol);
+                painter.fillRect(0, curY-offsetY/2.0, mCurSheet->width(), hiliteH + offsetY, animHighlightCol);
         }
 
         //Draw label for animation
@@ -508,7 +508,7 @@ void MainWindow::drawSheet(bool bHighlight)
         }
         curY += offsetY + ySize;
         curX = offsetX;
-        r.setBottom(curY-offsetY);
+        r.setBottom(curY-offsetY/2.0);
         mAnimRects.push_back(r);
     }
 
@@ -1028,7 +1028,7 @@ void MainWindow::mouseCursorPos(int x, int y)
                 {
                     m_selDragToPos = img;
                     m_selDragToAnim = ql;
-                    rcDraw.setCoords(0, curY - offsetY, offsetX, curY + img->height() + offsetY);
+                    rcDraw.setCoords(0, curY - offsetY/2.0, offsetX, curY + img->height() + offsetY/2.0);
                     if(ql == mCurAnim)
                         bInHighlight = true;
                 }
@@ -1040,7 +1040,7 @@ void MainWindow::mouseCursorPos(int x, int y)
                     m_selDragToPos = img;
                     m_selDragToPos++;
                     m_selDragToAnim = ql;
-                    rcDraw.setCoords(curX + img->width() - 1, curY - offsetY, curX + img->width() + offsetX, curY + img->height() + offsetY);
+                    rcDraw.setCoords(curX + img->width() - 1, curY - offsetY/2.0, curX + img->width() + offsetX, curY + img->height() + offsetY/2.0);
                     if(ql == mCurAnim)
                         bInHighlight = true;
                 }
