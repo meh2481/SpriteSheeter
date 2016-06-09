@@ -456,9 +456,9 @@ void MainWindow::drawSheet(bool bHighlight)
         if(bHighlight && sName == mCurAnimName)
         {
             if(sName->length() && ui->animNameEnabled->isChecked())
-                painter.fillRect(0, curY-offsetY, mCurSheet->width(), hiliteH + textHeight + offsetY*2, animHighlightCol);
+                painter.fillRect(0, curY, mCurSheet->width(), hiliteH + textHeight + offsetY, animHighlightCol);
             else
-                painter.fillRect(0, curY-offsetY, mCurSheet->width(), hiliteH + offsetY*2, animHighlightCol);
+                painter.fillRect(0, curY, mCurSheet->width(), hiliteH + offsetY, animHighlightCol);
         }
 
         //Draw label for animation
