@@ -15,6 +15,8 @@
 #include <string.h>
 #include <QListView>
 #include <QTreeView>
+#include "BatchRenderer.h"
+#include <QThreadPool>
 
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
@@ -2370,12 +2372,32 @@ void MainWindow::on_actionBatch_Processing_triggered()
     QStringList fileNames = multiSelectFolder->selectedFiles();
     delete multiSelectFolder;
 
-    //for(QStringList::const_iterator it = fileNames.begin(); it != fileNames.end(); it++)
-    //    qDebug() << *it;
+    //Spin off threads to render these
+    for(QStringList::const_iterator it = fileNames.begin(); it != fileNames.end(); it++)
+    {
+        //qDebug() << *it;
+
+        BatchRenderer* batchRenderer = new BatchRenderer();
+        batchRenderer->folder = *it;
+        batchRenderer->sheetFont = sheetFont;
+        batchRenderer->maxSheetWidth = ui->sheetWidthBox->value();
+        batchRenderer->offsetX = ui->xSpacingBox->value();
+        batchRenderer->offsetY = ui->ySpacingBox->value();
+        batchRenderer->animNameEnabled = ui->animNameEnabled->isChecked();
+        batchRenderer->sheetBgTransparent = ui->SheetBgTransparent->isChecked();
+        batchRenderer->sheetBgCol = sheetBgCol;
+        batchRenderer->animHighlightCol = animHighlightCol;
+        batchRenderer->frameBgTransparent = ui->FrameBgTransparent->isChecked();
+        batchRenderer->frameBgCol = frameBgCol;
+
+        //TODO Dialog with % complete to hook up to this
+        //QObject::connect(batchRenderer, SIGNAL(renderingStart(QString)), this, SLOT(startedBatchRender(QString)));
+        //QObject::connect(batchRenderer, SIGNAL(renderingDone(QString)), this, SLOT(finishedBatchRender(QString)));
+
+        QThreadPool::globalInstance()->start(batchRenderer);
+    }
 
 }
-
-
 
 
 

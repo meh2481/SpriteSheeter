@@ -20,7 +20,8 @@ SOURCES += main.cpp\
     IconExportDialog.cpp \
     BalanceSheetDialog.cpp \
     Animation.cpp \
-    RecentDocuments.cpp
+    RecentDocuments.cpp \
+    BatchRenderer.cpp
 
 HEADERS  += \
 		FreeImage.h \
@@ -32,7 +33,8 @@ HEADERS  += \
     BalanceSheetDialog.h \
     AnimPreview.h \
     Animation.h \
-    RecentDocuments.h
+    RecentDocuments.h \
+    BatchRenderer.h
 
 FORMS    += \
     BalanceSheetDialog.ui \
