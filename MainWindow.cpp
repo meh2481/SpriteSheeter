@@ -13,6 +13,8 @@
 #include <QBuffer>
 #include "FreeImage.h"
 #include <string.h>
+#include <QListView>
+#include <QTreeView>
 
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
@@ -2353,13 +2355,24 @@ void MainWindow::on_actionAbout_triggered()
 
 void MainWindow::on_actionBatch_Processing_triggered()
 {
-//    mOpenFiles = QFileDialog::getOpenFileNames(this, "Batch Process Folders", lastOpenDir, "All Files (*.*)");
-//    if(mOpenFiles.size())
-//    {
-//        QString s = (*mOpenFiles.begin());
-//        QFileInfo inf(s);
-//        lastOpenDir = inf.absoluteDir().absolutePath();
-//    }
+    //HACK The standard Windows dialogs don't allow selection of multiple folders; make one manually
+    QFileDialog* multiSelectFolder = new QFileDialog(this, "Select folders for batch processing");
+    multiSelectFolder->setFileMode(QFileDialog::DirectoryOnly);
+    multiSelectFolder->setOption(QFileDialog::DontUseNativeDialog, true);
+    multiSelectFolder->setDirectory(lastOpenDir);
+    QListView *listView = multiSelectFolder->findChild<QListView*>("listView");
+    if(listView)
+        listView->setSelectionMode(QAbstractItemView::MultiSelection);
+    QTreeView *treeView = multiSelectFolder->findChild<QTreeView*>();
+    if(treeView)
+        treeView->setSelectionMode(QAbstractItemView::MultiSelection);
+    multiSelectFolder->exec();
+    QStringList fileNames = multiSelectFolder->selectedFiles();
+    delete multiSelectFolder;
+
+    //for(QStringList::const_iterator it = fileNames.begin(); it != fileNames.end(); it++)
+    //    qDebug() << *it;
+
 }
 
 
