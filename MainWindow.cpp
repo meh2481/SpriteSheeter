@@ -10,6 +10,7 @@
 #include <QDebug>
 #include <QFontDialog>
 #include <QFontMetrics>
+#include <QBuffer>
 #include "FreeImage.h"
 #include <string.h>
 
@@ -520,13 +521,9 @@ void MainWindow::drawSheet(bool bHighlight)
 
 
     //Update the GUI to show this image
-    if(sheetItem == NULL)
-    {
-        sheetItem = new QGraphicsPixmapItem(QPixmap::fromImage(*mCurSheet));
-        msheetScene->addItem(sheetItem);
-    }
-    else
-        sheetItem->setPixmap(QPixmap::fromImage(*mCurSheet));
+    msheetScene->clear();
+    sheetItem = new QGraphicsPixmapItem(QPixmap::fromImage(*mCurSheet));
+    msheetScene->addItem(sheetItem);
 
     //Set the new rect of the scene
     //Scale based on minimum scene bounds, and current viewport aspect ratio
@@ -538,7 +535,8 @@ void MainWindow::drawSheet(bool bHighlight)
     float hFac = (float)ui->sheetPreview->width()/(float)ui->sheetPreview->height();
     msheetScene->setSceneRect(-scene_bounds*hFac, -scene_bounds, mCurSheet->width()+scene_bounds*2*hFac, mCurSheet->height()+scene_bounds*2);
 
-    ui->sheetPreview->show();
+    if(ui->sheetPreview->isHidden())
+        ui->sheetPreview->show();
 }
 
 //Redraw the sheet if either of these change
@@ -1808,11 +1806,12 @@ void MainWindow::loadSheet(QString openFilename)
 
     if(openFilename.length())
     {
-        lastImportExportStr = openFilename;
-        mRecentDocuments->addDocument(openFilename);
         QFile f(openFilename);
         if(f.open(QIODevice::ReadOnly))
         {
+            lastImportExportStr = openFilename;
+            mRecentDocuments->addDocument(openFilename);
+
             QDataStream s(&f);
             s.setVersion(QDataStream::Qt_5_4);
 
@@ -1840,13 +1839,13 @@ void MainWindow::saveToStream(QDataStream& s)
     //Save sheet frames
     int curAnim = 0, curFrame = 0;
     int cnt = 0;
+    int major = MAJOR_VERSION;
+    int minor = MINOR_VERSION;
+    int rev = REV_VERSION;
+    s << major << minor << rev;  //Later we'll care about this if the save format changes again
     s << mSheetFrames.size();
-    //foreach(QList<QImage> imgList, mSheetFrames)
     for(QList<QList<QImage> >::iterator i = mSheetFrames.begin(); i != mSheetFrames.end(); i++)
     {
-         //s << imgList.size();
-         //foreach(QImage img, imgList)
-         //    s << img;
         if(i == mCurAnim)
             curAnim = cnt;
         cnt++;
@@ -1859,7 +1858,11 @@ void MainWindow::saveToStream(QDataStream& s)
                 curFrame = innercnt;
             innercnt++;
 
-            s << *j;
+            QByteArray imgByteArray;
+            QBuffer buffer(&imgByteArray);
+            buffer.open(QIODevice::WriteOnly);
+            j->save(&buffer, "TIFF");
+            s << imgByteArray;
         }
     }
 
@@ -1882,6 +1885,10 @@ void MainWindow::loadFromStream(QDataStream& s)
 {
     bLoadMutex = true;
     //Grab sheet frames
+    int major = MAJOR_VERSION;
+    int minor = MINOR_VERSION;
+    int rev = REV_VERSION;
+    s >> major >> minor >> rev;  //Later we'll care about this if the save format changes again
     int numAnims = 0;
     s >> numAnims;
     for(int i = 0; i < numAnims; i++)
@@ -1891,8 +1898,13 @@ void MainWindow::loadFromStream(QDataStream& s)
         s >> numFrames;
         for(int j = 0; j < numFrames; j++)
         {
+            //Default image saving (PNG) is sloooowwww... save as TIFF instead. Larger but way faster.
             QImage img;
-            s >> img;
+            QByteArray imgByteArray;
+            s >> imgByteArray;
+            QBuffer buffer(&imgByteArray);
+            buffer.open(QIODevice::ReadOnly);
+            img.load(&buffer, "TIFF");
             imgList.push_back(img);
         }
         mSheetFrames.push_back(imgList);
@@ -2060,6 +2072,7 @@ void MainWindow::genUndoState()
 void MainWindow::pushUndo()
 {
     QByteArray* baUndoPt = new QByteArray();
+    baUndoPt->reserve(2600000); //Reserve some space here so we aren't reallocating over and over
     QDataStream s(baUndoPt, QIODevice::WriteOnly);
     saveToStream(s);
     undoList.push(baUndoPt);
@@ -2336,6 +2349,17 @@ void MainWindow::on_actionAbout_triggered()
             "<p>Author: <a href=\"http://www.vg-resource.com/user-23255.html\">Daxar</a></p>" +
             "<p>Questions/comments? Ping me on the Spriters Resource forum!</p>";
     QMessageBox::about(this, "About Sprite Sheeter", aboutText);
+}
+
+void MainWindow::on_actionBatch_Processing_triggered()
+{
+//    mOpenFiles = QFileDialog::getOpenFileNames(this, "Batch Process Folders", lastOpenDir, "All Files (*.*)");
+//    if(mOpenFiles.size())
+//    {
+//        QString s = (*mOpenFiles.begin());
+//        QFileInfo inf(s);
+//        lastOpenDir = inf.absoluteDir().absolutePath();
+//    }
 }
 
 

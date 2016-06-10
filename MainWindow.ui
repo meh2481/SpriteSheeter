@@ -733,6 +733,7 @@
     <addaction name="actionRedo"/>
     <addaction name="separator"/>
     <addaction name="actionEnableShortcuts"/>
+    <addaction name="actionBatch_Processing"/>
    </widget>
    <widget class="QMenu" name="menuHelp">
     <property name="title">
@@ -826,6 +827,14 @@
   <action name="actionAbout">
    <property name="text">
     <string>About...</string>
+   </property>
+  </action>
+  <action name="actionBatch_Processing">
+   <property name="text">
+    <string>Batch Processing...</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+B</string>
    </property>
   </action>
  </widget>

@@ -94,6 +94,8 @@ private slots:
     void on_removeDuplicateFramesButton_clicked();
     void on_actionAbout_triggered();
 
+    void on_actionBatch_Processing_triggered();
+
 private:
     Ui::MainWindow *ui;
     ImportDialog *mImportWindow;
