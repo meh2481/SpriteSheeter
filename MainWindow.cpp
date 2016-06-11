@@ -22,10 +22,14 @@ MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
     ui(new Ui::MainWindow)
 {
+    //Create UI, removing help icons as needed
     ui->setupUi(this);
     mImportWindow = new ImportDialog(this);
+    mImportWindow->setWindowFlags(mImportWindow->windowFlags() & ~Qt::WindowContextHelpButtonHint);
     mBalanceWindow = new BalanceSheetDialog(this);
+    mBalanceWindow->setWindowFlags(mBalanceWindow->windowFlags() & ~Qt::WindowContextHelpButtonHint);
     mIconExportWindow = new IconExportDialog(this);
+    mIconExportWindow->setWindowFlags(mIconExportWindow->windowFlags() & ~Qt::WindowContextHelpButtonHint);
     mRecentDocuments = new RecentDocuments(this);
     mRecentDocuments->init(ui->menuFile, ui->actionQuit);
 
@@ -2364,6 +2368,7 @@ void MainWindow::on_actionBatch_Processing_triggered()
 
     //HACK The standard Windows dialogs don't allow selection of multiple folders; make one manually
     QFileDialog* multiSelectFolder = new QFileDialog(this, "Select folders for batch processing");
+    multiSelectFolder->setWindowFlags(multiSelectFolder->windowFlags() & ~Qt::WindowContextHelpButtonHint);
     multiSelectFolder->setFileMode(QFileDialog::DirectoryOnly);
     multiSelectFolder->setOption(QFileDialog::DontUseNativeDialog, true);
     multiSelectFolder->setDirectory(lastOpenDir);
@@ -2373,7 +2378,11 @@ void MainWindow::on_actionBatch_Processing_triggered()
     QTreeView *treeView = multiSelectFolder->findChild<QTreeView*>();
     if(treeView)
         treeView->setSelectionMode(QAbstractItemView::MultiSelection);
-    multiSelectFolder->exec();
+    if(!multiSelectFolder->exec())
+    {
+        delete multiSelectFolder;
+        return;
+    }
     QStringList fileNames = multiSelectFolder->selectedFiles();
     delete multiSelectFolder;
 
@@ -2397,6 +2406,8 @@ void MainWindow::on_actionBatch_Processing_triggered()
     //Create progress bar dialog
     progressBar = new QProgressDialog("Starting...", "Cancel", 0, fileNames.size()-1);
     progressBar->setWindowTitle("Batch Rendering");
+    //Hide that stupid help button
+    progressBar->setWindowFlags(progressBar->windowFlags() & ~Qt::WindowContextHelpButtonHint);
 
     //Spin off threads to render these
     foreach(QString folder, fileNames)
