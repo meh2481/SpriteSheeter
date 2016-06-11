@@ -11,6 +11,7 @@
 #include "RecentDocuments.h"
 #include <QStack>
 #include <QTextStream>
+#include <QProgressDialog>
 
 #define DRAG_HANDLE_SIZE 5
 #define SCENE_BOUNDS    300
@@ -60,6 +61,9 @@ public slots:
     void addFolders(QStringList l);
     void balance(int w, int h, BalanceSheetDialog::Pos vert, BalanceSheetDialog::Pos horiz);
 
+    void startedBatchRender(QString sheetName);
+    void finishedBatchRender();
+
 private slots:
     void on_openImagesButton_clicked();
     void on_xSpacingBox_valueChanged(int arg1);
@@ -93,7 +97,6 @@ private slots:
     void on_reverseAnimButton_clicked();
     void on_removeDuplicateFramesButton_clicked();
     void on_actionAbout_triggered();
-
     void on_actionBatch_Processing_triggered();
 
 private:
@@ -161,6 +164,14 @@ private:
 
     //For clicking to select an animation
     QList<QRect> mAnimRects;
+
+    QProgressDialog* progressBar;
+
+
+
+
+
+
 
     void openImportDiag();
     void importImage(QString s, int numxframes, int numyframes, bool bVert, bool bSplit);

@@ -55,6 +55,7 @@ MainWindow::MainWindow(QWidget *parent) :
     sheetItem = NULL;
     msheetScene = NULL;
     mCurSheet = NULL;
+    progressBar = NULL;
     transparentBg = new QImage("://bg");
     mCurAnim = mSheetFrames.begin();
     mCurAnimName = mAnimNames.begin();
@@ -2357,6 +2358,10 @@ void MainWindow::on_actionAbout_triggered()
 
 void MainWindow::on_actionBatch_Processing_triggered()
 {
+    //Don't start more than one batch job at a time
+    if(progressBar != NULL)
+        return;
+
     //HACK The standard Windows dialogs don't allow selection of multiple folders; make one manually
     QFileDialog* multiSelectFolder = new QFileDialog(this, "Select folders for batch processing");
     multiSelectFolder->setFileMode(QFileDialog::DirectoryOnly);
@@ -2372,11 +2377,20 @@ void MainWindow::on_actionBatch_Processing_triggered()
     QStringList fileNames = multiSelectFolder->selectedFiles();
     delete multiSelectFolder;
 
+    //TODO: Trim off first item if it's the folder above the others (bug in file dialog's return value)
+
+
+    //Stop here if there are none
+    if(!fileNames.size())
+        return;
+
+    //Create progress bar dialog
+    progressBar = new QProgressDialog("Batch Rendering", "Cancel", 0, fileNames.size()-1);
+
     //Spin off threads to render these
     for(QStringList::const_iterator it = fileNames.begin(); it != fileNames.end(); it++)
     {
         //qDebug() << *it;
-
         BatchRenderer* batchRenderer = new BatchRenderer();
         batchRenderer->folder = *it;
         batchRenderer->sheetFont = sheetFont;
@@ -2390,16 +2404,32 @@ void MainWindow::on_actionBatch_Processing_triggered()
         batchRenderer->frameBgTransparent = ui->FrameBgTransparent->isChecked();
         batchRenderer->frameBgCol = frameBgCol;
 
-        //TODO Dialog with % complete to hook up to this
-        //QObject::connect(batchRenderer, SIGNAL(renderingStart(QString)), this, SLOT(startedBatchRender(QString)));
-        //QObject::connect(batchRenderer, SIGNAL(renderingDone(QString)), this, SLOT(finishedBatchRender(QString)));
+        QObject::connect(batchRenderer, SIGNAL(renderingStart(QString)), this, SLOT(startedBatchRender(QString)));
+        QObject::connect(batchRenderer, SIGNAL(renderingDone()), this, SLOT(finishedBatchRender()));
 
         QThreadPool::globalInstance()->start(batchRenderer);
     }
-
+    progressBar->setAttribute(Qt::WA_DeleteOnClose, true);
+    QObject::connect(progressBar, SIGNAL(finished()), this, SLOT(close()));
+    progressBar->show();
 }
 
+void MainWindow::startedBatchRender(QString sheetName)
+{
+    progressBar->setLabelText(sheetName);
+}
 
+void MainWindow::finishedBatchRender()
+{
+    //once progress bar is set to maximum, izz DONE, so test this first
+    if(progressBar->value()+1 >= progressBar->maximum())
+    {
+        progressBar->setValue(progressBar->value()+1);
+        progressBar = NULL;
+    }
+    else
+        progressBar->setValue(progressBar->value()+1);
+}
 
 
 

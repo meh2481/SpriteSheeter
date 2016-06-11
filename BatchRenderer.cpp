@@ -2,16 +2,29 @@
 #include <QFontMetrics>
 #include <QPainter>
 #include <QRect>
+#include <QTime>
+#include <QCoreApplication>
 
 BatchRenderer::BatchRenderer(QObject *parent) : QObject(parent)
 {
+}
+
+
+
+void BatchRenderer::delay( int millisecondsToWait )
+{
+    QTime dieTime = QTime::currentTime().addMSecs( millisecondsToWait );
+    while( QTime::currentTime() < dieTime )
+    {
+        QCoreApplication::processEvents( QEventLoop::AllEvents, 100 );
+    }
 }
 
 void BatchRenderer::run()
 {
     renderingStart(folder + ".png");
 
-    //TODO Load sheet frames / anim names from folder
+    //TODO Load anim names from subfolder names, sheet frames from those
 
 
     QFontMetrics fm(sheetFont);
@@ -120,8 +133,9 @@ void BatchRenderer::run()
     //Save image
     mCurSheet->save(folder + ".png", "PNG");
 
+
     delete mCurSheet;
-    renderingDone(folder + ".png");
+    renderingDone();
 }
 
 
