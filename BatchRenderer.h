@@ -34,7 +34,6 @@ public:
     QColor frameBgCol;
 
     void run();
-    void delay(int millisecondsToWait);
 
 signals:
     void renderingDone();

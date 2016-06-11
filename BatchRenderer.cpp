@@ -4,29 +4,41 @@
 #include <QRect>
 #include <QTime>
 #include <QCoreApplication>
+#include <QDir>
 
 BatchRenderer::BatchRenderer(QObject *parent) : QObject(parent)
 {
-}
-
-
-
-void BatchRenderer::delay( int millisecondsToWait )
-{
-    QTime dieTime = QTime::currentTime().addMSecs( millisecondsToWait );
-    while( QTime::currentTime() < dieTime )
-    {
-        QCoreApplication::processEvents( QEventLoop::AllEvents, 100 );
-    }
 }
 
 void BatchRenderer::run()
 {
     renderingStart(folder + ".png");
 
-    //TODO Load anim names from subfolder names, sheet frames from those
+    //Load anim names from subfolder names, sheet frames from those
+    QDir dir(folder);
+    QStringList filters;
+    filters << "*";
+    QStringList animationDirs = dir.entryList(filters, QDir::Dirs | QDir::AllDirs | QDir::NoSymLinks | QDir::NoDotAndDotDot, QDir::Name | QDir::IgnoreCase);
+    foreach(QString f, animationDirs)
+    {
+        QList<QImage> animImages;
+        mAnimNames.append(f);
+        QString animFolder = folder + '/' + f;
+        QDir animDir(animFolder);
+        QStringList frameFilenames = animDir.entryList(filters, QDir::Files | QDir::NoSymLinks, QDir::Name | QDir::IgnoreCase);
+        foreach(QString frameImgFilename, frameFilenames)
+        {
+            QString frameFilename = animFolder + '/' + frameImgFilename;
+            QImage frameImg(frameFilename);
+            if(!frameImg.isNull())
+                animImages.append(frameImg);
+        }
 
+        if(animImages.size())
+            mSheetFrames.append(animImages);
+    }
 
+    //Draw!
     QFontMetrics fm(sheetFont);
     float textHeight = fm.height() + 3;
 
@@ -83,7 +95,6 @@ void BatchRenderer::run()
     int curX = offsetX;
     int curY = offsetY;
     sName = mAnimNames.begin();
-    //mAnimRects.clear();
     for(QList<QList<QImage> >::iterator ql = mSheetFrames.begin(); ql != mSheetFrames.end(); ql++)
     {
         QRect r;
@@ -125,16 +136,16 @@ void BatchRenderer::run()
         curY += offsetY + ySize;
         curX = offsetX;
         r.setBottom(curY-offsetY);
-        //mAnimRects.push_back(r);
     }
-
     painter.end();
 
     //Save image
     mCurSheet->save(folder + ".png", "PNG");
 
-
+    //Clean up
     delete mCurSheet;
+
+    //Emit a signal saying we're done bro
     renderingDone();
 }
 

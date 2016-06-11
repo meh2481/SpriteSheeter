@@ -2388,11 +2388,10 @@ void MainWindow::on_actionBatch_Processing_triggered()
     progressBar = new QProgressDialog("Batch Rendering", "Cancel", 0, fileNames.size()-1);
 
     //Spin off threads to render these
-    for(QStringList::const_iterator it = fileNames.begin(); it != fileNames.end(); it++)
+    foreach(QString folder, fileNames)
     {
-        //qDebug() << *it;
         BatchRenderer* batchRenderer = new BatchRenderer();
-        batchRenderer->folder = *it;
+        batchRenderer->folder = folder;
         batchRenderer->sheetFont = sheetFont;
         batchRenderer->maxSheetWidth = ui->sheetWidthBox->value();
         batchRenderer->offsetX = ui->xSpacingBox->value();
@@ -2409,8 +2408,8 @@ void MainWindow::on_actionBatch_Processing_triggered()
 
         QThreadPool::globalInstance()->start(batchRenderer);
     }
+    //Clean up your own memory bro
     progressBar->setAttribute(Qt::WA_DeleteOnClose, true);
-    QObject::connect(progressBar, SIGNAL(finished()), this, SLOT(close()));
     progressBar->show();
 }
 
