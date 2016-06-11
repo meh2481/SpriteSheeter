@@ -16,6 +16,7 @@ class BatchRenderer : public QObject, public QRunnable
     QList<QList<QImage> > mSheetFrames;
     QStringList mAnimNames;
     QImage* mCurSheet;
+    bool bStop;
 
 public:
     explicit BatchRenderer(QObject *parent = 0);
@@ -34,6 +35,9 @@ public:
     QColor frameBgCol;
 
     void run();
+
+public slots:
+    void stop();
 
 signals:
     void renderingDone();

@@ -8,10 +8,15 @@
 
 BatchRenderer::BatchRenderer(QObject *parent) : QObject(parent)
 {
+    bStop = false;
 }
 
 void BatchRenderer::run()
 {
+    //Periodically check if we should stop
+    QCoreApplication::processEvents();
+    if(bStop) return;
+
     renderingStart(folder + ".png");
 
     //Load anim names from subfolder names, sheet frames from those
@@ -36,6 +41,10 @@ void BatchRenderer::run()
 
         if(animImages.size())
             mSheetFrames.append(animImages);
+
+        //Periodically check if we should stop
+        QCoreApplication::processEvents();
+        if(bStop) return;
     }
 
     //Draw!
@@ -76,6 +85,10 @@ void BatchRenderer::run()
         if(iCurSizeX > iSizeX)
             iSizeX = iCurSizeX;
     }
+
+    //Periodically check if we should stop
+    QCoreApplication::processEvents();
+    if(bStop) return;
 
     //Create sheet
     mCurSheet = new QImage(iSizeX, iSizeY, QImage::Format_ARGB32);
@@ -132,6 +145,16 @@ void BatchRenderer::run()
             if(img->height() > ySize)
                 ySize = img->height();
             curX += img->width() + offsetX;
+
+            //Periodically check if we should stop
+            QCoreApplication::processEvents();
+            if(bStop)
+            {
+                painter.end();
+                delete mCurSheet;
+                return;
+            }
+
         }
         curY += offsetY + ySize;
         curX = offsetX;
@@ -149,7 +172,10 @@ void BatchRenderer::run()
     renderingDone();
 }
 
-
+void BatchRenderer::stop()
+{
+    bStop = true;
+}
 
 
 

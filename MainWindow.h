@@ -63,6 +63,7 @@ public slots:
 
     void startedBatchRender(QString sheetName);
     void finishedBatchRender();
+    void threadRenderingCanceled();
 
 private slots:
     void on_openImagesButton_clicked();

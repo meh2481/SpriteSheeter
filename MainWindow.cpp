@@ -2395,7 +2395,8 @@ void MainWindow::on_actionBatch_Processing_triggered()
         return;
 
     //Create progress bar dialog
-    progressBar = new QProgressDialog("Batch Rendering", "Cancel", 0, fileNames.size()-1);
+    progressBar = new QProgressDialog("Starting...", "Cancel", 0, fileNames.size()-1);
+    progressBar->setWindowTitle("Batch Rendering");
 
     //Spin off threads to render these
     foreach(QString folder, fileNames)
@@ -2415,21 +2416,26 @@ void MainWindow::on_actionBatch_Processing_triggered()
 
         QObject::connect(batchRenderer, SIGNAL(renderingStart(QString)), this, SLOT(startedBatchRender(QString)));
         QObject::connect(batchRenderer, SIGNAL(renderingDone()), this, SLOT(finishedBatchRender()));
+        QObject::connect(progressBar, SIGNAL(canceled()), batchRenderer, SLOT(stop()));
 
         QThreadPool::globalInstance()->start(batchRenderer);
     }
     //Clean up your own memory bro
     progressBar->setAttribute(Qt::WA_DeleteOnClose, true);
+    QObject::connect(progressBar, SIGNAL(canceled()), this, SLOT(threadRenderingCanceled()));
     progressBar->show();
 }
 
 void MainWindow::startedBatchRender(QString sheetName)
 {
-    progressBar->setLabelText(sheetName);
+    if(progressBar)
+        progressBar->setLabelText(sheetName);
 }
 
 void MainWindow::finishedBatchRender()
 {
+    if(!progressBar) return;
+
     //once progress bar is set to maximum, izz DONE, so test this first
     if(progressBar->value()+1 >= progressBar->maximum())
     {
@@ -2440,7 +2446,11 @@ void MainWindow::finishedBatchRender()
         progressBar->setValue(progressBar->value()+1);
 }
 
-
+void MainWindow::threadRenderingCanceled()
+{
+    QThreadPool::globalInstance()->clear(); //Don't start new ones
+    progressBar = NULL;
+}
 
 
 

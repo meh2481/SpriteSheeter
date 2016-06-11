@@ -1,5 +1,4 @@
 v1.0:
--Stop batch processing when stop button is pressed
 -Test imageformats to see if they're needed for .jpeg and such
 -Better responsiveness when click-dragging frames
 -Commandline argument support
