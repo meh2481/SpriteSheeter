@@ -2377,8 +2377,18 @@ void MainWindow::on_actionBatch_Processing_triggered()
     QStringList fileNames = multiSelectFolder->selectedFiles();
     delete multiSelectFolder;
 
-    //TODO: Trim off first item if it's the folder above the others (bug in file dialog's return value)
+    //Trim off first item if it's the folder above the others (bug in file dialog's return value)
+    if(fileNames.size() > 1)
+    {
+        QString firstFolder = fileNames.at(0);
+        lastOpenDir = firstFolder;  //Hold onto this for next time
+        QString firstFolderFS = firstFolder + '/';
+        QString firstFolderBS = firstFolder + '\\';
+        QString secondFolder = fileNames.at(1);
 
+        if(secondFolder.indexOf(firstFolderFS) != -1 || secondFolder.indexOf(firstFolderBS) != -1)
+            fileNames.pop_front();
+    }
 
     //Stop here if there are none
     if(!fileNames.size())

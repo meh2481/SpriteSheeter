@@ -139,7 +139,7 @@ void BatchRenderer::run()
     }
     painter.end();
 
-    //Save image
+    //Save image as PNG
     mCurSheet->save(folder + ".png", "PNG");
 
     //Clean up

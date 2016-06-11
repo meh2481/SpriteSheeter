@@ -1,5 +1,5 @@
 v1.0:
--Select folders and apply defaults to create sheets from subfolders (Batch processing; see http://www.vg-resource.com/thread-27036-post-602625.html#pid602625)
+-Stop batch processing when stop button is pressed
 -Test imageformats to see if they're needed for .jpeg and such
 -Better responsiveness when click-dragging frames
 -Commandline argument support
@@ -20,8 +20,3 @@ NOTE:
 --if complains about missing MSVCP140.dll
 --vc_redist.x86.exe
 
-
-
-
-2545757
-4294967296
