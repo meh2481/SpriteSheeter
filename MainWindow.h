@@ -17,7 +17,7 @@
 #define SCENE_BOUNDS    300
 
 #define MAJOR_VERSION 1
-#define MINOR_VERSION 0
+#define MINOR_VERSION 1
 #define REV_VERSION   0
 
 #define CURSOR_SZ 64
