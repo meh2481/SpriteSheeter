@@ -997,9 +997,9 @@ void MainWindow::mouseCursorPos(int x, int y)
             QPixmap pMap;
             pMap.convertFromImage(*mCurSelected);
             if(pMap.width() > pMap.height() && pMap.width() > CURSOR_SZ)
-                pMap = pMap.scaledToWidth(CURSOR_SZ, Qt::SmoothTransformation);
+                pMap = pMap.scaledToWidth(CURSOR_SZ, Qt::FastTransformation);
             else if(pMap.width() <= pMap.height() && pMap.height() > CURSOR_SZ)
-                pMap = pMap.scaledToHeight(CURSOR_SZ, Qt::SmoothTransformation);
+                pMap = pMap.scaledToHeight(CURSOR_SZ, Qt::FastTransformation);
             ui->sheetPreview->setCursor(QCursor(pMap));
         }
 
@@ -1783,7 +1783,7 @@ void MainWindow::saveSheet(QString filename)
         if(f.open(QIODevice::WriteOnly))
         {
             QDataStream s(&f);
-            s.setVersion(QDataStream::Qt_5_4);
+            s.setVersion(QDataStream::Qt_5_6);
 
             saveToStream(s);
         }
@@ -1822,7 +1822,7 @@ void MainWindow::loadSheet(QString openFilename)
             mRecentDocuments->addDocument(openFilename);
 
             QDataStream s(&f);
-            s.setVersion(QDataStream::Qt_5_4);
+            s.setVersion(QDataStream::Qt_5_6);
 
             //Clean up memory
             cleanMemory();

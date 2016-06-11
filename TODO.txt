@@ -1,7 +1,6 @@
 v1.0:
 -Test imageformats to see if they're needed for .jpeg and such
 -Better responsiveness when click-dragging frames
--Commandline argument support
 
 
 Other misc TODO:
@@ -12,6 +11,8 @@ Other misc TODO:
 -Rather than specifying image types manually, remove filter entirely or add ALL actual file types we support
 -Update file case in repo
 -Default w/h of balance window shouldn't be handled by MainWindow
+-Commandline argument support
+-Official thread link in about dialog
 
 
 NOTE:
