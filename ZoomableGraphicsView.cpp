@@ -9,7 +9,7 @@ ZoomableGraphicsView::ZoomableGraphicsView(QGraphicsView* view)
 {
   _view->viewport()->installEventFilter(this);
   _view->setMouseTracking(true);
-  _modifiers = Qt::ControlModifier;
+  _modifiers = Qt::NoModifier;
   _zoom_factor_base = 1.0015;
 }
 

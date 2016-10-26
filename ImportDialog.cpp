@@ -85,7 +85,6 @@ void ImportDialog::saveSettings()
     settings.setValue("horizFirst", ui->horizFirst->isChecked());
     settings.setValue("vertFirst", ui->vertFirst->isChecked());
     settings.setValue("splitAnimations", ui->checkSplitAnimations->isChecked());
-    //settings.setValue("", );
 }
 
 void ImportDialog::restoreSettings()

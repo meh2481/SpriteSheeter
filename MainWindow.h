@@ -24,6 +24,8 @@
 
 #define UNTITLED_IMAGE_STR "Untitled"
 
+class ZoomableGraphicsView;
+
 namespace Ui {
 class MainWindow;
 }
@@ -102,6 +104,8 @@ private slots:
 
 private:
     Ui::MainWindow *ui;
+    ZoomableGraphicsView* mSheetZoom;
+    ZoomableGraphicsView* mAnimationZoom;
     ImportDialog *mImportWindow;
     BalanceSheetDialog *mBalanceWindow;
     IconExportDialog   *mIconExportWindow;
@@ -167,12 +171,6 @@ private:
     QList<QRect> mAnimRects;
 
     QProgressDialog* progressBar;
-
-
-
-
-
-
 
     void openImportDiag();
     void importImage(QString s, int numxframes, int numyframes, bool bVert, bool bSplit);

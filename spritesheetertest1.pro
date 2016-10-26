@@ -19,9 +19,9 @@ SOURCES += main.cpp\
     ImportDialog.cpp \
     IconExportDialog.cpp \
     BalanceSheetDialog.cpp \
-    Animation.cpp \
     RecentDocuments.cpp \
-    BatchRenderer.cpp
+    BatchRenderer.cpp \
+    AnimPreview.cpp
 
 HEADERS  += \
 		FreeImage.h \
@@ -32,7 +32,6 @@ HEADERS  += \
     IconExportDialog.h \
     BalanceSheetDialog.h \
     AnimPreview.h \
-    Animation.h \
     RecentDocuments.h \
     BatchRenderer.h
 

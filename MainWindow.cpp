@@ -92,11 +92,8 @@ MainWindow::MainWindow(QWidget *parent) :
     ui->splitter->setStretchFactor(0, 1);
     ui->splitter->setStretchFactor(1, 0);
 
-    ZoomableGraphicsView* z = new ZoomableGraphicsView(ui->sheetPreview);
-    z->set_modifiers(Qt::NoModifier);
-
-    z = new ZoomableGraphicsView(ui->animationPreview);
-    z->set_modifiers(Qt::NoModifier);
+    mSheetZoom = new ZoomableGraphicsView(ui->sheetPreview);
+    mAnimationZoom = new ZoomableGraphicsView(ui->animationPreview);
 
     sheetBgCol = QColor(0, 128, 128, 255);
     frameBgCol = QColor(0, 255, 0, 255);
@@ -138,6 +135,8 @@ MainWindow::~MainWindow()
     delete animUpdateTimer;
     delete mImportWindow;
     delete mBalanceWindow;
+    delete mSheetZoom;
+    delete mAnimationZoom;
     delete ui;
 }
 

@@ -31,7 +31,6 @@ void BalanceSheetDialog::defaultWH(int w, int h)
     ui->spriteHeight->setValue(h);
 }
 
-
 void BalanceSheetDialog::clearIcons()
 {
     ui->pos_ul->setIcon(QIcon("://blank"));
