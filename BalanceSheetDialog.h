@@ -35,25 +35,15 @@ public slots:
 private slots:
 
     void on_okButton_clicked();
-
     void on_cancelButton_clicked();
-
     void on_pos_ul_clicked();
-
     void on_pos_um_clicked();
-
     void on_pos_ur_clicked();
-
     void on_pos_ml_clicked();
-
     void on_pos_mm_clicked();
-
     void on_pos_mr_clicked();
-
     void on_pos_bl_clicked();
-
     void on_pos_bm_clicked();
-
     void on_pos_br_clicked();
 
 private:
@@ -62,10 +52,26 @@ private:
     Pos vertPos;
     Pos horizPos;
 
-
     void clearIcons();
-
-
 };
 
 #endif // BALANCESHEET_H
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

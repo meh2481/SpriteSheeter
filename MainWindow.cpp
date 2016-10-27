@@ -428,9 +428,10 @@ void MainWindow::drawSheet(bool bHighlight)
     if(mCurSheet && (iSizeX != mCurSheet->width() || iSizeY != mCurSheet->height()))
     {
         delete mCurSheet;
-        mCurSheet = new QImage(iSizeX, iSizeY, QImage::Format_ARGB32);
+        mCurSheet = NULL;
     }
-    else if(!mCurSheet)
+
+    if(!mCurSheet)
         mCurSheet = new QImage(iSizeX, iSizeY, QImage::Format_ARGB32);
 
     //Create image of the proper size and fill it with a good bg color
@@ -2355,7 +2356,7 @@ void MainWindow::on_actionAbout_triggered()
         nameVersion += " r" + QString::number(REV_VERSION);
     QString aboutText = "<h3>" + nameVersion + "</h3>" +
             "<p>Author: <a href=\"http://www.vg-resource.com/user-23255.html\">Daxar</a></p>" +
-            "<p>Questions/comments? Ping me on the Spriters Resource forum!</p>";
+            "<p>Questions/comments? Ping me on <a href=\"https://www.vg-resource.com/thread-29374-post-625345.html\">the Spriters Resource forum!</a></p>";
     QMessageBox::about(this, "About Sprite Sheeter", aboutText);
 }
 

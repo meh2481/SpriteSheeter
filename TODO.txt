@@ -1,9 +1,33 @@
+Technical stories:
+-Refactor MainWindow.cpp - it's pretty bad
+	-Research MVC standards as they apply to Qt
+-Each sheet frame should use QGraphicsPixmapItems in the QGraphicsScene, rather than manually rendering to an image
+	-Extend my current SheetEditorView class to have a better combined view/model class
+	-Should improve performance
 -Animations extracted to their own class and rendered separately from one another
--Threaded rendering of animations
 -Add debug log & test balance/resize; reports of crashing
--Offset frames by a few pixels l/r/u/d; not to be confused with moving frames around in an animation
 -Rather than specifying image types manually, remove filter entirely or add ALL actual file types we support
--Update file case in repo
 -Default w/h of balance window shouldn't be handled by MainWindow
--Commandline argument support
--Official thread link in about dialog
+-Commandline argument support?
+
+User stories:
+-Arrange whole animation strips, perhaps via click first frame + Shift-click last frame + drag and drop? If not, clicking a row and using arrow buttons would suffice. (Current workaround: Use animation arrows)
+-Editing the text color
+-Being able to drag labels around
+	-May want to think about labels being individual items rather than part of an animation
+	-Along that note, custom labels/watermarks is common on TSR sheets
+-Scroll sheet view when clicking and dragging frames around, particularly when zoomed in. For sheets that are long enough to where you have to zoom out a lot, this becomes necessary. (Current workaround: Shift-mousewheel)
+-Being able to "anchor" frames by their bottoms instead of them all floating top-most within a strip where it's possible. This would make for a cleaner and frankly more accurate arrangement of animation frames in some instances. (Current workaround: balance animation)
+-When I load lots of images (mainly that amount to a large sheet) it works fine but other times, loading... not the whole set at once, but in parts, causes it to freeze and crash.
+	-See if image loading logic can be threaded or otherwise optimized to prevent all image loading on the main thread, causing UI hangs
+-When a whole string/"animation" of sprites has been moved, the label gets removed instead of being carried along with it.
+	-Might be a non-issue if moving animations as a whole? Should blank animations be allowed?
+-Dragging the boundaries of a sheet to be too horizontally thin kind of causes it to spaz out.
+-The "maximum sheet width" doesn't seem to settle on an exact dimensions when dragging and resizing a sheet. On that note, a suggestion to perhaps display sheet height as well? Again unnecessary compared to the rest though.
+	-Revisit workflow of optimal width/height vs. user-specified
+-Could we please be able to drag sprites in-between others on the Y axis? If you load sprites in the incorrect order there's basically no way to move things up and down (dragging them to the bottom and then moving up also doesn't work if the place you want to move them to isn't the very bottom).
+	-Insert new animations above and in between others rather than just at the bottom of the sheet
+-Shift + click to select multiple frames for deleting/moving
+-Figure out weird image formats in images Mighty Jetters uploaded, and see if my fault and/or can be fixed or not
+-Offset frames by a few pixels l/r/u/d; not to be confused with moving frames around in an animation
+-Drag-and-drop should support .sheet file format
