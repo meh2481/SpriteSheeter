@@ -31,3 +31,4 @@ User stories:
 -Figure out weird image formats in images Mighty Jetters uploaded, and see if my fault and/or can be fixed or not
 -Offset frames by a few pixels l/r/u/d; not to be confused with moving frames around in an animation
 -Drag-and-drop should support .sheet file format
+-Ctrl-Z appears to not work

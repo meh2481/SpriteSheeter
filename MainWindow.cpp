@@ -372,19 +372,17 @@ void MainWindow::CenterParent(QWidget* parent, QWidget* child)
     child->move(centerparent);
 }
 
-void MainWindow::drawSheet(bool bHighlight)
+int hiliteH;
+QList<QString>::iterator sName;
+QVector2D MainWindow::getSheetSize(int offsetX, int offsetY, bool bHighlight)
 {
     QFontMetrics fm(sheetFont);
     float textHeight = fm.height() + 3;
-    int maxSheetWidth = ui->sheetWidthBox->value();
-
-    //First pass: Figure out dimensions of final image
-    int offsetX = ui->xSpacingBox->value();
-    int offsetY = ui->ySpacingBox->value();
-    int iSizeX = offsetX;
     int iSizeY = offsetY;
-    QList<QString>::iterator sName = mAnimNames.begin();
-    int hiliteH = 0;
+    int iSizeX = offsetX;
+    int maxSheetWidth = ui->sheetWidthBox->value();
+    sName = mAnimNames.begin();
+    hiliteH = 0;
     foreach(QList<QImage> ql, mSheetFrames)
     {
         int ySize = 0;
@@ -420,6 +418,23 @@ void MainWindow::drawSheet(bool bHighlight)
         if(iCurSizeX > iSizeX)
             iSizeX = iCurSizeX;
     }
+    return QVector2D(iSizeX, iSizeY);
+}
+
+void MainWindow::drawSheet(bool bHighlight)
+{
+    msheetScene->clear();
+
+    QFontMetrics fm(sheetFont);
+    float textHeight = fm.height() + 3;
+    int maxSheetWidth = ui->sheetWidthBox->value();
+
+    //First pass: Figure out dimensions of final image
+    int offsetX = ui->xSpacingBox->value();
+    int offsetY = ui->ySpacingBox->value();
+    QVector2D size = getSheetSize(offsetX, offsetY, bHighlight);
+    int iSizeX = size.x();
+    int iSizeY = size.y();
 
     if(bHighlight)
         iSizeX += DRAG_HANDLE_SIZE;
@@ -503,7 +518,15 @@ void MainWindow::drawSheet(bool bHighlight)
                 painter.fillRect(curX, curY, img->width(), img->height(), QBrush(frameBgCol));
             }
 
-            painter.drawImage(curX, curY, *img);
+            if(bHighlight)
+                painter.drawImage(curX, curY, *img);
+            else
+            {
+                QGraphicsPixmapItem* curImageItem = new QGraphicsPixmapItem(QPixmap::fromImage(*img));
+                curImageItem->setZValue(10);
+                curImageItem->setPos(curX, curY);
+                msheetScene->addItem(curImageItem);
+            }
 
             //If we're highlighting this image, draw blue overtop
             if(bHighlight && mCurSelected == img)
@@ -530,8 +553,8 @@ void MainWindow::drawSheet(bool bHighlight)
 
 
     //Update the GUI to show this image
-    msheetScene->clear();
     sheetItem = new QGraphicsPixmapItem(QPixmap::fromImage(*mCurSheet));
+    sheetItem->setZValue(-10);
     msheetScene->addItem(sheetItem);
 
     //Set the new rect of the scene

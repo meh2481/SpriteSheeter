@@ -179,6 +179,7 @@ private:
 
     void drawAnimation();
     void drawSheet(bool bHighlight = true);
+    QVector2D getSheetSize(int offsetX, int offsetY, bool bHighlight);
 
     void closeEvent(QCloseEvent *event);
     void readSettings();
