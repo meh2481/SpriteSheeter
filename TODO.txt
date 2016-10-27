@@ -1,3 +1,9 @@
+Refactoring sheets:
+-Animation class contains list of images, along with whatever else we need
+-Graphics view is composed of actual images as pixmap items (model/view)
+	-How is .sheet stored now? Can we get images back from these items?
+-Can use actual item methods now for mouseover testing
+
 Technical stories:
 -Refactor MainWindow.cpp - it's pretty bad
 	-Research MVC standards as they apply to Qt
@@ -9,6 +15,10 @@ Technical stories:
 -Rather than specifying image types manually, remove filter entirely or add ALL actual file types we support
 -Default w/h of balance window shouldn't be handled by MainWindow
 -Commandline argument support?
+-More robust undo/redo system (current brute force approach is super slow)
+	-Abstract undo/redo class 
+	-Everything that can be undone/redone has instantiation
+	-Two stacks for undo/redo; clear redo stack when pushing onto undo stack
 
 User stories:
 -Arrange whole animation strips, perhaps via click first frame + Shift-click last frame + drag and drop? If not, clicking a row and using arrow buttons would suffice. (Current workaround: Use animation arrows)
