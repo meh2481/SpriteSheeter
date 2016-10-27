@@ -17,7 +17,7 @@
 #define SCENE_BOUNDS    300
 
 #define MAJOR_VERSION 1
-#define MINOR_VERSION 1
+#define MINOR_VERSION 2
 #define REV_VERSION   0
 
 #define CURSOR_SZ 64
@@ -102,6 +102,8 @@ private slots:
     void on_actionAbout_triggered();
     void on_actionBatch_Processing_triggered();
 
+    void on_fontColSelect_clicked();
+
 private:
     Ui::MainWindow *ui;
     ZoomableGraphicsView* mSheetZoom;
@@ -135,6 +137,7 @@ private:
     QColor sheetBgCol;
     QColor frameBgCol;
     QColor animHighlightCol;
+    QColor fontColor;
 
     QStack<QByteArray*> undoList;
     QStack<QByteArray*> redoList;

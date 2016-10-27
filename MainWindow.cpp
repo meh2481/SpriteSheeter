@@ -98,6 +98,7 @@ MainWindow::MainWindow(QWidget *parent) :
     sheetBgCol = QColor(0, 128, 128, 255);
     frameBgCol = QColor(0, 255, 0, 255);
     animHighlightCol = QColor(128, 0, 0, 255);
+    fontColor = QColor(255, 255, 255);
 
     //Read in settings here
     readSettings();
@@ -111,6 +112,10 @@ MainWindow::MainWindow(QWidget *parent) :
     colIcon.fill(frameBgCol);
     QIcon ic2(colIcon);
     ui->frameBgColSelect->setIcon(ic2);
+
+    colIcon.fill(fontColor);
+    QIcon ic3(colIcon);
+    ui->fontColSelect->setIcon(ic3);
 
     fixWindowTitle();
 }
@@ -474,7 +479,7 @@ void MainWindow::drawSheet(bool bHighlight)
         //Draw label for animation
         if(sName->length() && ui->animNameEnabled->isChecked())
         {
-            painter.setPen(QColor(255,255,255,255));
+            painter.setPen(fontColor);
             painter.drawText(QRectF(offsetX,curY,1000,textHeight), Qt::AlignLeft|Qt::AlignVCenter, *sName);
             curY += textHeight;
         }
@@ -1309,6 +1314,9 @@ void MainWindow::closeEvent(QCloseEvent *event)
     settings.setValue("frameBgColr", frameBgCol.red());
     settings.setValue("frameBgColg", frameBgCol.green());
     settings.setValue("frameBgColb", frameBgCol.blue());
+    settings.setValue("fontColr", fontColor.red());
+    settings.setValue("fontColg", fontColor.green());
+    settings.setValue("fontColb", fontColor.blue());
     settings.setValue("lastSaveStr", lastSaveStr);
     settings.setValue("lastIconStr", lastIconStr);
     settings.setValue("lastOpenDir", lastOpenDir);
@@ -1342,6 +1350,12 @@ void MainWindow::readSettings()
     frameBgCol.setRed(settings.value("frameBgColr").toInt());
     frameBgCol.setGreen(settings.value("frameBgColg").toInt());
     frameBgCol.setBlue(settings.value("frameBgColb").toInt());
+    if(settings.value("fontColr", -1).toInt() != -1)
+    {
+        fontColor.setRed(settings.value("fontColr").toInt());
+        fontColor.setGreen(settings.value("fontColg").toInt());
+        fontColor.setBlue(settings.value("fontColb").toInt());
+    }
     lastSaveStr = settings.value("lastSaveStr").toString();
     lastIconStr = settings.value("lastIconStr").toString();
     lastOpenDir = settings.value("lastOpenDir").toString();
@@ -1367,12 +1381,18 @@ void MainWindow::readSettings()
 
     //Fill in frame/sheet colors
     QPixmap colIcon(32, 32);
+
     colIcon.fill(sheetBgCol);
     QIcon ic(colIcon);
     ui->sheetBgColSelect->setIcon(ic);
+
     colIcon.fill(frameBgCol);
     ic = QIcon(colIcon);
     ui->frameBgColSelect->setIcon(ic);
+
+    colIcon.fill(fontColor);
+    ic = QIcon(colIcon);
+    ui->fontColSelect->setIcon(ic);
 
     ui->frameBgColSelect->setEnabled(!ui->FrameBgTransparent->isChecked());
     ui->sheetBgColSelect->setEnabled(!ui->SheetBgTransparent->isChecked());
@@ -1609,6 +1629,22 @@ bool MainWindow::eventFilter(QObject* obj, QEvent *event)
         return false;
     }
     return QMainWindow::eventFilter(obj, event);
+}
+
+void MainWindow::on_fontColSelect_clicked()
+{
+    QColor selected = colorSelect.getColor(fontColor, this, "Select Font Color");
+    if(selected.isValid())
+    {
+        fontColor = selected;
+        QPixmap colIcon(32, 32);
+        colIcon.fill(fontColor);
+        QIcon ic(colIcon);
+        ui->fontColSelect->setIcon(ic);
+        drawSheet();
+        drawAnimation();
+        genUndoState();
+    }
 }
 
 void MainWindow::on_frameBgColSelect_clicked()
@@ -1883,6 +1919,7 @@ void MainWindow::saveToStream(QDataStream& s)
     //Save other stuff
     s << sheetBgCol;
     s << frameBgCol;
+    s << fontColor;
     s << ui->FrameBgTransparent->isChecked() << ui->SheetBgTransparent->isChecked();
     s << ui->xSpacingBox->value() << ui->ySpacingBox->value() << ui->sheetWidthBox->value();
     s << sheetFont.toString();
@@ -1898,6 +1935,11 @@ void MainWindow::loadFromStream(QDataStream& s)
     int minor = MINOR_VERSION;
     int rev = REV_VERSION;
     s >> major >> minor >> rev;  //Later we'll care about this if the save format changes again
+    if(major > MAJOR_VERSION || (major == MAJOR_VERSION && minor > MINOR_VERSION) || (major == MAJOR_VERSION && minor == MINOR_VERSION && rev > REV_VERSION))
+    {
+        QMessageBox::warning(this, "File Load", "This sheet file was created with a newer version of Sprite Sheeter than you currently have. Please update your Sprite Sheeter version");
+        return;
+    }
     int numAnims = 0;
     s >> numAnims;
     for(int i = 0; i < numAnims; i++)
@@ -1932,15 +1974,23 @@ void MainWindow::loadFromStream(QDataStream& s)
     //Read other stuff
     s >> sheetBgCol;
     s >> frameBgCol;
+    if(major > 1 || (major == 1 && minor > 1))  //Version 1.2 introduced font color
+        s >> fontColor;
 
     //Fill in frame/sheet colors
     QPixmap colIcon(32, 32);
+
     colIcon.fill(sheetBgCol);
     QIcon ic(colIcon);
     ui->sheetBgColSelect->setIcon(ic);
+
     colIcon.fill(frameBgCol);
     ic = QIcon(colIcon);
     ui->frameBgColSelect->setIcon(ic);
+
+    colIcon.fill(fontColor);
+    ic = QIcon(colIcon);
+    ui->fontColSelect->setIcon(ic);
 
     bool bSheetBg, bFrameBg;
     s >> bFrameBg >> bSheetBg;
@@ -2424,6 +2474,7 @@ void MainWindow::on_actionBatch_Processing_triggered()
         batchRenderer->animHighlightCol = animHighlightCol;
         batchRenderer->frameBgTransparent = ui->FrameBgTransparent->isChecked();
         batchRenderer->frameBgCol = frameBgCol;
+        batchRenderer->fontColor = fontColor;
 
         QObject::connect(batchRenderer, SIGNAL(renderingStart(QString)), this, SLOT(startedBatchRender(QString)));
         QObject::connect(batchRenderer, SIGNAL(renderingDone()), this, SLOT(finishedBatchRender()));
@@ -2462,6 +2513,8 @@ void MainWindow::threadRenderingCanceled()
     QThreadPool::globalInstance()->clear(); //Don't start new ones
     progressBar = NULL;
 }
+
+
 
 
 
