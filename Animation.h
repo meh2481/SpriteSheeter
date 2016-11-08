@@ -13,36 +13,49 @@ class Animation : public QObject
 
     Animation(){}
 
-    QGraphicsScene* m_scene;
-    QVector<QImage*> images;             //Actual images for this animation
-    QVector<QImage*> renderableImages;   //Renderable images that are drawn in the graphics view
-    QMap<QGraphicsItem*, unsigned int> sceneIndices; //Mapping of scene graphics item to index into images
+    QVector<QGraphicsItem*> images;             //Actual images for this animation
+    unsigned int offsetX, offsetY;
+    unsigned int spacingX, spacingY;
+    unsigned int width;
 
+    recalcPosition();   //Recalculate where each image is on in the sheet
 public:
-    explicit Animation(QGraphicsScene* scene, QObject *parent = 0);
+    explicit Animation(QObject *parent = 0);
     ~Animation();
 
     //Insert an image at the end of the animation and hand over control of the memory
-    void insertImage(QImage* img);
+    void insertImage(QGraphicsItem* img);
 
     //Insert an image at the specified index and hand over control of the memory
-    void insertImage(QImage *img, unsigned int index);
+    void insertImage(QGraphicsItem *img, unsigned int index);
 
     //Insert a list of images at the end of the animation and hand over control of the memory
-    void insertImages(const QVector<QImage*>& imagesToAdd);
+    void insertImages(const QVector<QGraphicsItem*>& imagesToAdd);
 
     //Insert a list of images at the given index and hand over control of the memory
-    void insertImages(const QVector<QImage *>& imagesToAdd, unsigned int index);
+    void insertImages(const QVector<QGraphicsItem *>& imagesToAdd, unsigned int index);
 
-    //Get the image at the given index
-    QImage* getImage(unsigned int index);
+    //Get the image at the given index (Note: O(n))
+    QGraphicsItem* getImage(unsigned int index);
 
     //Get the index for the given graphics item, or NULL if none exists
-    unsigned int getIndex(QGraphicsItem* it);
+    unsigned int getIndex(QGraphicsItem* img);
 
-    //Remove the given indices from this animation (returned list will be sorted by index)
-    //Note the Qt syntax: indices << 33 << 12 << 68 << 6 << 12;
-    QList<QImage*> pullImages(QList<unsigned int> indices);
+    //Remove the given images from the given animation and add them to this one
+    //Note the Qt syntax: otherIndices << 33 << 12 << 68 << 6 << 12;
+    void pullImages(Animation* other, QList<unsigned int> otherIndices, unsigned int insertLocation);
+
+    //Get the height for the current width
+    unsigned int getHeight();
+
+    //Set the width of the animation
+    void setWidth(unsigned int width);
+
+    //Set the spacing between animations and frames
+    void setSpacing(unsigned int x, unsigned int y);
+
+    //Set the offset to draw this animation at
+    void setOffset(unsigned int x, unsigned int y);
 
 signals:
 

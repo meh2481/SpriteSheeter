@@ -1,81 +1,128 @@
 #include "Animation.h"
 
-Animation::Animation(QGraphicsScene *scene, QObject *parent) : QObject(parent)
+Animation::Animation(QObject *parent) : QObject(parent)
 {
-    m_scene = scene;
+    offsetX = offsetY = 0;
 }
 
 Animation::~Animation()
 {
-    foreach(QImage* img, images)
+    foreach(QGraphicsItem* img, images)
         delete img;
+    //TODO Remove from graphics scene also
 }
 
-void Animation::insertImage(QImage* img)
+void Animation::insertImage(QGraphicsItem* img)
 {
     insertImage(img, images.size());
 }
 
-void Animation::insertImage(QImage *img, unsigned int index)
+void Animation::insertImage(QImage *QGraphicsItem, unsigned int index)
 {
     if(index > images.size())
         index = images.size();
     images.insert(index, img);
+    recalcPosition();
 }
 
-void Animation::insertImages(const QVector<QImage*>& imagesToAdd)
+void Animation::insertImages(const QVector<QGraphicsItem*>& imagesToAdd)
 {
     insertImages(imagesToAdd, imagesToAdd.size());
 }
 
-void Animation::insertImages(const QVector<QImage *>& imagesToAdd, unsigned int index)
+void Animation::insertImages(const QVector<QGraphicsItem *>& imagesToAdd, unsigned int index)
 {
     if(index > imagesToAdd.size())
         index = imagesToAdd.size();
-    foreach(QImage* img, imagesToAdd)
-        images.insert(index++, img);    //Increment index here to insert in order. Sick
+    foreach(QGraphicsItem* img, imagesToAdd)
+        images.insert(index++, img);    //Increment index here to insert in order
+    recalcPosition();
 }
 
-QImage* Animation::getImage(unsigned int index)
+QGraphicsItem* Animation::getImage(unsigned int index)
 {
     if(index < images.size())
         return images.at(index);
     return NULL;
 }
 
-unsigned int Animation::getIndex(QGraphicsItem* it)
+unsigned int Animation::getIndex(QGraphicsItem* img)
 {
-    return sceneIndices.value(it, NULL);
+    for(int i = 0; i < images.length(); i++)
+    {
+        if(images.at(i) == img)
+            return i;
+    }
+    return NULL;
 }
 
-QList<QImage*> Animation::pullImages(QList<unsigned int> indices)
+void Animation::pullImages(Animation* other, QList<unsigned int> indices, unsigned int insertLocation)
 {
-    QList<QImage*> ret;
+    if(insertLocation > images.length())
+        insertLocation = images.length();
 
     qSort(indices); //Sort
     std::reverse(indices.begin(), indices.end());   //Reverse
 
     foreach(unsigned int i, indices)
     {
-        if(i < images.size())
-            ret.prepend(images.at(i));
+        QGraphicsItem* img = other->images.at(i);
+        images.insert(img, insertLocation);
+        other->images.remove(i);
     }
-
-    foreach(unsigned int i, indices)
-    {
-        if(i < images.size())
-            images.remove(i);
-    }
-
-    return ret;
+    recalcPosition();
+    other->recalcPosition();
 }
 
+void Animation::recalcPosition()
+{
+    unsigned int curX = spacingX;
+    unsigned int curY = spacingY;
+    foreach(QGraphicsItem* img, images)
+    {
+        unsigned int imgW = img->shape().boundingRect().width();
+        unsigned int imgH = img->shape().boundingRect().height();
+        if(imgW + curX + spacingX > width)
+            curY += imgH + spacingY;     //Next line
+        img->setPos(curX + offsetX, curY + offsetY);
+        curX += spacingX;
+    }
+}
 
+unsigned int Animation::getHeight()
+{
+    unsigned int curX = spacingX;
+    unsigned int curY = spacingY;
+    foreach(QGraphicsItem* img, images)
+    {
+        unsigned int imgW = img->shape().boundingRect().width();
+        unsigned int imgH = img->shape().boundingRect().height();
+        if(imgW + curX + spacingX > width)
+            curY += imgH + spacingY;     //Next line
+        curX += spacingX;
+    }
+    return curY + spacingY;
+}
 
+void Animation::setWidth(unsigned int w)
+{
+    width = w;
+    recalcPosition();
+}
 
+void Animation::setOffset(unsigned int x, unsigned int y)
+{
+     offsetX = x;
+     offsetY = y;
+     recalcPosition();
+}
 
-
-
+void Animation::setSpacing(unsigned int x, unsigned int y)
+{
+    spacingX = x;
+    spacingY = y;
+    recalcPosition();
+}
 
 
 
