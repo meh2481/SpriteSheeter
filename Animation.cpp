@@ -54,18 +54,16 @@ void Animation::recalcPosition()
 {
     int curX = spacingX;
     int curY = spacingY;
-    foreach(QGraphicsPixmapItem* img, images)
+    foreach(QGraphicsPixmapItem* pixmapItem, images)
     {
-        //TODO This is off and (I think) takes alpha into account. Take actual image size instead.
-        int imgW = img->shape().boundingRect().width();
-        int imgH = img->shape().boundingRect().height();
-        if(imgW + curX + spacingX > width)
+        QImage* image = imageMap.value(pixmapItem);
+        if(image->width() + curX + spacingX > width)
         {
-            curY += imgH + spacingY;     //Next line
+            curY += image->height() + spacingY;     //Next line
             curX = spacingX;
         }
-        img->setPos(curX + offsetX, curY + offsetY);
-        curX += spacingX + imgW;
+        pixmapItem->setPos(curX + offsetX, curY + offsetY);
+        curX += spacingX + image->width();
     }
 }
 
