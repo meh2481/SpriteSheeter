@@ -5,7 +5,7 @@
 #include <QImage>
 #include <QGraphicsScene>
 #include <QMap>
-#include <QGraphicsItem>
+#include <QGraphicsPixmapItem>
 
 class Animation : public QObject
 {
@@ -13,33 +13,33 @@ class Animation : public QObject
 
     Animation(){}
 
-    QVector<QGraphicsItem*> images;             //Actual images for this animation
-    unsigned int offsetX, offsetY;
-    unsigned int spacingX, spacingY;
-    unsigned int width;
+    QVector<QGraphicsPixmapItem*> images;             //Actual images for this animation
+    int offsetX, offsetY;
+    int spacingX, spacingY;
+    int width;
 
-    recalcPosition();   //Recalculate where each image is on in the sheet
+    void recalcPosition();   //Recalculate where each image is on in the sheet
 public:
     explicit Animation(QObject *parent = 0);
     ~Animation();
 
     //Insert an image at the end of the animation and hand over control of the memory
-    void insertImage(QGraphicsItem* img);
+    void insertImage(QGraphicsPixmapItem* img);
 
     //Insert an image at the specified index and hand over control of the memory
-    void insertImage(QGraphicsItem *img, unsigned int index);
+    void insertImage(QGraphicsPixmapItem* img, unsigned int index);
 
     //Insert a list of images at the end of the animation and hand over control of the memory
-    void insertImages(const QVector<QGraphicsItem*>& imagesToAdd);
+    void insertImages(const QVector<QGraphicsPixmapItem*>& imagesToAdd);
 
     //Insert a list of images at the given index and hand over control of the memory
-    void insertImages(const QVector<QGraphicsItem *>& imagesToAdd, unsigned int index);
+    void insertImages(const QVector<QGraphicsPixmapItem*>& imagesToAdd, unsigned int index);
 
     //Get the image at the given index (Note: O(n))
-    QGraphicsItem* getImage(unsigned int index);
+    QGraphicsPixmapItem* getImage(unsigned int index);
 
     //Get the index for the given graphics item, or NULL if none exists
-    unsigned int getIndex(QGraphicsItem* img);
+    unsigned int getIndex(QGraphicsPixmapItem* img);
 
     //Remove the given images from the given animation and add them to this one
     //Note the Qt syntax: otherIndices << 33 << 12 << 68 << 6 << 12;

@@ -138,6 +138,9 @@ MainWindow::~MainWindow()
     delete mSheetZoom;
     delete mAnimationZoom;
     delete ui;
+    //Clean up animations
+    foreach(Animation* animation, animations)
+        delete animation;
 }
 
 void MainWindow::addImages(QStringList l)
@@ -148,14 +151,24 @@ void MainWindow::addImages(QStringList l)
 
 void MainWindow::importImageList(QStringList& fileList, QString prepend, QString animName)
 {
+    msheetScene->setSceneRect(-1000, -1000, 1000, 1000);
+    Animation* animation = new Animation(this);
+    animation->setWidth(1000);
+    animation->setOffset(-1000, -1000);
     QList<QImage> imgList;
     foreach(QString s1, fileList)
     {
         QString imgPath = prepend + s1;
         QImage image(imgPath);
         if(!image.isNull())
+        {
             imgList.push_back(image);
+            QGraphicsPixmapItem* item = new QGraphicsPixmapItem(QPixmap::fromImage(image));
+            animation->insertImage(item);
+            msheetScene->addItem(item);
+        }
     }
+    animations.append(animation);
     if(imgList.size())
     {
         QList<QList<QImage> >::iterator it = mCurAnim;
@@ -421,8 +434,16 @@ QVector2D MainWindow::getSheetSize(int offsetX, int offsetY, bool bHighlight)
     return QVector2D(iSizeX, iSizeY);
 }
 
+// TODO Move to its own class/file
 void MainWindow::drawSheet(bool bHighlight)
 {
+    if(mCurSheet == NULL)
+        mCurSheet = new QImage(5, 5, QImage::Format_ARGB32);
+    if(ui->sheetPreview->isHidden())
+        ui->sheetPreview->show();
+    //msheetScene->setSceneRect(-500, -500, 500, 500);
+    return;  //Don't redraw unless we're saving
+
     msheetScene->clear();
 
     QFontMetrics fm(sheetFont);

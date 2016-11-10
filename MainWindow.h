@@ -9,6 +9,7 @@
 #include "IconExportDialog.h"
 #include "SheetEditorView.h"
 #include "RecentDocuments.h"
+#include "Animation.h"
 #include <QStack>
 #include <QTextStream>
 #include <QProgressDialog>
@@ -114,6 +115,9 @@ private:
     QString curImportImage;
     QString lastSaveStr;
     QString lastImportExportStr;
+
+    //Animation variables
+    QVector<Animation*> animations;
 
     //Variables for drawing the current sheet/animation
     QImage* mCurSheet;

@@ -1,23 +1,24 @@
 #include "Animation.h"
+#include <QDebug>
 
 Animation::Animation(QObject *parent) : QObject(parent)
 {
     offsetX = offsetY = 0;
+    spacingX = spacingY = 0;
+    width = 500;
 }
 
 Animation::~Animation()
 {
-    foreach(QGraphicsItem* img, images)
-        delete img;
-    //TODO Remove from graphics scene also
+    //Graphics scene cleans up after itself already
 }
 
-void Animation::insertImage(QGraphicsItem* img)
+void Animation::insertImage(QGraphicsPixmapItem* img)
 {
     insertImage(img, images.size());
 }
 
-void Animation::insertImage(QImage *QGraphicsItem, unsigned int index)
+void Animation::insertImage(QGraphicsPixmapItem* img, unsigned int index)
 {
     if(index > images.size())
         index = images.size();
@@ -25,28 +26,28 @@ void Animation::insertImage(QImage *QGraphicsItem, unsigned int index)
     recalcPosition();
 }
 
-void Animation::insertImages(const QVector<QGraphicsItem*>& imagesToAdd)
+void Animation::insertImages(const QVector<QGraphicsPixmapItem*>& imagesToAdd)
 {
     insertImages(imagesToAdd, imagesToAdd.size());
 }
 
-void Animation::insertImages(const QVector<QGraphicsItem *>& imagesToAdd, unsigned int index)
+void Animation::insertImages(const QVector<QGraphicsPixmapItem*>& imagesToAdd, unsigned int index)
 {
     if(index > imagesToAdd.size())
         index = imagesToAdd.size();
-    foreach(QGraphicsItem* img, imagesToAdd)
+    foreach(QGraphicsPixmapItem* img, imagesToAdd)
         images.insert(index++, img);    //Increment index here to insert in order
     recalcPosition();
 }
 
-QGraphicsItem* Animation::getImage(unsigned int index)
+QGraphicsPixmapItem* Animation::getImage(unsigned int index)
 {
     if(index < images.size())
         return images.at(index);
     return NULL;
 }
 
-unsigned int Animation::getIndex(QGraphicsItem* img)
+unsigned int Animation::getIndex(QGraphicsPixmapItem* img)
 {
     for(int i = 0; i < images.length(); i++)
     {
@@ -66,8 +67,8 @@ void Animation::pullImages(Animation* other, QList<unsigned int> indices, unsign
 
     foreach(unsigned int i, indices)
     {
-        QGraphicsItem* img = other->images.at(i);
-        images.insert(img, insertLocation);
+        QGraphicsPixmapItem* img = other->images.at(i);
+        images.insert(insertLocation, img);
         other->images.remove(i);
     }
     recalcPosition();
@@ -76,27 +77,31 @@ void Animation::pullImages(Animation* other, QList<unsigned int> indices, unsign
 
 void Animation::recalcPosition()
 {
-    unsigned int curX = spacingX;
-    unsigned int curY = spacingY;
-    foreach(QGraphicsItem* img, images)
+    int curX = spacingX;
+    int curY = spacingY;
+    foreach(QGraphicsPixmapItem* img, images)
     {
-        unsigned int imgW = img->shape().boundingRect().width();
-        unsigned int imgH = img->shape().boundingRect().height();
+        //TODO This is off and (I think) takes alpha into account. Take actual image size instead.
+        int imgW = img->shape().boundingRect().width();
+        int imgH = img->shape().boundingRect().height();
         if(imgW + curX + spacingX > width)
+        {
             curY += imgH + spacingY;     //Next line
+            curX = spacingX;
+        }
         img->setPos(curX + offsetX, curY + offsetY);
-        curX += spacingX;
+        curX += spacingX + imgW;
     }
 }
 
 unsigned int Animation::getHeight()
 {
-    unsigned int curX = spacingX;
-    unsigned int curY = spacingY;
-    foreach(QGraphicsItem* img, images)
+    int curX = spacingX;
+    int curY = spacingY;
+    foreach(QGraphicsPixmapItem* img, images)
     {
-        unsigned int imgW = img->shape().boundingRect().width();
-        unsigned int imgH = img->shape().boundingRect().height();
+        int imgW = img->shape().boundingRect().width();
+        int imgH = img->shape().boundingRect().height();
         if(imgW + curX + spacingX > width)
             curY += imgH + spacingY;     //Next line
         curX += spacingX;
