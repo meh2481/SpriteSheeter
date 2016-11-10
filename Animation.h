@@ -14,6 +14,7 @@ class Animation : public QObject
     Animation(){}
 
     QVector<QGraphicsPixmapItem*> images;             //Actual images for this animation
+    QMap<QGraphicsPixmapItem*, QImage*> imageMap;
     int offsetX, offsetY;
     int spacingX, spacingY;
     int width;
@@ -24,22 +25,10 @@ public:
     ~Animation();
 
     //Insert an image at the end of the animation and hand over control of the memory
-    void insertImage(QGraphicsPixmapItem* img);
+    void insertImage(QImage* img, QGraphicsScene* scene);
 
     //Insert an image at the specified index and hand over control of the memory
-    void insertImage(QGraphicsPixmapItem* img, unsigned int index);
-
-    //Insert a list of images at the end of the animation and hand over control of the memory
-    void insertImages(const QVector<QGraphicsPixmapItem*>& imagesToAdd);
-
-    //Insert a list of images at the given index and hand over control of the memory
-    void insertImages(const QVector<QGraphicsPixmapItem*>& imagesToAdd, unsigned int index);
-
-    //Get the image at the given index (Note: O(n))
-    QGraphicsPixmapItem* getImage(unsigned int index);
-
-    //Get the index for the given graphics item, or NULL if none exists
-    unsigned int getIndex(QGraphicsPixmapItem* img);
+    void insertImage(QImage* img, QGraphicsScene* scene, unsigned int index);
 
     //Remove the given images from the given animation and add them to this one
     //Note the Qt syntax: otherIndices << 33 << 12 << 68 << 6 << 12;

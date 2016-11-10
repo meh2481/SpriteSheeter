@@ -151,45 +151,44 @@ void MainWindow::addImages(QStringList l)
 
 void MainWindow::importImageList(QStringList& fileList, QString prepend, QString animName)
 {
-    msheetScene->setSceneRect(-1000, -1000, 1000, 1000);
+    msheetScene->setSceneRect(-1000, -1000, 2000, 2000);
+    //Solid black outline around the whole deal
+    msheetScene->addRect(QRectF(-1000, -1000, 2000, 2000));//, const QPen & pen = QPen(), const QBrush & brush = QBrush())
+
+    //Fill in background color for the sheet
+    if(ui->SheetBgTransparent->isChecked())
+    {
+        QBrush bgTexBrush(*transparentBg);
+        msheetScene->addRect(QRectF(-1000, -1000, 2000, 2000), QPen(), bgTexBrush);
+    }
+    else
+    {
+        QBrush bgTexBrush(sheetBgCol);
+        msheetScene->addRect(QRectF(-1000, -1000, 2000, 2000), QPen(), bgTexBrush);
+    }
+
+
     Animation* animation = new Animation(this);
     animation->setWidth(1000);
     animation->setOffset(-1000, -1000);
-    QList<QImage> imgList;
     foreach(QString s1, fileList)
     {
         QString imgPath = prepend + s1;
-        QImage image(imgPath);
-        if(!image.isNull())
-        {
-            imgList.push_back(image);
-            QGraphicsPixmapItem* item = new QGraphicsPixmapItem(QPixmap::fromImage(image));
-            animation->insertImage(item);
-            msheetScene->addItem(item);
-        }
+        QImage* image = new QImage(imgPath);
+        if(!image->isNull())
+            animation->insertImage(image, msheetScene);
+        else
+            qDebug() << "Unable to open image " << imgPath << endl;
     }
     animations.append(animation);
-    if(imgList.size())
-    {
-        QList<QList<QImage> >::iterator it = mCurAnim;
-        if(it != mSheetFrames.end())
-            it++;
-        mCurAnim = mSheetFrames.insert(it, imgList);
+//        ui->animationNameEditor->setText(animName);
 
-        QList<QString>::iterator itN = mCurAnimName;
-        if(itN != mAnimNames.end())
-            itN++;
-        mCurAnimName = mAnimNames.insert(itN, animName);
+//    if(mCurAnim != mSheetFrames.end())
+//        mCurFrame = mCurAnim->begin();
 
-        ui->animationNameEditor->setText(animName);
-    }
-
-    if(mCurAnim != mSheetFrames.end())
-        mCurFrame = mCurAnim->begin();
-
-    drawSheet();
-    drawAnimation();
-    genUndoState();
+//    drawSheet();
+//    drawAnimation();
+//    genUndoState();
 }
 
 void MainWindow::addFolders(QStringList l)

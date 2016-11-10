@@ -1,60 +1,35 @@
 #include "Animation.h"
 #include <QDebug>
+#include <QPixmap>
 
 Animation::Animation(QObject *parent) : QObject(parent)
 {
     offsetX = offsetY = 0;
     spacingX = spacingY = 0;
-    width = 500;
+    width = 1000;
 }
 
 Animation::~Animation()
 {
     //Graphics scene cleans up after itself already
+    for(QMap<QGraphicsPixmapItem*, QImage*>::iterator img = imageMap.begin(); img != imageMap.end(); img++)
+        delete img.value(); //Image memory, however, is not
 }
 
-void Animation::insertImage(QGraphicsPixmapItem* img)
+void Animation::insertImage(QImage* img, QGraphicsScene* scene)
 {
-    insertImage(img, images.size());
+    insertImage(img, scene, images.size());
 }
 
-void Animation::insertImage(QGraphicsPixmapItem* img, unsigned int index)
+void Animation::insertImage(QImage* img, QGraphicsScene* scene, unsigned int index)
 {
     if(index > images.size())
         index = images.size();
-    images.insert(index, img);
+    QGraphicsPixmapItem* item = new QGraphicsPixmapItem(QPixmap::fromImage(*img));
+    images.insert(index, item);
+    imageMap.insert(item, img);
+    scene->addItem(item);
     recalcPosition();
-}
-
-void Animation::insertImages(const QVector<QGraphicsPixmapItem*>& imagesToAdd)
-{
-    insertImages(imagesToAdd, imagesToAdd.size());
-}
-
-void Animation::insertImages(const QVector<QGraphicsPixmapItem*>& imagesToAdd, unsigned int index)
-{
-    if(index > imagesToAdd.size())
-        index = imagesToAdd.size();
-    foreach(QGraphicsPixmapItem* img, imagesToAdd)
-        images.insert(index++, img);    //Increment index here to insert in order
-    recalcPosition();
-}
-
-QGraphicsPixmapItem* Animation::getImage(unsigned int index)
-{
-    if(index < images.size())
-        return images.at(index);
-    return NULL;
-}
-
-unsigned int Animation::getIndex(QGraphicsPixmapItem* img)
-{
-    for(int i = 0; i < images.length(); i++)
-    {
-        if(images.at(i) == img)
-            return i;
-    }
-    return NULL;
 }
 
 void Animation::pullImages(Animation* other, QList<unsigned int> indices, unsigned int insertLocation)
