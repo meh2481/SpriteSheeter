@@ -20,6 +20,7 @@ class Animation : public QObject
     int width;
 
     void recalcPosition();   //Recalculate where each image is on in the sheet
+    unsigned int heightRecalc(bool setPos);
 public:
     explicit Animation(QObject *parent = 0);
     ~Animation();
