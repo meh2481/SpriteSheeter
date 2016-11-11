@@ -102,6 +102,9 @@ MainWindow::MainWindow(QWidget *parent) :
     animHighlightCol = QColor(128, 0, 0, 255);
     fontColor = QColor(255, 255, 255);
 
+    //Create animation sheet
+    sheet = new Sheet(msheetScene, transparentBg);
+
     //Read in settings here
     readSettings();
 
@@ -121,7 +124,6 @@ MainWindow::MainWindow(QWidget *parent) :
 
     fixWindowTitle();
 
-    sheet = new Sheet(msheetScene, transparentBg);
 }
 
 MainWindow::~MainWindow()
@@ -1453,6 +1455,16 @@ void MainWindow::readSettings()
     ui->sheetBgColSelect->setEnabled(!ui->SheetBgTransparent->isChecked());
 
     bLoadMutex = false;
+
+    //Init sheet values
+    if(sheet)
+    {
+        sheet->setXSpacing(ui->xSpacingBox->value());
+        sheet->setYSpacing(ui->ySpacingBox->value());
+        sheet->setWidth(ui->sheetWidthBox->value());
+        sheet->setBgCol(sheetBgCol);
+        sheet->setBgTransparent(ui->SheetBgTransparent->isChecked());
+    }
 }
 
 void MainWindow::on_sheetWidthBox_valueChanged(int arg1)
@@ -1728,8 +1740,10 @@ void MainWindow::on_sheetBgColSelect_clicked()
         colIcon.fill(sheetBgCol);
         QIcon ic(colIcon);
         ui->sheetBgColSelect->setIcon(ic);
-        drawSheet();
-        genUndoState();
+        //drawSheet();
+        //genUndoState();
+        if(sheet)
+            sheet->setBgCol(selected);
     }
 }
 
@@ -1737,17 +1751,18 @@ void MainWindow::on_FrameBgTransparent_toggled(bool checked)
 {
     if(bLoadMutex) return;
     ui->frameBgColSelect->setEnabled(!checked);
-    drawSheet();
-    drawAnimation();
-    genUndoState();
+//    drawSheet();
+//    drawAnimation();
+//    genUndoState();
+
 }
 
 void MainWindow::on_SheetBgTransparent_toggled(bool checked)
 {
     if(bLoadMutex) return;
     ui->sheetBgColSelect->setEnabled(!checked);
-    drawSheet();
-    genUndoState();
+    if(sheet)
+        sheet->setBgTransparent(checked);
 }
 
 void MainWindow::on_balanceAnimButton_clicked()

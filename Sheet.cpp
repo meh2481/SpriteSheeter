@@ -56,7 +56,7 @@ void Sheet::recalc()
         outlineRect = scene->addRect(sceneRect);
     else
         outlineRect->setRect(sceneRect);
-    outlineRect->setZValue(-1);
+    outlineRect->setZValue(-1); //Always behind images
 
     //TODO Update if existing
     if(backgroundRect == NULL)
@@ -68,19 +68,31 @@ void Sheet::recalc()
     }
     else
         backgroundRect->setRect(sceneRect);
-    backgroundRect->setZValue(-2);
+    backgroundRect->setZValue(-2);  //Always behind images and outline
 }
 
 void Sheet::setBgCol(QColor c)
 {
     sheetBgCol = c;
+    if(backgroundRect && !sheetBgTransparent)
+        backgroundRect->setBrush(QBrush(sheetBgCol));
     recalc();
 }
 
 void Sheet::setBgTransparent(bool b)
 {
-    sheetBgTransparent = b;
-    recalc();
+    if(sheetBgTransparent != b)
+    {
+        if(backgroundRect)
+        {
+            if(b)
+                backgroundRect->setBrush(QBrush(*transparentBg));
+            else
+                backgroundRect->setBrush(QBrush(sheetBgCol));
+        }
+        sheetBgTransparent = b;
+        recalc();
+    }
 }
 
 void Sheet::setXSpacing(unsigned int x)
