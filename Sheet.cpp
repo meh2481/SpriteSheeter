@@ -7,8 +7,9 @@ Sheet::Sheet(QGraphicsScene* s, QImage* bg, QObject *parent) : QObject(parent)
     sceneRect = QRectF(0,0,0,0);
     /*outlineRect = */backgroundRect = NULL;
     sheetBgCol = QColor(0, 128, 128, 255);  //TODO user-configure
+    frameBgCol = QColor(0, 255, 0);
     transparentBg = bg;
-    sheetBgTransparent = false;
+    sheetBgTransparent = frameBgTransparent = false;
     xSpacing = ySpacing = 0;
 }
 
@@ -25,6 +26,7 @@ void Sheet::addAnimation(Animation* anim, unsigned int index)
         index = animations.size();
     animations.insert(index, anim);
     anim->setSpacing(xSpacing, ySpacing);
+    anim->setFrameBgCol(frameBgCol);
     recalc();
 }
 
@@ -80,6 +82,13 @@ void Sheet::setBgCol(QColor c)
     if(backgroundRect && !sheetBgTransparent)
         backgroundRect->setBrush(QBrush(sheetBgCol));
     recalc();
+}
+
+void Sheet::setFrameBgCol(QColor c)
+{
+    frameBgCol = c;
+    foreach(Animation* animation, animations)
+        animation->setFrameBgCol(c);
 }
 
 void Sheet::setBgTransparent(bool b)

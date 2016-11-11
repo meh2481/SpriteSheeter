@@ -133,7 +133,12 @@ void Animation::setYSpacing(unsigned int y)
     }
 }
 
-
+void Animation::setFrameBgCol(QColor c)
+{
+    frameBgCol = c;
+    foreach(QGraphicsRectItem* bg, frameBackgrounds)
+        bg->setBrush(QBrush(c));
+}
 
 
 

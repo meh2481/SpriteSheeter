@@ -53,6 +53,8 @@ public:
     //Set the offset to draw this animation at
     void setOffset(unsigned int x, unsigned int y);
 
+    void setFrameBgCol(QColor c);
+
 signals:
 
 public slots:

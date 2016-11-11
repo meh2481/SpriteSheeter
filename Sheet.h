@@ -26,8 +26,10 @@ class Sheet : public QObject
 
     QRectF sceneRect;
     QColor sheetBgCol;
-    QImage* transparentBg;
+    QColor frameBgCol;
     bool sheetBgTransparent;
+    bool frameBgTransparent;
+    QImage* transparentBg;
     unsigned int xSpacing, ySpacing;
 
 public:
@@ -39,6 +41,7 @@ public:
 
     void setWidth(unsigned int w);
     void setBgCol(QColor c);
+    void setFrameBgCol(QColor c);
     void setBgTransparent(bool b);
 
     void setXSpacing(unsigned int x);

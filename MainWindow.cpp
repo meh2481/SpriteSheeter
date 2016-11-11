@@ -1459,6 +1459,7 @@ void MainWindow::readSettings()
         sheet->setYSpacing(ui->ySpacingBox->value());
         sheet->setWidth(ui->sheetWidthBox->value());
         sheet->setBgCol(sheetBgCol);
+        sheet->setFrameBgCol(frameBgCol);
         sheet->setBgTransparent(ui->SheetBgTransparent->isChecked());
     }
 }
@@ -1720,9 +1721,11 @@ void MainWindow::on_frameBgColSelect_clicked()
         colIcon.fill(frameBgCol);
         QIcon ic(colIcon);
         ui->frameBgColSelect->setIcon(ic);
-        drawSheet();
-        drawAnimation();
-        genUndoState();
+        if(sheet)
+            sheet->setFrameBgCol(selected);
+//        drawSheet();
+//        drawAnimation();
+//        genUndoState();
     }
 }
 
