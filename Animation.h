@@ -42,6 +42,8 @@ public:
 
     //Set the spacing between animations and frames
     void setSpacing(unsigned int x, unsigned int y);
+    void setXSpacing(unsigned int x);
+    void setYSpacing(unsigned int y);
 
     //Set the offset to draw this animation at
     void setOffset(unsigned int x, unsigned int y);

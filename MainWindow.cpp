@@ -22,6 +22,8 @@ MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
     ui(new Ui::MainWindow)
 {
+    sheet = NULL;
+
     //Create UI, removing help icons as needed
     ui->setupUi(this);
     mImportWindow = new ImportDialog(this);
@@ -113,6 +115,8 @@ MainWindow::MainWindow(QWidget *parent) :
     ui->frameBgColSelect->setIcon(ic2);
 
     fixWindowTitle();
+
+    sheet = new Sheet(msheetScene, transparentBg);
 }
 
 MainWindow::~MainWindow()
@@ -141,6 +145,8 @@ MainWindow::~MainWindow()
     //Clean up animations
     foreach(Animation* animation, animations)
         delete animation;
+
+    delete sheet;
 }
 
 void MainWindow::addImages(QStringList l)
@@ -151,26 +157,28 @@ void MainWindow::addImages(QStringList l)
 
 void MainWindow::importImageList(QStringList& fileList, QString prepend, QString animName)
 {
-    msheetScene->setSceneRect(-1000, -1000, 2000, 2000);
-    //Solid black outline around the whole deal
-    msheetScene->addRect(QRectF(-1000, -1000, 2000, 2000));//, const QPen & pen = QPen(), const QBrush & brush = QBrush())
+//    msheetScene->setSceneRect(-1000, -1000, 1000, 1000);
+//    //Solid black outline around the whole deal
+//    //TODO Hold onto this QGraphicsRectItem and update as scene size changes (setRect function)
+//    msheetScene->addRect(QRectF(-1000, -1000, 1000, 1000));
 
-    //Fill in background color for the sheet
-    if(ui->SheetBgTransparent->isChecked())
-    {
-        QBrush bgTexBrush(*transparentBg);
-        msheetScene->addRect(QRectF(-1000, -1000, 2000, 2000), QPen(), bgTexBrush);
-    }
-    else
-    {
-        QBrush bgTexBrush(sheetBgCol);
-        msheetScene->addRect(QRectF(-1000, -1000, 2000, 2000), QPen(), bgTexBrush);
-    }
+//    //Fill in background color for the sheet
+//    if(ui->SheetBgTransparent->isChecked())
+//    {
+//        QBrush bgTexBrush(*transparentBg);
+//        //TODO Hold onto this QGraphicsRectItem and update as scene size changes (setRect function)
+//        msheetScene->addRect(QRectF(-1000, -1000, 1000, 1000), QPen(), bgTexBrush);
+//    }
+//    else
+//    {
+//        QBrush bgTexBrush(sheetBgCol);
+//        msheetScene->addRect(QRectF(-1000, -1000, 1000, 1000), QPen(), bgTexBrush);
+//    }
 
 
     Animation* animation = new Animation(this);
-    animation->setWidth(1000);
-    animation->setOffset(-1000, -1000);
+//    animation->setWidth(1000);
+//    animation->setOffset(-1000, -1000);
     foreach(QString s1, fileList)
     {
         QString imgPath = prepend + s1;
@@ -180,7 +188,7 @@ void MainWindow::importImageList(QStringList& fileList, QString prepend, QString
         else
             qDebug() << "Unable to open image " << imgPath << endl;
     }
-    animations.append(animation);
+    sheet->addAnimation(animation);
 //        ui->animationNameEditor->setText(animName);
 
 //    if(mCurAnim != mSheetFrames.end())
@@ -1425,8 +1433,8 @@ void MainWindow::readSettings()
 
 void MainWindow::on_sheetWidthBox_valueChanged(int arg1)
 {
-    //drawSheet();
-    Q_UNUSED(arg1);
+    if(sheet != NULL)
+        sheet->setWidth(arg1);
 }
 
 void MainWindow::newFile()
@@ -2154,23 +2162,28 @@ void MainWindow::updateUndoRedoMenu()
     ui->actionUndo->setEnabled(undoList.size() > 1);
 }
 
-//TODO Only gen undo states here if different
 void MainWindow::on_xSpacingBox_editingFinished()
 {
-    drawSheet();
-    genUndoState();
+//    drawSheet();
+//    genUndoState();
+    if(sheet != NULL)
+        sheet->setXSpacing(ui->xSpacingBox->value());
 }
 
 void MainWindow::on_ySpacingBox_editingFinished()
 {
-    drawSheet();
-    genUndoState();
+    if(sheet != NULL)
+        sheet->setYSpacing(ui->ySpacingBox->value());
+//    drawSheet();
+//    genUndoState();
 }
 
 void MainWindow::on_sheetWidthBox_editingFinished()
 {
-    drawSheet();
-    genUndoState();
+    //drawSheet();
+    //genUndoState();
+//    if(sheet != NULL)
+//        sheet->setWidth(ui->sheetWidthBox->value());
 }
 
 void MainWindow::on_animationNameEditor_editingFinished()

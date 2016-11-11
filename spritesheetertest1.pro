@@ -22,7 +22,8 @@ SOURCES += main.cpp\
     RecentDocuments.cpp \
     BatchRenderer.cpp \
     AnimPreview.cpp \
-    Animation.cpp
+    Animation.cpp \
+    Sheet.cpp
 
 HEADERS  += \
 		FreeImage.h \
@@ -35,7 +36,8 @@ HEADERS  += \
     AnimPreview.h \
     RecentDocuments.h \
     BatchRenderer.h \
-    Animation.h
+    Animation.h \
+    Sheet.h
 
 FORMS    += \
     BalanceSheetDialog.ui \

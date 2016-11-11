@@ -52,6 +52,7 @@ void Animation::pullImages(Animation* other, QList<unsigned int> indices, unsign
 
 void Animation::recalcPosition()
 {
+    //TODO Update animation background and individual frame backgrounds
     int curX = spacingX;
     int curY = spacingY;
     foreach(QGraphicsPixmapItem* pixmapItem, images)
@@ -71,15 +72,21 @@ unsigned int Animation::getHeight()
 {
     int curX = spacingX;
     int curY = spacingY;
-    foreach(QGraphicsPixmapItem* img, images)
+    unsigned int tallestHeight = 0;
+    foreach(QGraphicsPixmapItem* pixmapItem, images)
     {
-        int imgW = img->shape().boundingRect().width();
-        int imgH = img->shape().boundingRect().height();
-        if(imgW + curX + spacingX > width)
-            curY += imgH + spacingY;     //Next line
-        curX += spacingX;
+        QImage* image = imageMap.value(pixmapItem);
+        if(image->height() > tallestHeight)
+            tallestHeight = image->height();
+        if(image->width() + curX + spacingX > width)
+        {
+            curY += tallestHeight + spacingY;     //Next line
+            curX = spacingX;
+            tallestHeight = 0;
+        }
+        curX += spacingX + image->width();
     }
-    return curY + spacingY;
+    return curY + spacingY + tallestHeight;
 }
 
 void Animation::setWidth(unsigned int w)
@@ -102,8 +109,23 @@ void Animation::setSpacing(unsigned int x, unsigned int y)
     recalcPosition();
 }
 
+void Animation::setXSpacing(unsigned int x)
+{
+    if(spacingX != x)
+    {
+        spacingX = x;
+        recalcPosition();
+    }
+}
 
-
+void Animation::setYSpacing(unsigned int y)
+{
+    if(spacingY != y)
+    {
+        spacingY = y;
+        recalcPosition();
+    }
+}
 
 
 

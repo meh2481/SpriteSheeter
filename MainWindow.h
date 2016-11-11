@@ -10,6 +10,7 @@
 #include "SheetEditorView.h"
 #include "RecentDocuments.h"
 #include "Animation.h"
+#include "Sheet.h"
 #include <QStack>
 #include <QTextStream>
 #include <QProgressDialog>
@@ -117,6 +118,7 @@ private:
     QString lastImportExportStr;
 
     //Animation variables
+    Sheet* sheet;
     QVector<Animation*> animations;
 
     //Variables for drawing the current sheet/animation
