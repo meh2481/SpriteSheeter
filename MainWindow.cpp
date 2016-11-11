@@ -603,13 +603,17 @@ void MainWindow::drawSheet(bool bHighlight)
 void MainWindow::on_xSpacingBox_valueChanged(int arg1)
 {
     //drawSheet();
-    Q_UNUSED(arg1);
+    //Q_UNUSED(arg1);
+    if(sheet)
+        sheet->setXSpacing(arg1);
 }
 
 void MainWindow::on_ySpacingBox_valueChanged(int arg1)
 {
     //drawSheet();
-    Q_UNUSED(arg1);
+    //Q_UNUSED(arg1);
+    if(sheet)
+        sheet->setYSpacing(arg1);
 }
 
 void MainWindow::genericSave(QString saveFilename)
@@ -2166,14 +2170,14 @@ void MainWindow::on_xSpacingBox_editingFinished()
 {
 //    drawSheet();
 //    genUndoState();
-    if(sheet != NULL)
-        sheet->setXSpacing(ui->xSpacingBox->value());
+//    if(sheet != NULL)
+//        sheet->setXSpacing(ui->xSpacingBox->value());
 }
 
 void MainWindow::on_ySpacingBox_editingFinished()
 {
-    if(sheet != NULL)
-        sheet->setYSpacing(ui->ySpacingBox->value());
+//    if(sheet != NULL)
+//        sheet->setYSpacing(ui->ySpacingBox->value());
 //    drawSheet();
 //    genUndoState();
 }
