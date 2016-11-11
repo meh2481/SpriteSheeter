@@ -117,7 +117,7 @@ void BatchRenderer::run()
         //Draw label for animation
         if(sName->length() && animNameEnabled)
         {
-            painter.setPen(QColor(255,255,255,255));
+            painter.setPen(fontColor);
             painter.drawText(QRectF(offsetX,curY,1000,textHeight), Qt::AlignLeft|Qt::AlignVCenter, *sName);
             curY += textHeight;
         }

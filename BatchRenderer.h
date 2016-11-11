@@ -33,6 +33,7 @@ public:
     QColor animHighlightCol;
     bool frameBgTransparent;
     QColor frameBgCol;
+    QColor fontColor;
 
     void run();
 
