@@ -6,6 +6,8 @@
 #include <QGraphicsScene>
 #include <QMap>
 #include <QGraphicsPixmapItem>
+#include <QGraphicsRectItem>
+#include <QColor>
 
 class Animation : public QObject
 {
@@ -13,11 +15,13 @@ class Animation : public QObject
 
     Animation(){}
 
-    QVector<QGraphicsPixmapItem*> images;             //Actual images for this animation
+    QVector<QGraphicsPixmapItem*> images;               //Actual images for this animation
+    QVector<QGraphicsRectItem*> frameBackgrounds;       //Background items for each frame
     QMap<QGraphicsPixmapItem*, QImage*> imageMap;
     int offsetX, offsetY;
     int spacingX, spacingY;
     int width;
+    QColor frameBgCol;
 
     void recalcPosition();   //Recalculate where each image is on in the sheet
     unsigned int heightRecalc(bool setPos);

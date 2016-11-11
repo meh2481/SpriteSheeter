@@ -1,12 +1,14 @@
 #include "Animation.h"
 #include <QDebug>
 #include <QPixmap>
+#include <QBrush>
 
 Animation::Animation(QObject *parent) : QObject(parent)
 {
     offsetX = offsetY = 0;
     spacingX = spacingY = 0;
     width = 1000;
+    frameBgCol = QColor(0, 255, 0);
 }
 
 Animation::~Animation()
@@ -29,6 +31,10 @@ void Animation::insertImage(QImage* img, QGraphicsScene* scene, unsigned int ind
     images.insert(index, item);
     imageMap.insert(item, img);
     scene->addItem(item);
+    //Add background for this also
+    QGraphicsRectItem* bgRect = scene->addRect(0, 0, img->width(), img->height(), QPen(Qt::NoPen), QBrush(frameBgCol));
+    bgRect->setZValue(-1);  //Behind images
+    frameBackgrounds.insert(index, bgRect);
     recalcPosition();
 }
 
@@ -56,8 +62,10 @@ unsigned int Animation::heightRecalc(bool setPos)
     int curX = spacingX;
     int curY = spacingY;
     unsigned int tallestHeight = 0;
-    foreach(QGraphicsPixmapItem* pixmapItem, images)
+    //foreach(QGraphicsPixmapItem* pixmapItem, images)
+    for(int i = 0; i < images.size(); i++)
     {
+        QGraphicsPixmapItem* pixmapItem = images.at(i);
         QImage* image = imageMap.value(pixmapItem);
         if(image->width() + curX + spacingX > width)
         {
@@ -68,7 +76,10 @@ unsigned int Animation::heightRecalc(bool setPos)
         else if(image->height() > tallestHeight)
             tallestHeight = image->height();
         if(setPos)
+        {
             pixmapItem->setPos(curX + offsetX, curY + offsetY);
+            frameBackgrounds.at(i)->setPos(curX + offsetX, curY + offsetY);
+        }
         curX += spacingX + image->width();
     }
     return curY + spacingY + tallestHeight;

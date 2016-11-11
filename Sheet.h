@@ -21,13 +21,14 @@ class Sheet : public QObject
     Sheet(){}   //Private default constructor
     void recalc();
 
-    QGraphicsRectItem* outlineRect;
+    //QGraphicsRectItem* outlineRect;
     QGraphicsRectItem* backgroundRect;
 
     QRectF sceneRect;
     QColor sheetBgCol;
     QImage* transparentBg;
     bool sheetBgTransparent;
+    unsigned int xSpacing, ySpacing;
 
 public:
     explicit Sheet(QGraphicsScene* s, QImage* bg, QObject *parent = 0);

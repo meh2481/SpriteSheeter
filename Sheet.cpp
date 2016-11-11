@@ -5,10 +5,11 @@ Sheet::Sheet(QGraphicsScene* s, QImage* bg, QObject *parent) : QObject(parent)
     scene = s;
     width = 1000;
     sceneRect = QRectF(0,0,0,0);
-    outlineRect = backgroundRect = NULL;
+    /*outlineRect = */backgroundRect = NULL;
     sheetBgCol = QColor(0, 128, 128, 255);  //TODO user-configure
     transparentBg = bg;
     sheetBgTransparent = false;
+    xSpacing = ySpacing = 0;
 }
 
 Sheet::~Sheet()
@@ -23,6 +24,7 @@ void Sheet::addAnimation(Animation* anim, unsigned int index)
     if(index > animations.size())
         index = animations.size();
     animations.insert(index, anim);
+    anim->setSpacing(xSpacing, ySpacing);
     recalc();
 }
 
@@ -52,21 +54,20 @@ void Sheet::recalc()
     sceneRect.setBottom(curY);
     sceneRect.setRight(width);
 
-    if(outlineRect == NULL)
-    {
-        outlineRect = scene->addRect(sceneRect);
-        outlineRect->setZValue(-2); //Always behind images
-    }
-    else
-        outlineRect->setRect(sceneRect);
+//    if(outlineRect == NULL)
+//    {
+//        outlineRect = scene->addRect(sceneRect);
+//        outlineRect->setZValue(-2); //Always behind images
+//    }
+//    else
+//        outlineRect->setRect(sceneRect);
 
-    //TODO Update if existing
     if(backgroundRect == NULL)
     {
         QBrush bgTexBrush(sheetBgCol);
         if(sheetBgTransparent)
             bgTexBrush = QBrush(*transparentBg);
-        backgroundRect = scene->addRect(sceneRect, QPen(), bgTexBrush);
+        backgroundRect = scene->addRect(sceneRect, QPen(Qt::NoPen), bgTexBrush);
         backgroundRect->setZValue(-3);  //Always behind images and outline
     }
     else
@@ -101,6 +102,7 @@ void Sheet::setXSpacing(unsigned int x)
 {
     foreach(Animation* anim, animations)
         anim->setXSpacing(x);
+    xSpacing = x;
     recalc();
 }
 
@@ -108,6 +110,7 @@ void Sheet::setYSpacing(unsigned int y)
 {
     foreach(Animation* anim, animations)
         anim->setYSpacing(y);
+    ySpacing = y;
     recalc();
 }
 
