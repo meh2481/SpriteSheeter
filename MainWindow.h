@@ -121,7 +121,6 @@ private:
 
     //Animation variables
     Sheet* sheet;
-    QVector<Animation*> animations;
 
     //Variables for drawing the current sheet/animation
     QImage* mCurSheet;

@@ -136,6 +136,7 @@ MainWindow::~MainWindow()
         delete mCurSheet;
     if(animItem)
         delete animItem;
+    delete sheet;
     if(animScene)
         delete animScene;
     if(sheetItem)
@@ -149,11 +150,6 @@ MainWindow::~MainWindow()
     delete mSheetZoom;
     delete mAnimationZoom;
     delete ui;
-    //Clean up animations
-    foreach(Animation* animation, animations)
-        delete animation;
-
-    delete sheet;
 }
 
 void MainWindow::addImages(QStringList l)

@@ -53,10 +53,12 @@ void Sheet::recalc()
     sceneRect.setRight(width);
 
     if(outlineRect == NULL)
+    {
         outlineRect = scene->addRect(sceneRect);
+        outlineRect->setZValue(-2); //Always behind images
+    }
     else
         outlineRect->setRect(sceneRect);
-    outlineRect->setZValue(-1); //Always behind images
 
     //TODO Update if existing
     if(backgroundRect == NULL)
@@ -65,10 +67,10 @@ void Sheet::recalc()
         if(sheetBgTransparent)
             bgTexBrush = QBrush(*transparentBg);
         backgroundRect = scene->addRect(sceneRect, QPen(), bgTexBrush);
+        backgroundRect->setZValue(-3);  //Always behind images and outline
     }
     else
         backgroundRect->setRect(sceneRect);
-    backgroundRect->setZValue(-2);  //Always behind images and outline
 }
 
 void Sheet::setBgCol(QColor c)

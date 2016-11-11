@@ -55,14 +55,18 @@ void Animation::recalcPosition()
     //TODO Update animation background and individual frame backgrounds
     int curX = spacingX;
     int curY = spacingY;
+    unsigned int tallestHeight = 0;
     foreach(QGraphicsPixmapItem* pixmapItem, images)
     {
         QImage* image = imageMap.value(pixmapItem);
         if(image->width() + curX + spacingX > width)
         {
-            curY += image->height() + spacingY;     //Next line
+            curY += tallestHeight + spacingY;     //Next line
             curX = spacingX;
+            tallestHeight = image->height();
         }
+        else if(image->height() > tallestHeight)
+            tallestHeight = image->height();
         pixmapItem->setPos(curX + offsetX, curY + offsetY);
         curX += spacingX + image->width();
     }
@@ -76,14 +80,14 @@ unsigned int Animation::getHeight()
     foreach(QGraphicsPixmapItem* pixmapItem, images)
     {
         QImage* image = imageMap.value(pixmapItem);
-        if(image->height() > tallestHeight)
-            tallestHeight = image->height();
         if(image->width() + curX + spacingX > width)
         {
             curY += tallestHeight + spacingY;     //Next line
             curX = spacingX;
-            tallestHeight = 0;
+            tallestHeight = image->height();
         }
+        else if(image->height() > tallestHeight)
+            tallestHeight = image->height();
         curX += spacingX + image->width();
     }
     return curY + spacingY + tallestHeight;
