@@ -1,6 +1,8 @@
 #include "Sheet.h"
 
-Sheet::Sheet(QGraphicsScene* s, QImage* bg, unsigned int dragW, QObject *parent) : QObject(parent)
+#define SCENE_BOUNDS    300
+
+Sheet::Sheet(QGraphicsScene* s, SheetEditorView* sheetView, QImage* bg, unsigned int dragW, QObject *parent) : QObject(parent)
 {
     scene = s;
     width = curHeight = 0;
@@ -12,6 +14,7 @@ Sheet::Sheet(QGraphicsScene* s, QImage* bg, unsigned int dragW, QObject *parent)
     sheetBgTransparent = frameBgTransparent = false;
     xSpacing = ySpacing = 0;
     dragRectWidth = dragW;
+    sheetPreview = sheetView;
 }
 
 Sheet::~Sheet()
@@ -31,6 +34,7 @@ void Sheet::addAnimation(Animation* anim, unsigned int index)
     anim->setFrameBgTransparent(frameBgTransparent);
     anim->setFrameBgVisible(!frameBgTransparent || !sheetBgTransparent);
     recalc();
+    updateSceneBounds();
 }
 
 void Sheet::addAnimation(Animation* anim)
@@ -124,6 +128,7 @@ void Sheet::setXSpacing(unsigned int x)
         anim->setXSpacing(x);
     xSpacing = x;
     recalc();
+    updateSceneBounds();
 }
 
 void Sheet::setYSpacing(unsigned int y)
@@ -132,6 +137,7 @@ void Sheet::setYSpacing(unsigned int y)
         anim->setYSpacing(y);
     ySpacing = y;
     recalc();
+    updateSceneBounds();
 }
 
 void Sheet::setFrameBgTransparent(bool b)
@@ -150,4 +156,18 @@ void Sheet::updateAnimBg()
     bool frameBgHidden = frameBgTransparent && sheetBgTransparent;
     foreach(Animation* anim, animations)
         anim->setFrameBgVisible(!frameBgHidden);
+}
+
+void Sheet::updateSceneBounds()
+{
+    //Set the new rect of the scene
+    //Scale based on minimum scene bounds, and current viewport aspect ratio
+    int scene_bounds = SCENE_BOUNDS;
+    if(scene_bounds < width/2.0)
+        scene_bounds = width/2.0;
+    if(scene_bounds < curHeight/2.0)
+        scene_bounds = curHeight/2.0;
+    float hFac = (float)sheetPreview->width()/(float)sheetPreview->height();
+    scene->setSceneRect(-scene_bounds*hFac, -scene_bounds, width+scene_bounds*hFac*2, curHeight+scene_bounds*2);
+
 }

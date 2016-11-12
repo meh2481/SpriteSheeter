@@ -105,7 +105,7 @@ MainWindow::MainWindow(QWidget *parent) :
     fontColor = QColor(255, 255, 255);
 
     //Create animation sheet
-    sheet = new Sheet(msheetScene, transparentBg, DRAG_HANDLE_SIZE);
+    sheet = new Sheet(msheetScene, ui->sheetPreview, transparentBg, DRAG_HANDLE_SIZE);
 
     //TODO Remove
     if(mCurSheet == NULL)
@@ -569,16 +569,6 @@ QVector2D MainWindow::getSheetSize(int offsetX, int offsetY, bool bHighlight)
 //    sheetItem->setZValue(-10);
 //    msheetScene->addItem(sheetItem);
 
-//    //Set the new rect of the scene
-//    //Scale based on minimum scene bounds, and current viewport aspect ratio
-//    int scene_bounds = SCENE_BOUNDS;
-//    if(scene_bounds < mCurSheet->width()/2.0)
-//        scene_bounds = mCurSheet->width()/2.0;
-//    if(scene_bounds < mCurSheet->height()/2.0)
-//        scene_bounds = mCurSheet->height()/2.0;
-//    float hFac = (float)ui->sheetPreview->width()/(float)ui->sheetPreview->height();
-//    msheetScene->setSceneRect(-scene_bounds*hFac, -scene_bounds, mCurSheet->width()+scene_bounds*2*hFac, mCurSheet->height()+scene_bounds*2);
-
 //    if(ui->sheetPreview->isHidden())
 //        ui->sheetPreview->show();
 //}
@@ -1030,6 +1020,7 @@ void MainWindow::mouseUp(int x, int y)
         if(bDraggingSheetW)
         {
             bDraggingSheetW = false;
+            sheet->updateSceneBounds();
             //genUndoState();
         }
     }

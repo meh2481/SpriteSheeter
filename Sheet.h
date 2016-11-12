@@ -8,6 +8,7 @@
 #include <QColor>
 #include <QImage>
 #include "Animation.h"
+#include "SheetEditorView.h"
 
 class Sheet : public QObject
 {
@@ -31,10 +32,11 @@ class Sheet : public QObject
     bool frameBgTransparent;
     QImage* transparentBg;
     unsigned int xSpacing, ySpacing, dragRectWidth;
+    SheetEditorView* sheetPreview;
 
     void updateAnimBg();
 public:
-    explicit Sheet(QGraphicsScene* s, QImage* bg, unsigned int dragW, QObject *parent = 0);
+    explicit Sheet(QGraphicsScene* s, SheetEditorView* sheetView, QImage* bg, unsigned int dragW, QObject *parent = 0);
     ~Sheet();
 
     void addAnimation(Animation* anim);
@@ -51,6 +53,7 @@ public:
 
     unsigned int getWidth() {return width;}
     unsigned int getHeight() {return curHeight;}
+    void updateSceneBounds();
 
 signals:
 

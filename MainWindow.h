@@ -16,7 +16,6 @@
 #include <QProgressDialog>
 
 #define DRAG_HANDLE_SIZE 10
-#define SCENE_BOUNDS    300
 
 #define MAJOR_VERSION 1
 #define MINOR_VERSION 2
