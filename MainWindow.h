@@ -28,7 +28,7 @@
 class ZoomableGraphicsView;
 
 namespace Ui {
-class MainWindow;
+    class MainWindow;
 }
 
 class MainWindow : public QMainWindow
@@ -105,37 +105,27 @@ private slots:
     void on_fontColSelect_clicked();
 
 private:
-    Ui::MainWindow *ui;
-    ZoomableGraphicsView* mSheetZoom;
-    ZoomableGraphicsView* mAnimationZoom;
-    ImportDialog *mImportWindow;
-    BalanceSheetDialog *mBalanceWindow;
-    IconExportDialog   *mIconExportWindow;
-    RecentDocuments    *mRecentDocuments;
-    QStringList mOpenFiles;
-    QString curImportImage;
-    QString lastSaveStr;
-    QString lastImportExportStr;
+    Ui::MainWindow*         ui;
+    ZoomableGraphicsView*   mSheetZoom;
+    ZoomableGraphicsView*   mAnimationZoom;
+    ImportDialog*           mImportWindow;
+    BalanceSheetDialog*     mBalanceWindow;
+    IconExportDialog*       mIconExportWindow;
+    RecentDocuments*        mRecentDocuments;
+    QStringList             mOpenFiles;
+    QString                 curImportImage;
+    QString                 lastSaveStr;
+    QString                 lastImportExportStr;
 
     //Animation variables
     Sheet* sheet;
 
     //Variables for drawing the current sheet/animation
-    QImage* mCurSheet;  //TODO Remove
     QFont   sheetFont;
-    QList<QList<QImage> > mSheetFrames;  //TODO Remove
-    QList<QList<QImage> >::iterator mCurAnim;  //TODO Remove
-    QList<QList<QImage> >::iterator m_selDragToAnim;  //TODO Remove
-    QList<QImage>::iterator m_selDragToPos;  //TODO Remove
-    QList<QImage>::iterator mCurFrame;  //TODO Remove
-    QList<QImage>::iterator mCurSelected;  //TODO Remove
-    QList<QList<QImage> >::iterator mCurSelectedInAnim;  //TODO Remove
     bool m_bDraggingSelected;
     bool m_bSetDraggingCursor;
     QRect m_rLastDragHighlight;
     bool m_bLastDragInAnim;
-    QList<QString> mAnimNames;  //TODO Replace with label class
-    QList<QString>::iterator mCurAnimName;  //TODO Remove
     QImage* transparentBg;
     QColor sheetBgCol;
     QColor frameBgCol;
@@ -163,7 +153,6 @@ private:
     QGraphicsScene* animScene;
     QGraphicsPixmapItem* animItem;
     QGraphicsScene* msheetScene;
-    QGraphicsPixmapItem* sheetItem;  //TODO Remove
 
     //Animation update timer
     QTimer* animUpdateTimer;
@@ -174,9 +163,6 @@ private:
     bool bDraggingSheetW;
     bool bLoadMutex;
 
-    //For clicking to select an animation
-    QList<QRect> mAnimRects;  //TODO Remove
-
     QProgressDialog* progressBar;
 
     void openImportDiag();
@@ -185,7 +171,7 @@ private:
     void centerParent(QWidget* parent, QWidget* child);
 
     void drawAnimation();
-    QVector2D getSheetSize(int offsetX, int offsetY, bool bHighlight);
+//    QVector2D getSheetSize(int offsetX, int offsetY, bool bHighlight);
 
     void closeEvent(QCloseEvent *event);
     void readSettings();

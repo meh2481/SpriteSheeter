@@ -60,13 +60,13 @@ MainWindow::MainWindow(QWidget *parent) :
 
     animItem = NULL;
     animScene = NULL;
-    sheetItem = NULL;
+    //sheetItem = NULL;
     msheetScene = NULL;
-    mCurSheet = NULL;
+    //mCurSheet = NULL;
     progressBar = NULL;
     transparentBg = new QImage("://bg");
-    mCurAnim = mSheetFrames.begin();
-    mCurAnimName = mAnimNames.begin();
+//    mCurAnim = mSheetFrames.begin();
+//    mCurAnimName = mAnimNames.begin();
     bShortcuts = true;
     bLoadMutex = false;
 
@@ -108,8 +108,8 @@ MainWindow::MainWindow(QWidget *parent) :
     sheet = new Sheet(msheetScene, ui->sheetPreview, transparentBg, DRAG_HANDLE_SIZE);
 
     //TODO Remove
-    if(mCurSheet == NULL)
-        mCurSheet = new QImage(5, 5, QImage::Format_ARGB32);
+//    if(mCurSheet == NULL)
+//        mCurSheet = new QImage(5, 5, QImage::Format_ARGB32);
     if(ui->sheetPreview->isHidden())
         ui->sheetPreview->show();
 
@@ -128,15 +128,15 @@ MainWindow::~MainWindow()
     clearRedo();
     if(transparentBg)
         delete transparentBg;
-    if(mCurSheet)
-        delete mCurSheet;
+//    if(mCurSheet)
+//        delete mCurSheet;
     if(animItem)
         delete animItem;
     delete sheet;
     if(animScene)
         delete animScene;
-    if(sheetItem)
-        delete sheetItem;
+//    if(sheetItem)
+//        delete sheetItem;
     if(msheetScene)
         delete msheetScene;
     delete mIconExportWindow;
@@ -277,21 +277,21 @@ void MainWindow::openImportDiag()
 
 void MainWindow::insertAnimHelper(QList<QImage> imgList, QString name)
 {
-    if(imgList.size())
-    {
-        QList<QList<QImage> >::iterator it = mCurAnim;
-        if(it != mSheetFrames.end())
-            it++;
-        mCurAnim = mSheetFrames.insert(it, imgList);
+//    if(imgList.size())
+//    {
+//        QList<QList<QImage> >::iterator it = mCurAnim;
+//        if(it != mSheetFrames.end())
+//            it++;
+//        mCurAnim = mSheetFrames.insert(it, imgList);
 
-        QList<QString>::iterator itN = mCurAnimName;
-        if(itN != mAnimNames.end())
-            itN++;
+//        QList<QString>::iterator itN = mCurAnimName;
+//        if(itN != mAnimNames.end())
+//            itN++;
 
-        mCurAnimName = mAnimNames.insert(itN, name);
+//        mCurAnimName = mAnimNames.insert(itN, name);
 
-        ui->animationNameEditor->setText(name);
-    }
+//        ui->animationNameEditor->setText(name);
+//    }
 }
 
 void MainWindow::importImage(QString s, int numxframes, int numyframes, bool bVert, bool bSplit)
@@ -344,8 +344,8 @@ void MainWindow::importImage(QString s, int numxframes, int numyframes, bool bVe
     if(!bSplit)
         insertAnimHelper(imgList, fileName);
 
-    if(mCurAnim != mSheetFrames.end())
-        mCurFrame = mCurAnim->begin();
+//    if(mCurAnim != mSheetFrames.end())
+//        mCurFrame = mCurAnim->begin();
 
     //drawSheet();
     drawAnimation();
@@ -376,54 +376,54 @@ void MainWindow::centerParent(QWidget* parent, QWidget* child)
     child->move(centerparent);
 }
 
-int hiliteH;
-QList<QString>::iterator sName;
-QVector2D MainWindow::getSheetSize(int offsetX, int offsetY, bool bHighlight)
-{
-    QFontMetrics fm(sheetFont);
-    float textHeight = fm.height() + 3;
-    int iSizeY = offsetY;
-    int iSizeX = offsetX;
-    int maxSheetWidth = ui->sheetWidthBox->value();
-    sName = mAnimNames.begin();
-    hiliteH = 0;
-    foreach(QList<QImage> ql, mSheetFrames)
-    {
-        int ySize = 0;
-        int iCurSizeX = offsetX;
-        foreach(QImage img, ql)
-        {
-            //Test to see if we should start next line
-            if(iCurSizeX + img.width() + offsetX > maxSheetWidth)
-            {
-                iSizeY += offsetY + ySize;
-                if(bHighlight && sName == mCurAnimName)
-                    hiliteH += ySize + offsetY;
-                ySize = 0;
-                if(iCurSizeX > iSizeX)
-                    iSizeX = iCurSizeX;
-                iCurSizeX = offsetX;
-            }
+//int hiliteH;
+//QList<QString>::iterator sName;
+//QVector2D MainWindow::getSheetSize(int offsetX, int offsetY, bool bHighlight)
+//{
+//    QFontMetrics fm(sheetFont);
+//    float textHeight = fm.height() + 3;
+//    int iSizeY = offsetY;
+//    int iSizeX = offsetX;
+//    int maxSheetWidth = ui->sheetWidthBox->value();
+//    sName = mAnimNames.begin();
+//    hiliteH = 0;
+//    foreach(QList<QImage> ql, mSheetFrames)
+//    {
+//        int ySize = 0;
+//        int iCurSizeX = offsetX;
+//        foreach(QImage img, ql)
+//        {
+//            //Test to see if we should start next line
+//            if(iCurSizeX + img.width() + offsetX > maxSheetWidth)
+//            {
+//                iSizeY += offsetY + ySize;
+//                if(bHighlight && sName == mCurAnimName)
+//                    hiliteH += ySize + offsetY;
+//                ySize = 0;
+//                if(iCurSizeX > iSizeX)
+//                    iSizeX = iCurSizeX;
+//                iCurSizeX = offsetX;
+//            }
 
-            if(img.height() > ySize)
-                ySize = img.height();
+//            if(img.height() > ySize)
+//                ySize = img.height();
 
-            iCurSizeX += img.width() + offsetX;
-        }
+//            iCurSizeX += img.width() + offsetX;
+//        }
 
-        if(bHighlight && sName == mCurAnimName)
-            hiliteH += ySize;
+//        if(bHighlight && sName == mCurAnimName)
+//            hiliteH += ySize;
 
-        iSizeY += offsetY + ySize;
-        if(sName->length() && ui->animNameEnabled->isChecked())
-            iSizeY += textHeight;
-        sName++;
+//        iSizeY += offsetY + ySize;
+//        if(sName->length() && ui->animNameEnabled->isChecked())
+//            iSizeY += textHeight;
+//        sName++;
 
-        if(iCurSizeX > iSizeX)
-            iSizeX = iCurSizeX;
-    }
-    return QVector2D(iSizeX, iSizeY);
-}
+//        if(iCurSizeX > iSizeX)
+//            iSizeX = iCurSizeX;
+//    }
+//    return QVector2D(iSizeX, iSizeY);
+//}
 
 //TODO Remove when functionality is replaced
 //void MainWindow::drawSheet(bool bHighlight)
@@ -606,18 +606,19 @@ void MainWindow::genericSave(QString saveFilename)
         }
         else
         {
-            if(!mCurSheet->save(saveFilename))
+            //if(!mCurSheet->save(saveFilename))
             {
+                //TODO
                 QMessageBox::information(this,"Image Export","Error saving image " + saveFilename);
             }
-            else
-            {
-                QFileInfo fi(saveFilename);
-                sCurFilename = fi.fileName();
-                bFileModified = false;
-                fixWindowTitle();
-                //TODO Store file orig state
-            }
+//            else
+//            {
+//                QFileInfo fi(saveFilename);
+//                sCurFilename = fi.fileName();
+//                bFileModified = false;
+//                fixWindowTitle();
+//                //TODO Store file orig state
+//            }
         }
         //drawSheet(true);    //Redraw the highlighted version
     }
@@ -627,7 +628,7 @@ void MainWindow::genericSave(QString saveFilename)
 //TODO Combine with saveFileAs()
 void MainWindow::on_saveSheetButton_clicked()
 {
-    if(!mCurSheet || !mSheetFrames.size()) return;
+    //if(!mCurSheet || !mSheetFrames.size()) return;
 
     if(!bFileModified) return;  //Don't bother saving if we already have
 
@@ -658,7 +659,7 @@ void MainWindow::on_saveSheetButton_clicked()
 
 void MainWindow::saveFileAs()
 {
-    if(!mCurSheet || !mSheetFrames.size()) return;
+    //if(!mCurSheet || !mSheetFrames.size()) return;
 
     QString sSel;
     if(lastSaveStr.contains(".sheet", Qt::CaseInsensitive))
@@ -684,24 +685,24 @@ void MainWindow::on_removeAnimButton_clicked()
 {
     //TODO Wipe current animation from sheet
 
-    if(mCurAnim == mSheetFrames.end() || mCurAnimName == mAnimNames.end())
-        return;
+//    if(mCurAnim == mSheetFrames.end() || mCurAnimName == mAnimNames.end())
+//        return;
 
-    mCurAnim = mSheetFrames.erase(mCurAnim);
-    if(mCurAnim == mSheetFrames.end() && mCurAnim != mSheetFrames.begin())
-        mCurAnim--;
+//    mCurAnim = mSheetFrames.erase(mCurAnim);
+//    if(mCurAnim == mSheetFrames.end() && mCurAnim != mSheetFrames.begin())
+//        mCurAnim--;
 
-    mCurAnimName = mAnimNames.erase(mCurAnimName);
-    if(mCurAnimName == mAnimNames.end() && mCurAnimName != mAnimNames.begin())
-        mCurAnimName--;
+//    mCurAnimName = mAnimNames.erase(mCurAnimName);
+//    if(mCurAnimName == mAnimNames.end() && mCurAnimName != mAnimNames.begin())
+//        mCurAnimName--;
 
-    if(mCurAnimName != mAnimNames.end())
-        ui->animationNameEditor->setText(*mCurAnimName);
-    else
-        ui->animationNameEditor->setText(QString(""));
+//    if(mCurAnimName != mAnimNames.end())
+//        ui->animationNameEditor->setText(*mCurAnimName);
+//    else
+//        ui->animationNameEditor->setText(QString(""));
 
-    if(mCurAnim != mSheetFrames.end())
-        mCurFrame = mCurAnim->begin();
+//    if(mCurAnim != mSheetFrames.end())
+//        mCurFrame = mCurAnim->begin();
 
     drawAnimation();
     genUndoState();
@@ -709,8 +710,8 @@ void MainWindow::on_removeAnimButton_clicked()
 
 void MainWindow::on_animationNameEditor_textChanged(const QString &arg1)
 {
-    if(mCurAnimName != mAnimNames.end())
-        *mCurAnimName = arg1;
+//    if(mCurAnimName != mAnimNames.end())
+//        *mCurAnimName = arg1;
     //drawSheet();
     //TODO Update current label
 }
@@ -719,26 +720,26 @@ void MainWindow::on_animationNameEditor_textChanged(const QString &arg1)
 void MainWindow::on_prevAnimButton_clicked()
 {
     //Move these back one
-    if(mCurAnim == mSheetFrames.begin() || mCurAnimName == mAnimNames.begin())
-        return;
+//    if(mCurAnim == mSheetFrames.begin() || mCurAnimName == mAnimNames.begin())
+//        return;
 
-    QList<QImage> curAnim = *mCurAnim;
-    mCurAnim = mSheetFrames.erase(mCurAnim);
-    mCurAnim--;
-    mCurAnim = mSheetFrames.insert(mCurAnim, curAnim);
+//    QList<QImage> curAnim = *mCurAnim;
+//    mCurAnim = mSheetFrames.erase(mCurAnim);
+//    mCurAnim--;
+//    mCurAnim = mSheetFrames.insert(mCurAnim, curAnim);
 
-    QString curName = *mCurAnimName;
-    mCurAnimName = mAnimNames.erase(mCurAnimName);
-    mCurAnimName--;
-    mCurAnimName = mAnimNames.insert(mCurAnimName, curName);
+//    QString curName = *mCurAnimName;
+//    mCurAnimName = mAnimNames.erase(mCurAnimName);
+//    mCurAnimName--;
+//    mCurAnimName = mAnimNames.insert(mCurAnimName, curName);
 
-    if(mCurAnimName != mAnimNames.end())
-        ui->animationNameEditor->setText(*mCurAnimName);
-    else
-        ui->animationNameEditor->setText(QString(""));
+//    if(mCurAnimName != mAnimNames.end())
+//        ui->animationNameEditor->setText(*mCurAnimName);
+//    else
+//        ui->animationNameEditor->setText(QString(""));
 
-    if(mCurAnim != mSheetFrames.end())
-        mCurFrame = mCurAnim->begin();
+//    if(mCurAnim != mSheetFrames.end())
+//        mCurFrame = mCurAnim->begin();
 
     drawAnimation();
     genUndoState();
@@ -747,28 +748,28 @@ void MainWindow::on_prevAnimButton_clicked()
 //TODO Remove button and this function
 void MainWindow::on_nextAnimButton_clicked()
 {
-    if(mCurAnim == mSheetFrames.end() || mCurAnimName == mAnimNames.end())
-        return;
+//    if(mCurAnim == mSheetFrames.end() || mCurAnimName == mAnimNames.end())
+//        return;
 
-    QList<QImage> curAnim = *mCurAnim;
-    mCurAnim = mSheetFrames.erase(mCurAnim);
-    if(mCurAnim != mSheetFrames.end())
-        mCurAnim++;
-    mCurAnim = mSheetFrames.insert(mCurAnim, curAnim);
+//    QList<QImage> curAnim = *mCurAnim;
+//    mCurAnim = mSheetFrames.erase(mCurAnim);
+//    if(mCurAnim != mSheetFrames.end())
+//        mCurAnim++;
+//    mCurAnim = mSheetFrames.insert(mCurAnim, curAnim);
 
-    QString curName = *mCurAnimName;
-    mCurAnimName = mAnimNames.erase(mCurAnimName);
-    if(mCurAnimName != mAnimNames.end())
-        mCurAnimName++;
-    mCurAnimName = mAnimNames.insert(mCurAnimName, curName);
+//    QString curName = *mCurAnimName;
+//    mCurAnimName = mAnimNames.erase(mCurAnimName);
+//    if(mCurAnimName != mAnimNames.end())
+//        mCurAnimName++;
+//    mCurAnimName = mAnimNames.insert(mCurAnimName, curName);
 
-    if(mCurAnimName != mAnimNames.end())
-        ui->animationNameEditor->setText(*mCurAnimName);
-    else
-        ui->animationNameEditor->setText(QString(""));
+//    if(mCurAnimName != mAnimNames.end())
+//        ui->animationNameEditor->setText(*mCurAnimName);
+//    else
+//        ui->animationNameEditor->setText(QString(""));
 
-    if(mCurAnim != mSheetFrames.end())
-        mCurFrame = mCurAnim->begin();
+//    if(mCurAnim != mSheetFrames.end())
+//        mCurFrame = mCurAnim->begin();
 
     drawAnimation();
     genUndoState();
@@ -777,54 +778,54 @@ void MainWindow::on_nextAnimButton_clicked()
 //TODO Replace with updater for animation class
 void MainWindow::drawAnimation()
 {
-    if(mCurAnim == mSheetFrames.end() || !mCurAnim->size() || mCurFrame == mCurAnim->end())
-    {
-        if(animItem)
-            animItem->hide();
-        return;
-    }
+//    if(mCurAnim == mSheetFrames.end() || !mCurAnim->size() || mCurFrame == mCurAnim->end())
+//    {
+//        if(animItem)
+//            animItem->hide();
+//        return;
+//    }
 
     //Draw image and bg
-    QImage animFrame(mCurFrame->width(), mCurFrame->height(), QImage::Format_ARGB32);
-    QPainter painter(&animFrame);
-    painter.setCompositionMode(QPainter::CompositionMode_SourceOver);
-    if(ui->FrameBgTransparent->isChecked())
-    {
-        QBrush bgTexBrush(*transparentBg);
-        painter.fillRect(0, 0, mCurFrame->width(), mCurFrame->height(), bgTexBrush);
-    }
-    else
-        animFrame.fill(frameBgCol);
+//    QImage animFrame(mCurFrame->width(), mCurFrame->height(), QImage::Format_ARGB32);
+//    QPainter painter(&animFrame);
+//    painter.setCompositionMode(QPainter::CompositionMode_SourceOver);
+//    if(ui->FrameBgTransparent->isChecked())
+//    {
+//        QBrush bgTexBrush(*transparentBg);
+//        painter.fillRect(0, 0, mCurFrame->width(), mCurFrame->height(), bgTexBrush);
+//    }
+//    else
+//        animFrame.fill(frameBgCol);
 
-    painter.drawImage(0, 0, *mCurFrame);
+//    painter.drawImage(0, 0, *mCurFrame);
 
 
-    if(animItem == NULL)
-    {
-        animItem = new QGraphicsPixmapItem(QPixmap::fromImage(animFrame));
-        animScene->addItem(animItem);
-    }
-    else
-        animItem->setPixmap(QPixmap::fromImage(animFrame));
+//    if(animItem == NULL)
+//    {
+//        animItem = new QGraphicsPixmapItem(QPixmap::fromImage(animFrame));
+//        animScene->addItem(animItem);
+//    }
+//    else
+//        animItem->setPixmap(QPixmap::fromImage(animFrame));
 
-    animItem->show();
-    animScene->setSceneRect(0, 0, animFrame.width(), animFrame.height());
+//    animItem->show();
+//    animScene->setSceneRect(0, 0, animFrame.width(), animFrame.height());
 }
 
 //TODO Replace with updater for animation class
 void MainWindow::animUpdate()
 {
-    if(mCurAnim == mSheetFrames.end() || !mCurAnim->size())
-        return;
+//    if(mCurAnim == mSheetFrames.end() || !mCurAnim->size())
+//        return;
 
-    if(mCurFrame == mCurAnim->end())
-        mCurFrame = mCurAnim->begin();
-    else
-    {
-        mCurFrame++;
-        if(mCurFrame == mCurAnim->end())
-            mCurFrame = mCurAnim->begin();
-    }
+//    if(mCurFrame == mCurAnim->end())
+//        mCurFrame = mCurAnim->begin();
+//    else
+//    {
+//        mCurFrame++;
+//        if(mCurFrame == mCurAnim->end())
+//            mCurFrame = mCurAnim->begin();
+//    }
 
     drawAnimation();
 }
@@ -851,10 +852,10 @@ void MainWindow::on_animStopButton_clicked()
 {
     animUpdateTimer->stop();
 
-    if(mCurAnim == mSheetFrames.end() || !mCurAnim->size())
-        return;
+//    if(mCurAnim == mSheetFrames.end() || !mCurAnim->size())
+//        return;
 
-    mCurFrame = mCurAnim->begin();
+//    mCurFrame = mCurAnim->begin();
     drawAnimation();
 }
 
@@ -863,12 +864,12 @@ void MainWindow::on_animPrevFrameButton_clicked()
     if(animUpdateTimer->isActive())
         animUpdateTimer->stop();
 
-    if(mCurAnim == mSheetFrames.end() || !mCurAnim->size())
-        return;
+//    if(mCurAnim == mSheetFrames.end() || !mCurAnim->size())
+//        return;
 
-    if(mCurFrame == mCurAnim->begin())
-        mCurFrame = mCurAnim->end();
-    mCurFrame--;
+//    if(mCurFrame == mCurAnim->begin())
+//        mCurFrame = mCurAnim->end();
+//    mCurFrame--;
 
     drawAnimation();
 }
@@ -878,12 +879,12 @@ void MainWindow::on_animNextFrameButton_clicked()
     if(animUpdateTimer->isActive())
         animUpdateTimer->stop();
 
-    if(mCurAnim == mSheetFrames.end() || !mCurAnim->size())
-        return;
+//    if(mCurAnim == mSheetFrames.end() || !mCurAnim->size())
+//        return;
 
-    mCurFrame++;
-    if(mCurFrame == mCurAnim->end())
-        mCurFrame = mCurAnim->begin();
+//    mCurFrame++;
+//    if(mCurFrame == mCurAnim->end())
+//        mCurFrame = mCurAnim->begin();
 
     drawAnimation();
 }
@@ -1266,14 +1267,14 @@ void MainWindow::newFile()
             return;
     }
 
-    if(mCurSheet)
-        delete mCurSheet;
-    mCurSheet = NULL;
+//    if(mCurSheet)
+//        delete mCurSheet;
+//    mCurSheet = NULL;
 
-    mSheetFrames.clear();
-    mCurAnim = mSheetFrames.begin();
-    mAnimNames.clear();
-    mCurAnimName = mAnimNames.begin();
+//    mSheetFrames.clear();
+//    mCurAnim = mSheetFrames.begin();
+//    mAnimNames.clear();
+//    mCurAnimName = mAnimNames.begin();
 
     //drawSheet();
     //TODO wipe current sheet
@@ -1293,22 +1294,22 @@ void MainWindow::newFile()
 void MainWindow::keyPressEvent(QKeyEvent* e)
 {
     //Deleting current selected frame
-    if(e->key() == Qt::Key_Delete && mSheetFrames.size() && mCurAnim != mSheetFrames.end() && mCurSelected != mCurAnim->end() && mCurSelectedInAnim != mSheetFrames.end())
-    {
-        mCurSelectedInAnim->erase(mCurSelected);
-        mCurSelected = mCurSelectedInAnim->end();
+//    if(e->key() == Qt::Key_Delete && mSheetFrames.size() && mCurAnim != mSheetFrames.end() && mCurSelected != mCurAnim->end() && mCurSelectedInAnim != mSheetFrames.end())
+//    {
+//        mCurSelectedInAnim->erase(mCurSelected);
+//        mCurSelected = mCurSelectedInAnim->end();
 
-        //Test and see if this anim is now empty
-        if(!mCurSelectedInAnim->size())
-        {
-            mCurAnim = mCurSelectedInAnim;
-            on_removeAnimButton_clicked();  //Simulate deleting this anim
-        }
+//        //Test and see if this anim is now empty
+//        if(!mCurSelectedInAnim->size())
+//        {
+//            mCurAnim = mCurSelectedInAnim;
+//            on_removeAnimButton_clicked();  //Simulate deleting this anim
+//        }
 
-        mouseCursorPos(curMouseX, curMouseY);   //Select again
-        //drawSheet();
-        genUndoState();
-    }
+//        mouseCursorPos(curMouseX, curMouseY);   //Select again
+//        //drawSheet();
+//        genUndoState();
+//    }
 
     //Shortcut keys if user enabled these
 //    if(bShortcuts)
@@ -1397,10 +1398,10 @@ void MainWindow::keyPressEvent(QKeyEvent* e)
 
 void MainWindow::on_saveFrameButton_clicked()
 {
-    if(mCurAnim == mSheetFrames.end() || !mCurAnim->size() || mCurFrame == mCurAnim->end())
-        return;
+//    if(mCurAnim == mSheetFrames.end() || !mCurAnim->size() || mCurFrame == mCurAnim->end())
+//        return;
 
-    setIconImage(*mCurFrame);
+//    setIconImage(*mCurFrame);
     mIconExportWindow->show();
 }
 
@@ -1414,21 +1415,21 @@ bool MainWindow::eventFilter(QObject* obj, QEvent *event)
             if (keyEvent->key() == Qt::Key_Up)
             {
                 //Move back one anim
-                if(mCurAnim != mSheetFrames.begin() && mCurAnimName != mAnimNames.begin())
-                {
-                    mCurAnim--;
-                    mCurAnimName--;
-                }
+//                if(mCurAnim != mSheetFrames.begin() && mCurAnimName != mAnimNames.begin())
+//                {
+//                    mCurAnim--;
+//                    mCurAnimName--;
+//                }
 
-                //drawSheet();
+//                //drawSheet();
 
-                if(mCurAnimName != mAnimNames.end())
-                    ui->animationNameEditor->setText(*mCurAnimName);
-                else
-                    ui->animationNameEditor->setText(QString(""));
+//                if(mCurAnimName != mAnimNames.end())
+//                    ui->animationNameEditor->setText(*mCurAnimName);
+//                else
+//                    ui->animationNameEditor->setText(QString(""));
 
-                if(mCurAnim != mSheetFrames.end())
-                    mCurFrame = mCurAnim->begin();
+//                if(mCurAnim != mSheetFrames.end())
+//                    mCurFrame = mCurAnim->begin();
 
                 drawAnimation();
 
@@ -1439,26 +1440,26 @@ bool MainWindow::eventFilter(QObject* obj, QEvent *event)
             else if(keyEvent->key() == Qt::Key_Down)
             {
                 //Move forward one anim
-                if(mCurAnim != mSheetFrames.end() && mCurAnimName != mAnimNames.end())
-                {
-                    mCurAnim++;
-                    mCurAnimName++;
-                    if(mCurAnim == mSheetFrames.end() || mCurAnimName == mAnimNames.end())
-                    {
-                        mCurAnim--;
-                        mCurAnimName--;
-                    }
-                }
+//                if(mCurAnim != mSheetFrames.end() && mCurAnimName != mAnimNames.end())
+//                {
+//                    mCurAnim++;
+//                    mCurAnimName++;
+//                    if(mCurAnim == mSheetFrames.end() || mCurAnimName == mAnimNames.end())
+//                    {
+//                        mCurAnim--;
+//                        mCurAnimName--;
+//                    }
+//                }
 
                 //drawSheet();
 
-                if(mCurAnimName != mAnimNames.end())
-                    ui->animationNameEditor->setText(*mCurAnimName);
-                else
-                    ui->animationNameEditor->setText(QString(""));
+//                if(mCurAnimName != mAnimNames.end())
+//                    ui->animationNameEditor->setText(*mCurAnimName);
+//                else
+//                    ui->animationNameEditor->setText(QString(""));
 
-                if(mCurAnim != mSheetFrames.end())
-                    mCurFrame = mCurAnim->begin();
+//                if(mCurAnim != mSheetFrames.end())
+//                    mCurFrame = mCurAnim->begin();
 
                 drawAnimation();
 
@@ -1539,20 +1540,21 @@ void MainWindow::on_SheetBgTransparent_toggled(bool checked)
         sheet->setBgTransparent(checked);
 }
 
+//TODO Balancing should be part of the animation class
 void MainWindow::on_balanceAnimButton_clicked()
 {
-    if(mCurAnim == mSheetFrames.end() || !mCurAnim->size() || mCurFrame == mCurAnim->end())
-        return;
+//    if(mCurAnim == mSheetFrames.end() || !mCurAnim->size() || mCurFrame == mCurAnim->end())
+//        return;
 
     int w = 0, h = 0;
-    foreach(QImage img, *mCurAnim)
-    {
-        if(img.width() > w)
-            w = img.width();
-        if(img.height() > h)
-            h = img.height();
-    }
-    setBalanceDefWH(w, h);
+//    foreach(QImage img, *mCurAnim)
+//    {
+//        if(img.width() > w)
+//            w = img.width();
+//        if(img.height() > h)
+//            h = img.height();
+//    }
+//    setBalanceDefWH(w, h);
 
     mBalanceWindow->show();
     centerParent(this, mBalanceWindow);
@@ -1561,42 +1563,42 @@ void MainWindow::on_balanceAnimButton_clicked()
 void MainWindow::balance(int w, int h, BalanceSheetDialog::Pos vert, BalanceSheetDialog::Pos horiz)
 {
     qDebug() << "enter function balance()" << endl;
-    if(mCurAnim == mSheetFrames.end() || !mCurAnim->size())
-        return;
+//    if(mCurAnim == mSheetFrames.end() || !mCurAnim->size())
+//        return;
 
-    QMutableListIterator<QImage> it(*mCurAnim);
-    while(it.hasNext())
-    {
-        qDebug() << "balance() loop begin" << endl;
-        QImage img = it.next();
+//    QMutableListIterator<QImage> it(*mCurAnim);
+//    while(it.hasNext())
+//    {
+//        qDebug() << "balance() loop begin" << endl;
+//        QImage img = it.next();
 
-        //Use vert/horiz
-        int xPos, yPos;
-        if(vert == BalanceSheetDialog::Up)
-            yPos = 0;
-        else if(vert == BalanceSheetDialog::Mid)
-            yPos = (h/2)-(img.height()/2);
-        else
-            yPos = h - img.height();
+//        //Use vert/horiz
+//        int xPos, yPos;
+//        if(vert == BalanceSheetDialog::Up)
+//            yPos = 0;
+//        else if(vert == BalanceSheetDialog::Mid)
+//            yPos = (h/2)-(img.height()/2);
+//        else
+//            yPos = h - img.height();
 
-        if(horiz == BalanceSheetDialog::Left)
-            xPos = 0;
-        else if(horiz == BalanceSheetDialog::Mid)
-            xPos = (w/2)-(img.width()/2);
-        else
-            xPos = w - img.width();
+//        if(horiz == BalanceSheetDialog::Left)
+//            xPos = 0;
+//        else if(horiz == BalanceSheetDialog::Mid)
+//            xPos = (w/2)-(img.width()/2);
+//        else
+//            xPos = w - img.width();
 
-        qDebug() << "balance() create final image" << endl;
-        QImage final(w, h, QImage::Format_ARGB32);
-        final.fill(QColor(0,0,0,0));
-        QPainter painter(&final);
-        qDebug() << "balance() draw new img size" << endl;
-        painter.drawImage(xPos, yPos, img);
-        painter.end();
-        it.setValue(final);
-    }
+//        qDebug() << "balance() create final image" << endl;
+//        QImage final(w, h, QImage::Format_ARGB32);
+//        final.fill(QColor(0,0,0,0));
+//        QPainter painter(&final);
+//        qDebug() << "balance() draw new img size" << endl;
+//        painter.drawImage(xPos, yPos, img);
+//        painter.end();
+//        it.setValue(final);
+//    }
 
-    mCurFrame = mCurAnim->begin();
+//    mCurFrame = mCurAnim->begin();
     qDebug() << "balance() draw animation" << endl;
     drawAnimation();
     qDebug() << "balance() gen undo" << endl;
@@ -1645,7 +1647,7 @@ void MainWindow::saveSheet(QString filename)
 {
     if(!filename.size())
     {
-        if(!mCurSheet || !mSheetFrames.size()) return;
+        //if(!mCurSheet || !mSheetFrames.size()) return;
 
         QString saveFilename = QFileDialog::getSaveFileName(this,
                                                             tr("Export WIP Sheet"),
@@ -1730,33 +1732,33 @@ void MainWindow::saveToStream(QDataStream& s)
     int minor = MINOR_VERSION;
     int rev = REV_VERSION;
     s << major << minor << rev;  //Later we'll care about this if the save format changes again
-    s << mSheetFrames.size();
-    for(QList<QList<QImage> >::iterator i = mSheetFrames.begin(); i != mSheetFrames.end(); i++)
-    {
-        if(i == mCurAnim)
-            curAnim = cnt;
-        cnt++;
+    //s << mSheetFrames.size();
+//    for(QList<QList<QImage> >::iterator i = mSheetFrames.begin(); i != mSheetFrames.end(); i++)
+//    {
+//        if(i == mCurAnim)
+//            curAnim = cnt;
+//        cnt++;
 
-        s << i->size();
-        int innercnt = 0;
-        for(QList<QImage>::iterator j = i->begin(); j != i->end(); j++)
-        {
-            if(i == mCurAnim && j == mCurFrame)
-                curFrame = innercnt;
-            innercnt++;
+//        s << i->size();
+//        int innercnt = 0;
+//        for(QList<QImage>::iterator j = i->begin(); j != i->end(); j++)
+//        {
+//            if(i == mCurAnim && j == mCurFrame)
+//                curFrame = innercnt;
+//            innercnt++;
 
-            QByteArray imgByteArray;
-            QBuffer buffer(&imgByteArray);
-            buffer.open(QIODevice::WriteOnly);
-            j->save(&buffer, "TIFF");
-            s << imgByteArray;
-        }
-    }
+//            QByteArray imgByteArray;
+//            QBuffer buffer(&imgByteArray);
+//            buffer.open(QIODevice::WriteOnly);
+//            j->save(&buffer, "TIFF");
+//            s << imgByteArray;
+//        }
+//    }
 
     //Save anim names
-    s << mAnimNames.size();
-    foreach(QString str, mAnimNames)
-        s << str;
+    //s << mAnimNames.size();
+    //foreach(QString str, mAnimNames)
+    //    s << str;
 
     //Save other stuff
     s << sheetBgCol;
@@ -1800,7 +1802,7 @@ void MainWindow::loadFromStream(QDataStream& s)
             img.load(&buffer, "TIFF");
             imgList.push_back(img);
         }
-        mSheetFrames.push_back(imgList);
+        //mSheetFrames.push_back(imgList);
     }
 
     //Grab anim names
@@ -1810,7 +1812,7 @@ void MainWindow::loadFromStream(QDataStream& s)
     {
         QString str;
         s >> str;
-        mAnimNames.push_back(str);
+        //mAnimNames.push_back(str);
     }
 
     //Read other stuff
@@ -1849,46 +1851,46 @@ void MainWindow::loadFromStream(QDataStream& s)
     //Done reading
 
     //Default to beginning of animation and frame lists...
-    mCurAnim = mSheetFrames.begin();
-    mCurAnimName = mAnimNames.begin();
-    if(mCurAnim != mSheetFrames.end())
-        mCurFrame = mCurAnim->begin();
+//    mCurAnim = mSheetFrames.begin();
+//    mCurAnimName = mAnimNames.begin();
+//    if(mCurAnim != mSheetFrames.end())
+//        mCurFrame = mCurAnim->begin();
 
     //Set to correct anim and frame...
     int cnt = 0;
-    for(QList<QList<QImage> >::iterator i = mSheetFrames.begin(); i != mSheetFrames.end(); i++, cnt++)
-    {
-        if(cnt == curAnim)
-        {
-            mCurFrame = i->begin();
-            mCurAnim = i;
-            int innercnt = 0;
-            for(QList<QImage>::iterator j = i->begin(); j != i->end(); j++, innercnt++)
-            {
-                if(innercnt == curAnimFrame)
-                {
-                    mCurFrame = j;
-                    break;
-                }
-            }
-            break;
-        }
-    }
+//    for(QList<QList<QImage> >::iterator i = mSheetFrames.begin(); i != mSheetFrames.end(); i++, cnt++)
+//    {
+//        if(cnt == curAnim)
+//        {
+//            mCurFrame = i->begin();
+//            mCurAnim = i;
+//            int innercnt = 0;
+//            for(QList<QImage>::iterator j = i->begin(); j != i->end(); j++, innercnt++)
+//            {
+//                if(innercnt == curAnimFrame)
+//                {
+//                    mCurFrame = j;
+//                    break;
+//                }
+//            }
+//            break;
+//        }
+//    }
 
     //Set to correct anim name...
     cnt = 0;
-    for(QList<QString>::iterator i = mAnimNames.begin(); i != mAnimNames.end(); i++, cnt++)
-    {
-        if(cnt == curAnim)
-        {
-            mCurAnimName = i;
-            break;
-        }
-    }
+//    for(QList<QString>::iterator i = mAnimNames.begin(); i != mAnimNames.end(); i++, cnt++)
+//    {
+//        if(cnt == curAnim)
+//        {
+//            mCurAnimName = i;
+//            break;
+//        }
+//    }
 
     //Reset GUI stuff!
-    if(mCurAnimName != mAnimNames.end())
-        ui->animationNameEditor->setText(*mCurAnimName);
+//    if(mCurAnimName != mAnimNames.end())
+//        ui->animationNameEditor->setText(*mCurAnimName);
 
     drawAnimation();
     bLoadMutex = false;
@@ -1896,14 +1898,14 @@ void MainWindow::loadFromStream(QDataStream& s)
 
 void MainWindow::cleanMemory()
 {
-    if(mCurSheet)
-        delete mCurSheet;
-    mCurSheet = NULL;
+//    if(mCurSheet)
+//        delete mCurSheet;
+//    mCurSheet = NULL;
 
-    mSheetFrames.clear();
-    mCurAnim = mSheetFrames.begin();
-    mAnimNames.clear();
-    mCurAnimName = mAnimNames.begin();
+//    mSheetFrames.clear();
+//    mCurAnim = mSheetFrames.begin();
+//    mAnimNames.clear();
+//    mCurAnimName = mAnimNames.begin();
 }
 
 void MainWindow::on_fontButton_clicked()
@@ -1933,12 +1935,12 @@ void MainWindow::fixWindowTitle()
 
 void MainWindow::genUndoState()
 {
-    if(mSheetFrames.size() == 0 && sCurFilename == UNTITLED_IMAGE_STR && undoList.size() < 2)
-    {
-        clearUndo();
-        pushUndo(); //Save this as our starting state
-        return;   //Don't generate undo states on empty sheet
-    }
+//    if(mSheetFrames.size() == 0 && sCurFilename == UNTITLED_IMAGE_STR && undoList.size() < 2)
+//    {
+//        clearUndo();
+//        pushUndo(); //Save this as our starting state
+//        return;   //Don't generate undo states on empty sheet
+//    }
 
     //Set the window title if this is the first the file has been modified
     if(!bFileModified)
@@ -2070,7 +2072,7 @@ FIBITMAP* imageFromPixels(uint8_t* imgData, uint32_t width, uint32_t height)
 //See http://sourceforge.net/p/freeimage/discussion/36111/thread/ea987d97/ for discussion of FreeImage gif saving...
 void MainWindow::on_ExportAnimButton_clicked()
 {
-    if(!mCurSheet || mSheetFrames.empty() || mCurAnim == mSheetFrames.end()) return;
+    //if(!mCurSheet || mSheetFrames.empty() || mCurAnim == mSheetFrames.end()) return;
 
     QString saveFilename = QFileDialog::getSaveFileName(this,
                                                         tr("Save GIF Animation"),
@@ -2085,50 +2087,50 @@ void MainWindow::on_ExportAnimButton_clicked()
         FIMULTIBITMAP* bmp = FreeImage_OpenMultiBitmap(FIF_GIF, saveFilename.toStdString().c_str(), true, false);
         DWORD dwFrameTime = (DWORD)((1000.0f / (float)ui->animationSpeedSpinbox->value()) + 0.5f); //Framerate of gif image
 
-        for(QList<QImage>::iterator i = mCurAnim->begin(); i != mCurAnim->end(); i++)
-        {
-            //Create image and 256-color image
-            QImage imgTemp(*i);
-            //Gotta get Qt image in proper format first
-            imgTemp = imgTemp.convertToFormat(QImage::Format_ARGB32);
-            QByteArray bytes((char*)imgTemp.bits(), imgTemp.byteCount());
-            //HACK Make 32-bit image with magenta instead of transparency first...
-            FIBITMAP* page = imageFromPixels((uint8_t*)bytes.data(), imgTemp.width(), imgTemp.height());
-            //Turn this into an 8-bit image next
-            FIBITMAP* page8bit = FreeImage_ColorQuantize(page, FIQ_WUQUANT);
+//        for(QList<QImage>::iterator i = mCurAnim->begin(); i != mCurAnim->end(); i++)
+//        {
+//            //Create image and 256-color image
+//            QImage imgTemp(*i);
+//            //Gotta get Qt image in proper format first
+//            imgTemp = imgTemp.convertToFormat(QImage::Format_ARGB32);
+//            QByteArray bytes((char*)imgTemp.bits(), imgTemp.byteCount());
+//            //HACK Make 32-bit image with magenta instead of transparency first...
+//            FIBITMAP* page = imageFromPixels((uint8_t*)bytes.data(), imgTemp.width(), imgTemp.height());
+//            //Turn this into an 8-bit image next
+//            FIBITMAP* page8bit = FreeImage_ColorQuantize(page, FIQ_WUQUANT);
 
-            //Set transparency table from magenta. *Hopefully this was preserved during quantization!*
-            RGBQUAD *Palette = FreeImage_GetPalette(page8bit);
-            BYTE Transparency[256];
-            for (unsigned i = 0; i < 256; i++)
-            {
-                Transparency[i] = 0xFF;
-                if(Palette[i].rgbGreen == 0x00 &&
-                        Palette[i].rgbBlue == 0xFF &&
-                        Palette[i].rgbRed == 0xFF)
-                {
-                    Transparency[i] = 0x00;
-                }
-            }
-            FreeImage_SetTransparencyTable(page8bit, Transparency, 256);
+//            //Set transparency table from magenta. *Hopefully this was preserved during quantization!*
+//            RGBQUAD *Palette = FreeImage_GetPalette(page8bit);
+//            BYTE Transparency[256];
+//            for (unsigned i = 0; i < 256; i++)
+//            {
+//                Transparency[i] = 0xFF;
+//                if(Palette[i].rgbGreen == 0x00 &&
+//                        Palette[i].rgbBlue == 0xFF &&
+//                        Palette[i].rgbRed == 0xFF)
+//                {
+//                    Transparency[i] = 0x00;
+//                }
+//            }
+//            FreeImage_SetTransparencyTable(page8bit, Transparency, 256);
 
-            //Append metadata - frame speed based on current playback speed
-            FreeImage_SetMetadata(FIMD_ANIMATION, page8bit, NULL, NULL);
-            FITAG *tag = FreeImage_CreateTag();
-            if(tag)
-            {
-                FreeImage_SetTagKey(tag, "FrameTime");
-                FreeImage_SetTagType(tag, FIDT_LONG);
-                FreeImage_SetTagCount(tag, 1);
-                FreeImage_SetTagLength(tag, 4);
-                FreeImage_SetTagValue(tag, &dwFrameTime);
-                FreeImage_SetMetadata(FIMD_ANIMATION, page8bit, FreeImage_GetTagKey(tag), tag);
-                FreeImage_DeleteTag(tag);
-            }
-            FreeImage_AppendPage(bmp, page8bit);
-            FreeImage_Unload(page);
-            FreeImage_Unload(page8bit);
-        }
+//            //Append metadata - frame speed based on current playback speed
+//            FreeImage_SetMetadata(FIMD_ANIMATION, page8bit, NULL, NULL);
+//            FITAG *tag = FreeImage_CreateTag();
+//            if(tag)
+//            {
+//                FreeImage_SetTagKey(tag, "FrameTime");
+//                FreeImage_SetTagType(tag, FIDT_LONG);
+//                FreeImage_SetTagCount(tag, 1);
+//                FreeImage_SetTagLength(tag, 4);
+//                FreeImage_SetTagValue(tag, &dwFrameTime);
+//                FreeImage_SetMetadata(FIMD_ANIMATION, page8bit, FreeImage_GetTagKey(tag), tag);
+//                FreeImage_DeleteTag(tag);
+//            }
+//            FreeImage_AppendPage(bmp, page8bit);
+//            FreeImage_Unload(page);
+//            FreeImage_Unload(page8bit);
+//        }
 
         //Save final GIF
         FreeImage_CloseMultiBitmap(bmp, GIF_DEFAULT);
@@ -2166,8 +2168,8 @@ bool MainWindow::loadAnimatedGIF(QString sFilename)
     QString fileName = QFileInfo(sFilename).baseName();
     insertAnimHelper(frameList, fileName);
 
-    if(mCurAnim != mSheetFrames.end())
-        mCurFrame = mCurAnim->begin();
+//    if(mCurAnim != mSheetFrames.end())
+//        mCurFrame = mCurAnim->begin();
 
     drawAnimation();
     genUndoState();
@@ -2179,14 +2181,14 @@ bool MainWindow::loadAnimatedGIF(QString sFilename)
 //TODO Reverse current Animation class
 void MainWindow::on_reverseAnimButton_clicked()
 {
-    if(mCurAnim == mSheetFrames.end()) return;
-    if(mCurAnim->size() < 2) return;
-    QList<QImage> newList = *mCurAnim;
-    mCurAnim->clear();
-    foreach(QImage img, newList)
-        mCurAnim->prepend(img);
+//    if(mCurAnim == mSheetFrames.end()) return;
+//    if(mCurAnim->size() < 2) return;
+//    QList<QImage> newList = *mCurAnim;
+//    mCurAnim->clear();
+//    foreach(QImage img, newList)
+//        mCurAnim->prepend(img);
 
-    mCurFrame = mCurAnim->begin();
+//    mCurFrame = mCurAnim->begin();
     drawAnimation();
     genUndoState();
 }
@@ -2194,33 +2196,33 @@ void MainWindow::on_reverseAnimButton_clicked()
 //TODO Move duplicate testing to Animation class
 void MainWindow::on_removeDuplicateFramesButton_clicked()
 {
-    if(mCurAnim == mSheetFrames.end()) return;
-    if(mCurAnim->size() < 2) return;
-    bool bFoundDuplicates = false;
+//    if(mCurAnim == mSheetFrames.end()) return;
+//    if(mCurAnim->size() < 2) return;
+//    bool bFoundDuplicates = false;
 
-    for(int tester = 0; tester < mCurAnim->size(); tester++)
-    {
-        for(int testee = tester+1; testee < mCurAnim->size(); testee++)
-        {
-            if((*mCurAnim)[testee].width() != (*mCurAnim)[tester].width() || (*mCurAnim)[testee].height() != (*mCurAnim)[tester].height()) continue;
-            if((*mCurAnim)[testee].byteCount() != (*mCurAnim)[tester].byteCount()) continue;
+//    for(int tester = 0; tester < mCurAnim->size(); tester++)
+//    {
+//        for(int testee = tester+1; testee < mCurAnim->size(); testee++)
+//        {
+//            if((*mCurAnim)[testee].width() != (*mCurAnim)[tester].width() || (*mCurAnim)[testee].height() != (*mCurAnim)[tester].height()) continue;
+//            if((*mCurAnim)[testee].byteCount() != (*mCurAnim)[tester].byteCount()) continue;
 
-            if(std::strncmp((const char*)(*mCurAnim)[testee].bits(), (const char*)(*mCurAnim)[tester].bits(), (*mCurAnim)[testee].byteCount()) == 0)
-            {
-                bFoundDuplicates = true;
-                mCurAnim->removeAt(testee);
-                testee--;
-            }
-        }
-    }
+//            if(std::strncmp((const char*)(*mCurAnim)[testee].bits(), (const char*)(*mCurAnim)[tester].bits(), (*mCurAnim)[testee].byteCount()) == 0)
+//            {
+//                bFoundDuplicates = true;
+//                mCurAnim->removeAt(testee);
+//                testee--;
+//            }
+//        }
+//    }
 
-    if(bFoundDuplicates)
-    {
-        mCurFrame = mCurAnim->begin();
-        //TODO Sheet should recalc
-        drawAnimation();
-        genUndoState();
-    }
+//    if(bFoundDuplicates)
+//    {
+//        mCurFrame = mCurAnim->begin();
+//        //TODO Sheet should recalc
+//        drawAnimation();
+//        genUndoState();
+//    }
 }
 
 void MainWindow::on_actionAbout_triggered()
