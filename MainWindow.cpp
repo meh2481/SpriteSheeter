@@ -541,6 +541,7 @@ void MainWindow::on_animationSpeedSpinbox_valueChanged(int arg1)
     animUpdateTimer->start(iInterval);
 }
 
+//TODO Combine play/pause buttons
 void MainWindow::on_animPlayButton_clicked()
 {
     int iInterval = 1000/ui->animationSpeedSpinbox->value();
@@ -854,7 +855,7 @@ void MainWindow::closeEvent(QCloseEvent *event)
             return;
         }
     }
-
+    saveSettings();
     QMainWindow::closeEvent(event);
 }
 
@@ -1840,36 +1841,14 @@ void MainWindow::on_reverseAnimButton_clicked()
     genUndoState();
 }
 
-//TODO Move duplicate testing to Animation class
 void MainWindow::on_removeDuplicateFramesButton_clicked()
 {
-    //    if(mCurAnim == mSheetFrames.end()) return;
-    //    if(mCurAnim->size() < 2) return;
-    //    bool bFoundDuplicates = false;
-
-    //    for(int tester = 0; tester < mCurAnim->size(); tester++)
-    //    {
-    //        for(int testee = tester+1; testee < mCurAnim->size(); testee++)
-    //        {
-    //            if((*mCurAnim)[testee].width() != (*mCurAnim)[tester].width() || (*mCurAnim)[testee].height() != (*mCurAnim)[tester].height()) continue;
-    //            if((*mCurAnim)[testee].byteCount() != (*mCurAnim)[tester].byteCount()) continue;
-
-    //            if(std::strncmp((const char*)(*mCurAnim)[testee].bits(), (const char*)(*mCurAnim)[tester].bits(), (*mCurAnim)[testee].byteCount()) == 0)
-    //            {
-    //                bFoundDuplicates = true;
-    //                mCurAnim->removeAt(testee);
-    //                testee--;
-    //            }
-    //        }
-    //    }
-
-    //    if(bFoundDuplicates)
-    //    {
-    //        mCurFrame = mCurAnim->begin();
-    //        //TODO Sheet should recalc
-    //        drawAnimation();
-    //        genUndoState();
-    //    }
+    if(sheet && sheet->removeDuplicateFrames())
+    {
+        //        mCurFrame = mCurAnim->begin();
+        //        drawAnimation();
+        //        genUndoState();
+    }
 }
 
 void MainWindow::on_actionAbout_triggered()

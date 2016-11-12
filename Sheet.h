@@ -56,6 +56,7 @@ public:
     unsigned int getHeight() {return curHeight;}
     void updateSceneBounds();
     void reverseCurrentAnimation();
+    bool removeDuplicateFrames();   //TODO determine if should be in the context of current animation, or sheet
 
 signals:
 

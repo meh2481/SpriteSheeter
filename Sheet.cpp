@@ -178,3 +178,17 @@ void Sheet::reverseCurrentAnimation()
     if(currentAnimation < animations.size())
         animations.at(currentAnimation)->reverse();
 }
+
+bool Sheet::removeDuplicateFrames()
+{
+    if(currentAnimation < animations.size())
+    {
+        if(animations.at(currentAnimation)->removeDuplicateFrames())
+        {
+            recalc();
+            updateSceneBounds();
+            return true;
+        }
+    }
+    return false;
+}

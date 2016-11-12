@@ -73,6 +73,9 @@ public:
     //Reverse the animation
     void reverse();
 
+    //Remove duplicate frames from the current animation (return true if duplicates found/removed)
+    bool removeDuplicateFrames();
+
 signals:
 
 public slots:

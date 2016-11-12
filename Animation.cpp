@@ -176,3 +176,47 @@ void Animation::reverse()
         images.prepend(img);
     heightRecalc();
 }
+
+bool Animation::removeDuplicateFrames()
+{
+    if(images.size() < 2)
+        return false;
+
+    bool bFoundDuplicates = false;
+
+    for(int tester = 0; tester < images.size(); tester++)
+    {
+        for(int testee = tester+1; testee < images.size(); testee++)
+        {
+            QGraphicsPixmapItem* testerItem = images[tester];
+            QGraphicsPixmapItem* testeeItem = images[testee];
+            QImage* testerImg = imageMap.value(testerItem);
+            QImage* testeeImg = imageMap.value(testeeItem);
+
+            //Images of different size
+            if(testeeImg->width() != testerImg->width() || testeeImg->height() != testerImg->height())
+                continue;
+
+            //Images of different byte counts
+            if(testeeImg->byteCount() != testerImg->byteCount())
+                continue;
+
+            if(std::memcmp(testeeImg->bits(), testerImg->bits(), testeeImg->byteCount()) == 0)
+            {
+                bFoundDuplicates = true;
+                //Remove testee
+                images.removeAt(testee);
+                QGraphicsRectItem* rectItem = frameBackgrounds.at(testee);
+                frameBackgrounds.removeAt(testee);
+                testee--;
+                //Remove from scene
+                QGraphicsScene* scene = testeeItem->scene();
+                scene->removeItem(testeeItem);
+                scene->removeItem(rectItem);
+                imageMap.remove(testeeItem);
+                delete testeeImg;   //Free image
+            }
+        }
+    }
+    return bFoundDuplicates;
+}
