@@ -22,11 +22,12 @@ class Animation : public QObject
     int spacingX, spacingY;
     int width;
     QColor frameBgCol;
+    bool frameBgTransparent;
+    QImage* transparentBg;
 
-    void recalcPosition();   //Recalculate where each image is on in the sheet
-    unsigned int heightRecalc(bool setPos);
+    unsigned int heightRecalc();    //Recalculate where each image is on in the sheet
 public:
-    explicit Animation(QObject *parent = 0);
+    explicit Animation(QImage* bg, QObject *parent = 0);
     ~Animation();
 
     //Insert an image at the end of the animation and hand over control of the memory
@@ -39,11 +40,8 @@ public:
     //Note the Qt syntax: otherIndices << 33 << 12 << 68 << 6 << 12;
     void pullImages(Animation* other, QList<unsigned int> otherIndices, unsigned int insertLocation);
 
-    //Get the height for the current width
-    unsigned int getHeight();
-
     //Set the width of the animation
-    void setWidth(unsigned int width);
+    unsigned int setWidth(unsigned int width);
 
     //Set the spacing between animations and frames
     void setSpacing(unsigned int x, unsigned int y);
@@ -54,6 +52,8 @@ public:
     void setOffset(unsigned int x, unsigned int y);
 
     void setFrameBgCol(QColor c);
+    void setFrameBgTransparent(bool b);
+    void setFrameBgVisible(bool b);
 
 signals:
 

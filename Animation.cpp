@@ -3,19 +3,21 @@
 #include <QPixmap>
 #include <QBrush>
 
-Animation::Animation(QObject *parent) : QObject(parent)
+Animation::Animation(QImage* bg, QObject *parent) : QObject(parent)
 {
     offsetX = offsetY = 0;
     spacingX = spacingY = 0;
     width = 1000;
     frameBgCol = QColor(0, 255, 0);
+    frameBgTransparent = false;
+    transparentBg = bg;
 }
 
 Animation::~Animation()
 {
     //Graphics scene cleans up after itself already
     for(QMap<QGraphicsPixmapItem*, QImage*>::iterator img = imageMap.begin(); img != imageMap.end(); img++)
-        delete img.value(); //Image memory, however, is not
+        delete img.value(); //Image memory, however, does not
 }
 
 void Animation::insertImage(QImage* img, QGraphicsScene* scene)
@@ -32,10 +34,13 @@ void Animation::insertImage(QImage* img, QGraphicsScene* scene, unsigned int ind
     imageMap.insert(item, img);
     scene->addItem(item);
     //Add background for this also
-    QGraphicsRectItem* bgRect = scene->addRect(0, 0, img->width(), img->height(), QPen(Qt::NoPen), QBrush(frameBgCol));
+    QBrush brush(frameBgCol);
+    if(frameBgTransparent)
+        brush = QBrush(*transparentBg);
+    QGraphicsRectItem* bgRect = scene->addRect(0, 0, img->width(), img->height(), QPen(Qt::NoPen), brush);
     bgRect->setZValue(-1);  //Behind images
     frameBackgrounds.insert(index, bgRect);
-    recalcPosition();
+    heightRecalc();
 }
 
 void Animation::pullImages(Animation* other, QList<unsigned int> indices, unsigned int insertLocation)
@@ -52,17 +57,15 @@ void Animation::pullImages(Animation* other, QList<unsigned int> indices, unsign
         images.insert(insertLocation, img);
         other->images.remove(i);
     }
-    recalcPosition();
-    other->recalcPosition();
+    heightRecalc();
+    other->heightRecalc();
 }
 
-unsigned int Animation::heightRecalc(bool setPos)
+unsigned int Animation::heightRecalc()
 {
-    //TODO Update animation background and individual frame backgrounds
     int curX = spacingX;
     int curY = spacingY;
     unsigned int tallestHeight = 0;
-    //foreach(QGraphicsPixmapItem* pixmapItem, images)
     for(int i = 0; i < images.size(); i++)
     {
         QGraphicsPixmapItem* pixmapItem = images.at(i);
@@ -75,44 +78,31 @@ unsigned int Animation::heightRecalc(bool setPos)
         }
         else if(image->height() > tallestHeight)
             tallestHeight = image->height();
-        if(setPos)
-        {
-            pixmapItem->setPos(curX + offsetX, curY + offsetY);
-            frameBackgrounds.at(i)->setPos(curX + offsetX, curY + offsetY);
-        }
+        pixmapItem->setPos(curX + offsetX, curY + offsetY);
+        frameBackgrounds.at(i)->setPos(curX + offsetX, curY + offsetY);
         curX += spacingX + image->width();
     }
     return curY + spacingY + tallestHeight;
 }
 
-void Animation::recalcPosition()
-{
-    heightRecalc(true);
-}
-
-unsigned int Animation::getHeight()
-{
-    return heightRecalc(false);
-}
-
-void Animation::setWidth(unsigned int w)
+unsigned int Animation::setWidth(unsigned int w)
 {
     width = w;
-    recalcPosition();
+    return heightRecalc();
 }
 
 void Animation::setOffset(unsigned int x, unsigned int y)
 {
-     offsetX = x;
-     offsetY = y;
-     recalcPosition();
+    offsetX = x;
+    offsetY = y;
+    heightRecalc();
 }
 
 void Animation::setSpacing(unsigned int x, unsigned int y)
 {
     spacingX = x;
     spacingY = y;
-    recalcPosition();
+    heightRecalc();
 }
 
 void Animation::setXSpacing(unsigned int x)
@@ -120,7 +110,7 @@ void Animation::setXSpacing(unsigned int x)
     if(spacingX != x)
     {
         spacingX = x;
-        recalcPosition();
+        heightRecalc();
     }
 }
 
@@ -129,20 +119,39 @@ void Animation::setYSpacing(unsigned int y)
     if(spacingY != y)
     {
         spacingY = y;
-        recalcPosition();
+        heightRecalc();
     }
 }
 
 void Animation::setFrameBgCol(QColor c)
 {
     frameBgCol = c;
-    foreach(QGraphicsRectItem* bg, frameBackgrounds)
-        bg->setBrush(QBrush(c));
+    if(!frameBgTransparent)
+    {
+        QBrush brush(c);
+        foreach(QGraphicsRectItem* bg, frameBackgrounds)
+            bg->setBrush(brush);
+    }
 }
 
-
-
-
+void Animation::setFrameBgTransparent(bool b)
+{
+    if(frameBgTransparent != b)
+    {
+        frameBgTransparent = b;
+        QBrush brush(frameBgCol);
+        if(frameBgTransparent)
+            brush = QBrush(*transparentBg);
+        foreach(QGraphicsRectItem* it, frameBackgrounds)
+            it->setBrush(brush);
+    }
+}
+//TODO Call this as appropriate
+void Animation::setFrameBgVisible(bool b)
+{
+    foreach(QGraphicsRectItem* it, frameBackgrounds)
+        it->setVisible(b);
+}
 
 
 

@@ -160,46 +160,31 @@ void MainWindow::addImages(QStringList l)
 
 void MainWindow::importImageList(QStringList& fileList, QString prepend, QString animName)
 {
-//    msheetScene->setSceneRect(-1000, -1000, 1000, 1000);
-//    //Solid black outline around the whole deal
-//    //TODO Hold onto this QGraphicsRectItem and update as scene size changes (setRect function)
-//    msheetScene->addRect(QRectF(-1000, -1000, 1000, 1000));
-
-//    //Fill in background color for the sheet
-//    if(ui->SheetBgTransparent->isChecked())
-//    {
-//        QBrush bgTexBrush(*transparentBg);
-//        //TODO Hold onto this QGraphicsRectItem and update as scene size changes (setRect function)
-//        msheetScene->addRect(QRectF(-1000, -1000, 1000, 1000), QPen(), bgTexBrush);
-//    }
-//    else
-//    {
-//        QBrush bgTexBrush(sheetBgCol);
-//        msheetScene->addRect(QRectF(-1000, -1000, 1000, 1000), QPen(), bgTexBrush);
-//    }
-
-
-    Animation* animation = new Animation(this);
-//    animation->setWidth(1000);
-//    animation->setOffset(-1000, -1000);
-    foreach(QString s1, fileList)
+    if(fileList.size())
     {
-        QString imgPath = prepend + s1;
-        QImage* image = new QImage(imgPath);
-        if(!image->isNull())
-            animation->insertImage(image, msheetScene);
-        else
-            qDebug() << "Unable to open image " << imgPath << endl;
+        Animation* animation = new Animation(transparentBg, this);
+        foreach(QString s1, fileList)
+        {
+            QString imgPath = prepend + s1;
+            QImage* image = new QImage(imgPath);
+            if(!image->isNull())
+                animation->insertImage(image, msheetScene);
+            else
+                qDebug() << "Unable to open image " << imgPath << endl;
+        }
+        sheet->addAnimation(animation);
     }
-    sheet->addAnimation(animation);
-//        ui->animationNameEditor->setText(animName);
 
-//    if(mCurAnim != mSheetFrames.end())
-//        mCurFrame = mCurAnim->begin();
+    //TODO Replace functionality
 
-//    drawSheet();
-//    drawAnimation();
-//    genUndoState();
+    //        ui->animationNameEditor->setText(animName);
+
+    //    if(mCurAnim != mSheetFrames.end())
+    //        mCurFrame = mCurAnim->begin();
+
+    //    drawSheet();
+    //    drawAnimation();
+    //    genUndoState();
 }
 
 void MainWindow::addFolders(QStringList l)
@@ -375,8 +360,8 @@ void MainWindow::importImage(QString s, int numxframes, int numyframes, bool bVe
 void MainWindow::CenterParent(QWidget* parent, QWidget* child)
 {
     QPoint centerparent(
-    parent->x() + ((parent->frameGeometry().width() - child->frameGeometry().width()) /2),
-    parent->y() + ((parent->frameGeometry().height() - child->frameGeometry().height()) /2));
+                parent->x() + ((parent->frameGeometry().width() - child->frameGeometry().width()) /2),
+                parent->y() + ((parent->frameGeometry().height() - child->frameGeometry().height()) /2));
 
     QDesktopWidget * pDesktop = QApplication::desktop();
     QRect sgRect = pDesktop->screenGeometry(pDesktop->screenNumber(parent));
@@ -925,12 +910,12 @@ void MainWindow::mouseCursorPos(int x, int y)
     {
         //Update cursor if need be
         if(x <= mCurSheet->width() &&
-           x >= mCurSheet->width() - DRAG_HANDLE_SIZE &&
-           y <= mCurSheet->height() &&
-           y >= 0 &&
-           !m_bDraggingSelected)
+                x >= mCurSheet->width() - DRAG_HANDLE_SIZE &&
+                y <= mCurSheet->height() &&
+                y >= 0 &&
+                !m_bDraggingSelected)
         {
-             ui->sheetPreview->setCursor(Qt::SizeHorCursor);
+            ui->sheetPreview->setCursor(Qt::SizeHorCursor);
         }
         else if(!bDraggingSheetW && !m_bDraggingSelected)
             ui->sheetPreview->setCursor(Qt::ArrowCursor);
@@ -990,7 +975,7 @@ void MainWindow::mouseCursorPos(int x, int y)
                 //Check and see if we're overlapping this portion of the image
                 //painter.fillRect(curX, curY, img.width(), img.height(), Qt::transparent);
                 if(x >= curX && x < curX + img->width() &&
-                   y >= curY && y < curY + img->height())
+                        y >= curY && y < curY + img->height())
                 {
                     mCurSelected = img;
                     mCurSelectedInAnim = ql;
@@ -1087,9 +1072,9 @@ void MainWindow::mouseCursorPos(int x, int y)
 
                 //Check if inserting BEFORE first image of a row
                 if(curX == offsetX &&
-                   x < curX + img->width() / 2 &&
-                   y >= curY - offsetY/2 &&
-                   y < curY + img->height() + offsetY/2)
+                        x < curX + img->width() / 2 &&
+                        y >= curY - offsetY/2 &&
+                        y < curY + img->height() + offsetY/2)
                 {
                     m_selDragToPos = img;
                     m_selDragToAnim = ql;
@@ -1177,9 +1162,9 @@ void MainWindow::mouseDown(int x, int y)
     {
         //We're starting to drag the sheet size handle
         if(x <= mCurSheet->width() &&
-           x >= mCurSheet->width() - DRAG_HANDLE_SIZE &&
-           y <= mCurSheet->height() &&
-           y >= 0)
+                x >= mCurSheet->width() - DRAG_HANDLE_SIZE &&
+                y <= mCurSheet->height() &&
+                y >= 0)
         {
             bDraggingSheetW = true;
             mStartSheetW = mCurSheet->width();
@@ -1461,6 +1446,7 @@ void MainWindow::readSettings()
         sheet->setBgCol(sheetBgCol);
         sheet->setFrameBgCol(frameBgCol);
         sheet->setBgTransparent(ui->SheetBgTransparent->isChecked());
+        sheet->setFrameBgTransparent(ui->FrameBgTransparent->isChecked());
     }
 }
 
@@ -1723,9 +1709,9 @@ void MainWindow::on_frameBgColSelect_clicked()
         ui->frameBgColSelect->setIcon(ic);
         if(sheet)
             sheet->setFrameBgCol(selected);
-//        drawSheet();
-//        drawAnimation();
-//        genUndoState();
+        //        drawSheet();
+        //        drawAnimation();
+        //        genUndoState();
     }
 }
 
@@ -1750,10 +1736,11 @@ void MainWindow::on_FrameBgTransparent_toggled(bool checked)
 {
     if(bLoadMutex) return;
     ui->frameBgColSelect->setEnabled(!checked);
-//    drawSheet();
-//    drawAnimation();
-//    genUndoState();
-
+    //    drawSheet();
+    //    drawAnimation();
+    //    genUndoState();
+    if(sheet)
+        sheet->setFrameBgTransparent(checked);
 }
 
 void MainWindow::on_SheetBgTransparent_toggled(bool checked)
@@ -1819,7 +1806,7 @@ void MainWindow::balance(int w, int h, BalanceSheetDialog::Pos vert, BalanceShee
         painter.drawImage(xPos, yPos, img);
         painter.end();
         it.setValue(final);
-     }
+    }
 
     mCurFrame = mCurAnim->begin();
     qDebug() << "balance() draw sheet" << endl;
@@ -2232,26 +2219,26 @@ void MainWindow::updateUndoRedoMenu()
 
 void MainWindow::on_xSpacingBox_editingFinished()
 {
-//    drawSheet();
-//    genUndoState();
-//    if(sheet != NULL)
-//        sheet->setXSpacing(ui->xSpacingBox->value());
+    //    drawSheet();
+    //    genUndoState();
+    //    if(sheet != NULL)
+    //        sheet->setXSpacing(ui->xSpacingBox->value());
 }
 
 void MainWindow::on_ySpacingBox_editingFinished()
 {
-//    if(sheet != NULL)
-//        sheet->setYSpacing(ui->ySpacingBox->value());
-//    drawSheet();
-//    genUndoState();
+    //    if(sheet != NULL)
+    //        sheet->setYSpacing(ui->ySpacingBox->value());
+    //    drawSheet();
+    //    genUndoState();
 }
 
 void MainWindow::on_sheetWidthBox_editingFinished()
 {
     //drawSheet();
     //genUndoState();
-//    if(sheet != NULL)
-//        sheet->setWidth(ui->sheetWidthBox->value());
+    //    if(sheet != NULL)
+    //        sheet->setWidth(ui->sheetWidthBox->value());
 }
 
 void MainWindow::on_animationNameEditor_editingFinished()
@@ -2353,8 +2340,8 @@ void MainWindow::on_ExportAnimButton_clicked()
             {
                 Transparency[i] = 0xFF;
                 if(Palette[i].rgbGreen == 0x00 &&
-                   Palette[i].rgbBlue == 0xFF &&
-                   Palette[i].rgbRed == 0xFF)
+                        Palette[i].rgbBlue == 0xFF &&
+                        Palette[i].rgbRed == 0xFF)
                 {
                     Transparency[i] = 0x00;
                 }

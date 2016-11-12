@@ -5,8 +5,8 @@ Sheet::Sheet(QGraphicsScene* s, QImage* bg, QObject *parent) : QObject(parent)
     scene = s;
     width = 1000;
     sceneRect = QRectF(0,0,0,0);
-    /*outlineRect = */backgroundRect = NULL;
-    sheetBgCol = QColor(0, 128, 128, 255);  //TODO user-configure
+    backgroundRect = NULL;
+    sheetBgCol = QColor(0, 128, 128, 255);
     frameBgCol = QColor(0, 255, 0);
     transparentBg = bg;
     sheetBgTransparent = frameBgTransparent = false;
@@ -27,6 +27,8 @@ void Sheet::addAnimation(Animation* anim, unsigned int index)
     animations.insert(index, anim);
     anim->setSpacing(xSpacing, ySpacing);
     anim->setFrameBgCol(frameBgCol);
+    anim->setFrameBgTransparent(frameBgTransparent);
+    anim->setFrameBgVisible(!frameBgTransparent || !sheetBgTransparent);
     recalc();
 }
 
@@ -50,19 +52,10 @@ void Sheet::recalc()
     foreach(Animation* anim, animations)
     {
         anim->setOffset(0, curY);
-        anim->setWidth(width);
-        curY += anim->getHeight();
+        curY += anim->setWidth(width);
     }
     sceneRect.setBottom(curY);
     sceneRect.setRight(width);
-
-//    if(outlineRect == NULL)
-//    {
-//        outlineRect = scene->addRect(sceneRect);
-//        outlineRect->setZValue(-2); //Always behind images
-//    }
-//    else
-//        outlineRect->setRect(sceneRect);
 
     if(backgroundRect == NULL)
     {
@@ -104,6 +97,9 @@ void Sheet::setBgTransparent(bool b)
         }
         sheetBgTransparent = b;
         recalc();
+
+        //Set animations in sheet bg as needed
+        updateAnimBg();
     }
 }
 
@@ -123,9 +119,23 @@ void Sheet::setYSpacing(unsigned int y)
     recalc();
 }
 
+void Sheet::setFrameBgTransparent(bool b)
+{
+    if(frameBgTransparent != b)
+    {
+        frameBgTransparent = b;
+        foreach(Animation* anim, animations)
+            anim->setFrameBgTransparent(frameBgTransparent);
+        updateAnimBg();
+    }
+}
 
-
-
+void Sheet::updateAnimBg()
+{
+    bool frameBgHidden = frameBgTransparent && sheetBgTransparent;
+    foreach(Animation* anim, animations)
+        anim->setFrameBgVisible(!frameBgHidden);
+}
 
 
 

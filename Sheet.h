@@ -32,6 +32,7 @@ class Sheet : public QObject
     QImage* transparentBg;
     unsigned int xSpacing, ySpacing;
 
+    void updateAnimBg();
 public:
     explicit Sheet(QGraphicsScene* s, QImage* bg, QObject *parent = 0);
     ~Sheet();
@@ -43,6 +44,7 @@ public:
     void setBgCol(QColor c);
     void setFrameBgCol(QColor c);
     void setBgTransparent(bool b);
+    void setFrameBgTransparent(bool b);
 
     void setXSpacing(unsigned int x);
     void setYSpacing(unsigned int y);
