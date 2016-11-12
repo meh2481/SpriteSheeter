@@ -2001,6 +2001,7 @@ void MainWindow::on_ySpacingBox_editingFinished()
 
 void MainWindow::on_sheetWidthBox_editingFinished()
 {
+    sheet->updateSceneBounds();
     //genUndoState();
 }
 
