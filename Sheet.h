@@ -21,7 +21,7 @@ class Sheet : public QObject
     Sheet(){}   //Private default constructor
     void recalc();
 
-    //QGraphicsRectItem* outlineRect;
+    //Graphics item for background color
     QGraphicsRectItem* backgroundRect;
 
     QRectF sceneRect;

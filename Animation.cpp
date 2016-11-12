@@ -43,6 +43,7 @@ void Animation::insertImage(QImage* img, QGraphicsScene* scene, unsigned int ind
     heightRecalc();
 }
 
+//TODO I don't think this is now correct anymore
 void Animation::pullImages(Animation* other, QList<unsigned int> indices, unsigned int insertLocation)
 {
     if(insertLocation > images.length())
@@ -146,27 +147,9 @@ void Animation::setFrameBgTransparent(bool b)
             it->setBrush(brush);
     }
 }
-//TODO Call this as appropriate
+
 void Animation::setFrameBgVisible(bool b)
 {
     foreach(QGraphicsRectItem* it, frameBackgrounds)
         it->setVisible(b);
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

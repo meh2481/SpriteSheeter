@@ -40,7 +40,7 @@ public:
     //Note the Qt syntax: otherIndices << 33 << 12 << 68 << 6 << 12;
     void pullImages(Animation* other, QList<unsigned int> otherIndices, unsigned int insertLocation);
 
-    //Set the width of the animation
+    //Set the width of the animation. Return the new height
     unsigned int setWidth(unsigned int width);
 
     //Set the spacing between animations and frames
@@ -63,31 +63,3 @@ private:
 };
 
 #endif // ANIMATION_H
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

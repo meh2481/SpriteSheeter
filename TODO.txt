@@ -1,26 +1,33 @@
-Refactoring sheets:
--Animation class contains list of images, along with whatever else we need
--Graphics view is composed of actual images as pixmap items (model/view)
-	-How is .sheet stored now? Can we get images back from these items?
--Can use actual item methods now for mouseover testing
+Current technical tasks:
+-Re-add functionality while removing code
+-Use actual item methods now for mouseover testing
 
-Technical stories:
--Refactor MainWindow.cpp - it's pretty bad
-	-Research MVC standards as they apply to Qt
--Each sheet frame should use QGraphicsPixmapItems in the QGraphicsScene, rather than manually rendering to an image
-	-Extend my current SheetEditorView class to have a better combined view/model class
-	-Should improve performance
--Animations extracted to their own class and rendered separately from one another
--Add debug log & test balance/resize; reports of crashing
--Rather than specifying image types manually, remove filter entirely or add ALL actual file types we support
--Default w/h of balance window shouldn't be handled by MainWindow
--Commandline argument support?
+UI Design Stories:
+-Rework frame movement/editing:
+	-Clicking frames in a sheet should outline
+	-Outlined frames can be click-dragged to move
+	-Can ctrl/shift-click other frames and move/delete/etc
+-Rework animation movement/editing:
+	-Clicking animations should outline/select
+	-Can click-drag animations around and between each other
+-Option for minimizing sheet width/user specifying sheet width
+	-Sheet width box should snap to even values, rather than spinning by one pixel at a time
+-Rework upper toolbar; delete animations/frames in batches
+
+Technical Stories:
+-Refactor MainWindow.cpp and split into subclasses as needed
+	-Default w/h of balance window shouldn't be handled by MainWindow
+-Re-add balance/resize
+-Rather than specifying image types manually, remove filter entirely or add ALL actual file types we support to filter
 -More robust undo/redo system (current brute force approach is super slow)
 	-Abstract undo/redo class 
 	-Everything that can be undone/redone has instantiation
 	-Two stacks for undo/redo; clear redo stack when pushing onto undo stack
 
+-Commandline argument support?
+
 User stories:
+-Test balance/resize; reports of crashing
 -Arrange whole animation strips, perhaps via click first frame + Shift-click last frame + drag and drop? If not, clicking a row and using arrow buttons would suffice. (Current workaround: Use animation arrows)
 -Being able to drag labels around
 	-May want to think about labels being individual items rather than part of an animation

@@ -18,6 +18,8 @@
 #include "BatchRenderer.h"
 #include <QThreadPool>
 
+#define SELECT_RECT_THICKNESS 3
+
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
     ui(new Ui::MainWindow)
@@ -591,7 +593,6 @@ void MainWindow::drawSheet(bool bHighlight)
 void MainWindow::on_xSpacingBox_valueChanged(int arg1)
 {
     //drawSheet();
-    //Q_UNUSED(arg1);
     if(sheet)
         sheet->setXSpacing(arg1);
 }
@@ -599,7 +600,6 @@ void MainWindow::on_xSpacingBox_valueChanged(int arg1)
 void MainWindow::on_ySpacingBox_valueChanged(int arg1)
 {
     //drawSheet();
-    //Q_UNUSED(arg1);
     if(sheet)
         sheet->setYSpacing(arg1);
 }
@@ -639,6 +639,7 @@ void MainWindow::genericSave(QString saveFilename)
 }
 
 //Save file
+//TODO Combine with saveFileAs()
 void MainWindow::on_saveSheetButton_clicked()
 {
     if(!mCurSheet || !mSheetFrames.size()) return;
@@ -693,6 +694,7 @@ void MainWindow::saveFileAs()
     genericSave(saveFilename);
 }
 
+//TODO Remove button and this function
 void MainWindow::on_removeAnimButton_clicked()
 {
     if(mCurAnim == mSheetFrames.end() || mCurAnimName == mAnimNames.end())
@@ -725,8 +727,10 @@ void MainWindow::on_animationNameEditor_textChanged(const QString &arg1)
     if(mCurAnimName != mAnimNames.end())
         *mCurAnimName = arg1;
     //drawSheet();
+    //TODO Update current label
 }
 
+//TODO Remove button and this function
 void MainWindow::on_prevAnimButton_clicked()
 {
     //Move these back one
@@ -758,6 +762,7 @@ void MainWindow::on_prevAnimButton_clicked()
     genUndoState();
 }
 
+//TODO Remove button and this function
 void MainWindow::on_nextAnimButton_clicked()
 {
     if(mCurAnim == mSheetFrames.end() || mCurAnimName == mAnimNames.end())
@@ -789,6 +794,7 @@ void MainWindow::on_nextAnimButton_clicked()
     genUndoState();
 }
 
+//TODO Replace with updater for animation class
 void MainWindow::drawAnimation()
 {
     if(mCurAnim == mSheetFrames.end() || !mCurAnim->size() || mCurFrame == mCurAnim->end())
@@ -825,6 +831,7 @@ void MainWindow::drawAnimation()
     animScene->setSceneRect(0, 0, animFrame.width(), animFrame.height());
 }
 
+//TODO Replace with updater for animation class
 void MainWindow::animUpdate()
 {
     if(mCurAnim == mSheetFrames.end() || !mCurAnim->size())
@@ -903,253 +910,288 @@ void MainWindow::on_animNextFrameButton_clicked()
 
 void MainWindow::mouseCursorPos(int x, int y)
 {
-    QFontMetrics fm(sheetFont);
-    float textHeight = fm.height() + 3;
+//    QFontMetrics fm(sheetFont);
+//    float textHeight = fm.height() + 3;
 
-    if(mCurSheet)
+//    if(mCurSheet)
+//    {
+//        //Update cursor if need be
+//        if(x <= mCurSheet->width() &&
+//                x >= mCurSheet->width() - DRAG_HANDLE_SIZE &&
+//                y <= mCurSheet->height() &&
+//                y >= 0 &&
+//                !m_bDraggingSelected)
+//        {
+//            ui->sheetPreview->setCursor(Qt::SizeHorCursor);
+//        }
+//        else if(!bDraggingSheetW && !m_bDraggingSelected)
+//            ui->sheetPreview->setCursor(Qt::ArrowCursor);
+
+//        //See if we're resizing the sheet
+//        if(bDraggingSheetW)
+//        {
+//            ui->sheetWidthBox->setValue(mStartSheetW - (xStartDragSheetW - x));
+//            drawSheet();
+//        }
+
+//    }
+
+//    int maxSheetWidth = ui->sheetWidthBox->value();
+//    int offsetX = ui->xSpacingBox->value();
+//    int offsetY = ui->ySpacingBox->value();
+//    int curX = offsetX;
+//    int curY = offsetY;
+//    if(!m_bDraggingSelected)    //If we're not dragging a frame currently
+//    {
+//        QList<QImage>::iterator mPrevSelected = mCurSelected;
+
+//        if(mCurAnim != mSheetFrames.end())
+//            mCurSelected = mCurAnim->end();
+
+//        int prevX, prevY, newX, newY;
+//        prevX = prevY = newX = newY = -1;
+
+//        QList<QString>::iterator sName = mAnimNames.begin();
+//        mCurSelectedInAnim = mSheetFrames.end();
+//        for(QList<QList<QImage> >::iterator ql = mSheetFrames.begin(); ql != mSheetFrames.end(); ql++)
+//        {
+//            int ySize = 0;
+
+//            if(sName->length())
+//                curY += textHeight;
+//            sName++;
+
+//            for(QList<QImage>::iterator img = ql->begin(); img != ql->end(); img++)
+//            {
+//                //Test to see if we should start next line
+//                if(curX + img->width() + offsetX > maxSheetWidth)
+//                {
+//                    curY += offsetY + ySize;
+//                    ySize = 0;
+//                    curX = offsetX;
+//                }
+
+//                //Found previous image; store draw coordinates
+//                if(img == mPrevSelected)
+//                {
+//                    prevX = curX;
+//                    prevY = curY;
+//                }
+
+//                //Check and see if we're overlapping this portion of the image
+//                //painter.fillRect(curX, curY, img.width(), img.height(), Qt::transparent);
+//                if(x >= curX && x < curX + img->width() &&
+//                        y >= curY && y < curY + img->height())
+//                {
+//                    mCurSelected = img;
+//                    mCurSelectedInAnim = ql;
+//                    newX = curX;
+//                    newY = curY;    //Store draw coordinates
+//                }
+
+//                if(img->height() > ySize)
+//                    ySize = img->height();
+//                curX += img->width() + offsetX;
+//            }
+
+//            curY += offsetY + ySize;
+//            curX = offsetX;
+//        }
+
+//        if(mPrevSelected != mCurSelected)
+//        {
+//            //Redraw both
+//            QPainter painter(mCurSheet);
+//            painter.setCompositionMode(QPainter::CompositionMode_SourceOver);
+//            if(ui->FrameBgTransparent->isChecked())
+//            {
+//                QBrush bgTexBrush(*transparentBg);
+//                if(newX > 0)
+//                    painter.fillRect(newX, newY, mCurSelected->width(), mCurSelected->height(), bgTexBrush);
+//                if(prevX > 0)
+//                    painter.fillRect(prevX, prevY, mPrevSelected->width(), mPrevSelected->height(), bgTexBrush);
+//            }
+//            else
+//            {
+//                if(newX > 0)
+//                    painter.fillRect(newX, newY, mCurSelected->width(), mCurSelected->height(), QBrush(frameBgCol));
+//                if(prevX > 0)
+//                    painter.fillRect(prevX, prevY, mPrevSelected->width(), mPrevSelected->height(), QBrush(frameBgCol));
+//            }
+
+//            //Draw images back
+//            if(newX > 0)
+//                painter.drawImage(newX, newY, *mCurSelected);
+//            if(prevX > 0)
+//                painter.drawImage(prevX, prevY, *mPrevSelected);
+
+//            //If we're highlighting this image, draw blue overtop
+//            if(newX > 0)
+//                painter.fillRect(newX, newY, mCurSelected->width(), mCurSelected->height(), QBrush(QColor(0,0,255,100)));
+
+//            painter.end();
+
+//            //Update the GUI to show this image
+//            if(sheetItem != NULL)
+//                sheetItem->setPixmap(QPixmap::fromImage(*mCurSheet));
+//        }
+//    }
+//    else
+//    {
+//        //Currently dragging something
+//        if(!m_bSetDraggingCursor)
+//        {
+//            //Haven't set cursor yet; do so
+//            m_bSetDraggingCursor = true;
+//            QPixmap pMap;
+//            pMap.convertFromImage(*mCurSelected);
+//            if(pMap.width() > pMap.height() && pMap.width() > CURSOR_SZ)
+//                pMap = pMap.scaledToWidth(CURSOR_SZ, Qt::FastTransformation);
+//            else if(pMap.width() <= pMap.height() && pMap.height() > CURSOR_SZ)
+//                pMap = pMap.scaledToHeight(CURSOR_SZ, Qt::FastTransformation);
+//            ui->sheetPreview->setCursor(QCursor(pMap));
+//        }
+
+//        QList<QString>::iterator sName = mAnimNames.begin();
+//        m_selDragToAnim = mSheetFrames.end();
+//        QRect rcDraw;
+//        rcDraw.setCoords(0,0,0,0);
+//        bool bInHighlight = false;
+//        for(QList<QList<QImage> >::iterator ql = mSheetFrames.begin(); ql != mSheetFrames.end(); ql++)
+//        {
+//            int ySize = 0;
+//            if(sName->length())
+//            {
+//                curY += textHeight;
+//            }
+//            sName++;
+
+//            for(QList<QImage>::iterator img = ql->begin(); img != ql->end(); img++)
+//            {
+//                //Test to see if we should start next line
+//                if(curX + img->width() + offsetX > maxSheetWidth)
+//                {
+//                    curY += offsetY + ySize;
+//                    ySize = 0;
+//                    curX = offsetX;
+//                }
+
+//                //Check if inserting BEFORE first image of a row
+//                if(curX == offsetX &&
+//                        x < curX + img->width() / 2 &&
+//                        y >= curY - offsetY/2 &&
+//                        y < curY + img->height() + offsetY/2)
+//                {
+//                    m_selDragToPos = img;
+//                    m_selDragToAnim = ql;
+//                    rcDraw.setCoords(0, curY - offsetY/2.0, offsetX, curY + img->height() + offsetY/2.0);
+//                    if(ql == mCurAnim)
+//                        bInHighlight = true;
+//                }
+//                //Check and see if we're dragging PAST this image. If so, we'll insert AFTER it.
+//                else if(x >= curX + img->width() / 2 &&
+//                        y >= curY - offsetY/2 &&
+//                        y < curY + img->height() + offsetY/2)
+//                {
+//                    m_selDragToPos = img;
+//                    m_selDragToPos++;
+//                    m_selDragToAnim = ql;
+//                    rcDraw.setCoords(curX + img->width() - 1, curY - offsetY/2.0, curX + img->width() + offsetX, curY + img->height() + offsetY/2.0);
+//                    if(ql == mCurAnim)
+//                        bInHighlight = true;
+//                }
+
+//                if(img->height() > ySize)
+//                    ySize = img->height();
+//                curX += img->width() + offsetX;
+//            }
+
+//            curY += offsetY + ySize;
+//            curX = offsetX;
+//        }
+//        //if(rcDraw.width() == 0 && rcDraw.height() == 0) //Didn't hit anything
+//        {
+//            //Check and see if below image
+//            if(x >= 0 && x <= mCurSheet->width() && y > mCurSheet->height())
+//            {
+//                rcDraw.setCoords(0, mCurSheet->height() - offsetY - 1, mCurSheet->width(), mCurSheet->height());
+//            }
+//        }
+
+//        //See if we should draw handle showing where we'll insert this frame
+//        if(rcDraw != m_rLastDragHighlight)  //Update last drawing place
+//        {
+//            QPainter painter(mCurSheet);
+//            painter.setCompositionMode(QPainter::CompositionMode_SourceOver);
+
+//            if(rcDraw.width() && rcDraw.height())
+//            {
+//                //Draw new place, in blue (highlight color)
+//                painter.fillRect(rcDraw, QBrush(QColor(0,0,255,255)));
+//            }
+//            if(m_rLastDragHighlight.width() && m_rLastDragHighlight.height())
+//            {
+//                //Erase old place
+//                if(m_bLastDragInAnim)
+//                {
+//                    painter.fillRect(m_rLastDragHighlight, QBrush(animHighlightCol));
+//                }
+//                else if(ui->SheetBgTransparent->isChecked())
+//                {
+//                    QBrush bgTexBrush(*transparentBg);
+//                    painter.fillRect(m_rLastDragHighlight, bgTexBrush);
+//                }
+//                else
+//                {
+//                    painter.fillRect(m_rLastDragHighlight, QBrush(sheetBgCol));
+//                }
+//            }
+
+//            painter.end();
+
+//            //Update the GUI to show this image
+//            if(sheetItem != NULL)
+//                sheetItem->setPixmap(QPixmap::fromImage(*mCurSheet));
+//        }
+
+//        m_bLastDragInAnim = bInHighlight;
+//        m_rLastDragHighlight = rcDraw;
+//    }
+
+    static QGraphicsRectItem* rect = NULL;
+    QList<QGraphicsItem *> items = msheetScene->items(
+                x-1,
+                y-1,
+                2,
+                2,
+                Qt::IntersectsItemBoundingRect,
+                Qt::AscendingOrder,
+                mSheetZoom->getView()->transform());
+    QGraphicsItem* it = NULL;// = msheetScene->itemAt(x, y, mSheetZoom->getView()->transform());
+    foreach(QGraphicsItem* item, items)
     {
-        //Update cursor if need be
-        if(x <= mCurSheet->width() &&
-                x >= mCurSheet->width() - DRAG_HANDLE_SIZE &&
-                y <= mCurSheet->height() &&
-                y >= 0 &&
-                !m_bDraggingSelected)
+        if(!item->zValue())
         {
-            ui->sheetPreview->setCursor(Qt::SizeHorCursor);
+            it = item;
+            break;
         }
-        else if(!bDraggingSheetW && !m_bDraggingSelected)
-            ui->sheetPreview->setCursor(Qt::ArrowCursor);
-
-        //See if we're resizing the sheet
-        if(bDraggingSheetW)
-        {
-            ui->sheetWidthBox->setValue(mStartSheetW - (xStartDragSheetW - x));
-            drawSheet();
-        }
-
     }
-    statusBar()->showMessage(QString::number(x) + ", " + QString::number(y));
 
-    int maxSheetWidth = ui->sheetWidthBox->value();
-    int offsetX = ui->xSpacingBox->value();
-    int offsetY = ui->ySpacingBox->value();
-    int curX = offsetX;
-    int curY = offsetY;
-    if(!m_bDraggingSelected)    //If we're not dragging a frame currently
+    if(it != NULL && it->x() && it->y())    //Item here and not bg image
     {
-        QList<QImage>::iterator mPrevSelected = mCurSelected;
-
-        if(mCurAnim != mSheetFrames.end())
-            mCurSelected = mCurAnim->end();
-
-        int prevX, prevY, newX, newY;
-        prevX = prevY = newX = newY = -1;
-
-        QList<QString>::iterator sName = mAnimNames.begin();
-        mCurSelectedInAnim = mSheetFrames.end();
-        for(QList<QList<QImage> >::iterator ql = mSheetFrames.begin(); ql != mSheetFrames.end(); ql++)
-        {
-            int ySize = 0;
-
-            if(sName->length())
-                curY += textHeight;
-            sName++;
-
-            for(QList<QImage>::iterator img = ql->begin(); img != ql->end(); img++)
-            {
-                //Test to see if we should start next line
-                if(curX + img->width() + offsetX > maxSheetWidth)
-                {
-                    curY += offsetY + ySize;
-                    ySize = 0;
-                    curX = offsetX;
-                }
-
-                //Found previous image; store draw coordinates
-                if(img == mPrevSelected)
-                {
-                    prevX = curX;
-                    prevY = curY;
-                }
-
-                //Check and see if we're overlapping this portion of the image
-                //painter.fillRect(curX, curY, img.width(), img.height(), Qt::transparent);
-                if(x >= curX && x < curX + img->width() &&
-                        y >= curY && y < curY + img->height())
-                {
-                    mCurSelected = img;
-                    mCurSelectedInAnim = ql;
-                    newX = curX;
-                    newY = curY;    //Store draw coordinates
-                }
-
-                if(img->height() > ySize)
-                    ySize = img->height();
-                curX += img->width() + offsetX;
-            }
-
-            curY += offsetY + ySize;
-            curX = offsetX;
-        }
-
-        if(mPrevSelected != mCurSelected)
-        {
-            //Redraw both
-            QPainter painter(mCurSheet);
-            painter.setCompositionMode(QPainter::CompositionMode_SourceOver);
-            if(ui->FrameBgTransparent->isChecked())
-            {
-                QBrush bgTexBrush(*transparentBg);
-                if(newX > 0)
-                    painter.fillRect(newX, newY, mCurSelected->width(), mCurSelected->height(), bgTexBrush);
-                if(prevX > 0)
-                    painter.fillRect(prevX, prevY, mPrevSelected->width(), mPrevSelected->height(), bgTexBrush);
-            }
-            else
-            {
-                if(newX > 0)
-                    painter.fillRect(newX, newY, mCurSelected->width(), mCurSelected->height(), QBrush(frameBgCol));
-                if(prevX > 0)
-                    painter.fillRect(prevX, prevY, mPrevSelected->width(), mPrevSelected->height(), QBrush(frameBgCol));
-            }
-
-            //Draw images back
-            if(newX > 0)
-                painter.drawImage(newX, newY, *mCurSelected);
-            if(prevX > 0)
-                painter.drawImage(prevX, prevY, *mPrevSelected);
-
-            //If we're highlighting this image, draw blue overtop
-            if(newX > 0)
-                painter.fillRect(newX, newY, mCurSelected->width(), mCurSelected->height(), QBrush(QColor(0,0,255,100)));
-
-            painter.end();
-
-            //Update the GUI to show this image
-            if(sheetItem != NULL)
-                sheetItem->setPixmap(QPixmap::fromImage(*mCurSheet));
-        }
+        statusBar()->showMessage("Item at " + QString::number(it->x()) + ", " + QString::number(it->y()));
+        if(rect == NULL)
+            rect = msheetScene->addRect(it->boundingRect(), QPen(QColor(0,0,255), SELECT_RECT_THICKNESS));
+        rect->setRect(it->boundingRect());
+        rect->setPos(it->x(), it->y());
+        rect->setVisible(true);
+        rect->setZValue(2); //Above everything
     }
     else
     {
-        //Currently dragging something
-        if(!m_bSetDraggingCursor)
-        {
-            //Haven't set cursor yet; do so
-            m_bSetDraggingCursor = true;
-            QPixmap pMap;
-            pMap.convertFromImage(*mCurSelected);
-            if(pMap.width() > pMap.height() && pMap.width() > CURSOR_SZ)
-                pMap = pMap.scaledToWidth(CURSOR_SZ, Qt::FastTransformation);
-            else if(pMap.width() <= pMap.height() && pMap.height() > CURSOR_SZ)
-                pMap = pMap.scaledToHeight(CURSOR_SZ, Qt::FastTransformation);
-            ui->sheetPreview->setCursor(QCursor(pMap));
-        }
-
-        QList<QString>::iterator sName = mAnimNames.begin();
-        m_selDragToAnim = mSheetFrames.end();
-        QRect rcDraw;
-        rcDraw.setCoords(0,0,0,0);
-        bool bInHighlight = false;
-        for(QList<QList<QImage> >::iterator ql = mSheetFrames.begin(); ql != mSheetFrames.end(); ql++)
-        {
-            int ySize = 0;
-            if(sName->length())
-            {
-                curY += textHeight;
-            }
-            sName++;
-
-            for(QList<QImage>::iterator img = ql->begin(); img != ql->end(); img++)
-            {
-                //Test to see if we should start next line
-                if(curX + img->width() + offsetX > maxSheetWidth)
-                {
-                    curY += offsetY + ySize;
-                    ySize = 0;
-                    curX = offsetX;
-                }
-
-                //Check if inserting BEFORE first image of a row
-                if(curX == offsetX &&
-                        x < curX + img->width() / 2 &&
-                        y >= curY - offsetY/2 &&
-                        y < curY + img->height() + offsetY/2)
-                {
-                    m_selDragToPos = img;
-                    m_selDragToAnim = ql;
-                    rcDraw.setCoords(0, curY - offsetY/2.0, offsetX, curY + img->height() + offsetY/2.0);
-                    if(ql == mCurAnim)
-                        bInHighlight = true;
-                }
-                //Check and see if we're dragging PAST this image. If so, we'll insert AFTER it.
-                else if(x >= curX + img->width() / 2 &&
-                        y >= curY - offsetY/2 &&
-                        y < curY + img->height() + offsetY/2)
-                {
-                    m_selDragToPos = img;
-                    m_selDragToPos++;
-                    m_selDragToAnim = ql;
-                    rcDraw.setCoords(curX + img->width() - 1, curY - offsetY/2.0, curX + img->width() + offsetX, curY + img->height() + offsetY/2.0);
-                    if(ql == mCurAnim)
-                        bInHighlight = true;
-                }
-
-                if(img->height() > ySize)
-                    ySize = img->height();
-                curX += img->width() + offsetX;
-            }
-
-            curY += offsetY + ySize;
-            curX = offsetX;
-        }
-        //if(rcDraw.width() == 0 && rcDraw.height() == 0) //Didn't hit anything
-        {
-            //Check and see if below image
-            if(x >= 0 && x <= mCurSheet->width() && y > mCurSheet->height())
-            {
-                rcDraw.setCoords(0, mCurSheet->height() - offsetY - 1, mCurSheet->width(), mCurSheet->height());
-            }
-        }
-
-        //See if we should draw handle showing where we'll insert this frame
-        if(rcDraw != m_rLastDragHighlight)  //Update last drawing place
-        {
-            QPainter painter(mCurSheet);
-            painter.setCompositionMode(QPainter::CompositionMode_SourceOver);
-
-            if(rcDraw.width() && rcDraw.height())
-            {
-                //Draw new place, in blue (highlight color)
-                painter.fillRect(rcDraw, QBrush(QColor(0,0,255,255)));
-            }
-            if(m_rLastDragHighlight.width() && m_rLastDragHighlight.height())
-            {
-                //Erase old place
-                if(m_bLastDragInAnim)
-                {
-                    painter.fillRect(m_rLastDragHighlight, QBrush(animHighlightCol));
-                }
-                else if(ui->SheetBgTransparent->isChecked())
-                {
-                    QBrush bgTexBrush(*transparentBg);
-                    painter.fillRect(m_rLastDragHighlight, bgTexBrush);
-                }
-                else
-                {
-                    painter.fillRect(m_rLastDragHighlight, QBrush(sheetBgCol));
-                }
-            }
-
-            painter.end();
-
-            //Update the GUI to show this image
-            if(sheetItem != NULL)
-                sheetItem->setPixmap(QPixmap::fromImage(*mCurSheet));
-        }
-
-        m_bLastDragInAnim = bInHighlight;
-        m_rLastDragHighlight = rcDraw;
+        statusBar()->showMessage(QString::number(x) + ", " + QString::number(y));
+        if(rect != NULL)
+            rect->setVisible(false);
     }
 
     curMouseY = y;

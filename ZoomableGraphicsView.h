@@ -36,6 +36,7 @@ class ZoomableGraphicsView : public QObject {
 public:
   ZoomableGraphicsView(QGraphicsView* view);
 
+  QGraphicsView* getView() {return _view;}
 private:
   QGraphicsView* _view;
   Qt::KeyboardModifiers _modifiers;
