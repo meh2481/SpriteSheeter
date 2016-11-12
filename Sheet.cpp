@@ -1,16 +1,17 @@
 #include "Sheet.h"
 
-Sheet::Sheet(QGraphicsScene* s, QImage* bg, QObject *parent) : QObject(parent)
+Sheet::Sheet(QGraphicsScene* s, QImage* bg, unsigned int dragW, QObject *parent) : QObject(parent)
 {
     scene = s;
-    width = 1000;
+    width = curHeight = 0;
     sceneRect = QRectF(0,0,0,0);
-    backgroundRect = NULL;
+    backgroundRect = dragRect = NULL;
     sheetBgCol = QColor(0, 128, 128, 255);
     frameBgCol = QColor(0, 255, 0);
     transparentBg = bg;
     sheetBgTransparent = frameBgTransparent = false;
     xSpacing = ySpacing = 0;
+    dragRectWidth = dragW;
 }
 
 Sheet::~Sheet()
@@ -67,6 +68,20 @@ void Sheet::recalc()
     }
     else
         backgroundRect->setRect(sceneRect);
+
+    QRectF dragRectPos(sceneRect);
+    dragRectPos.setLeft(sceneRect.x() + sceneRect.width());
+    dragRectPos.setRight(dragRectPos.x() + dragRectWidth);
+    if(dragRect == NULL)
+    {
+        QBrush bgTexBrush(QColor(0,255,255));   //TODO User-configure
+        dragRect = scene->addRect(dragRectPos, QPen(Qt::NoPen), bgTexBrush);
+        dragRect->setZValue(-1);  //Behind most things
+    }
+    else
+        dragRect->setRect(dragRectPos);
+
+    curHeight = curY;
 }
 
 void Sheet::setBgCol(QColor c)

@@ -11,6 +11,7 @@ Animation::Animation(QImage* bg, QObject *parent) : QObject(parent)
     frameBgCol = QColor(0, 255, 0);
     frameBgTransparent = false;
     transparentBg = bg;
+    curHeight = 0;
 }
 
 Animation::~Animation()
@@ -43,7 +44,7 @@ void Animation::insertImage(QImage* img, QGraphicsScene* scene, unsigned int ind
     heightRecalc();
 }
 
-//TODO I don't think this is now correct anymore
+//TODO I don't think this is correct anymore
 void Animation::pullImages(Animation* other, QList<unsigned int> indices, unsigned int insertLocation)
 {
     if(insertLocation > images.length())
@@ -83,7 +84,8 @@ unsigned int Animation::heightRecalc()
         frameBackgrounds.at(i)->setPos(curX + offsetX, curY + offsetY);
         curX += spacingX + image->width();
     }
-    return curY + spacingY + tallestHeight;
+    curHeight = curY + spacingY + tallestHeight;
+    return curHeight;
 }
 
 unsigned int Animation::setWidth(unsigned int w)

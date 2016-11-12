@@ -21,6 +21,7 @@ class Animation : public QObject
     int offsetX, offsetY;
     int spacingX, spacingY;
     int width;
+    int curHeight;  //Last-calculated height for the animation
     QColor frameBgCol;
     bool frameBgTransparent;
     QImage* transparentBg;
@@ -51,9 +52,17 @@ public:
     //Set the offset to draw this animation at
     void setOffset(unsigned int x, unsigned int y);
 
+    //Set the background color for each frame
     void setFrameBgCol(QColor c);
+
+    //Set the background transparency for each frame
     void setFrameBgTransparent(bool b);
+
+    //Set the visibility of the frame bg (if both sheet and frame bgs are invisible, don't draw the latter)
     void setFrameBgVisible(bool b);
+
+    //Get the last-calculated height for the animation
+    unsigned int getCurHeight() {return curHeight;}
 
 signals:
 

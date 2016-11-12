@@ -16,13 +16,13 @@ class Sheet : public QObject
     QVector<Animation*> animations;
     QGraphicsScene* scene;
 
-    unsigned int width;
+    unsigned int width, curHeight;
 
     Sheet(){}   //Private default constructor
     void recalc();
 
-    //Graphics item for background color
-    QGraphicsRectItem* backgroundRect;
+    QGraphicsRectItem* backgroundRect;  //Graphics item for background color
+    QGraphicsRectItem* dragRect;        //Graphics item for drag area on the right
 
     QRectF sceneRect;
     QColor sheetBgCol;
@@ -30,11 +30,11 @@ class Sheet : public QObject
     bool sheetBgTransparent;
     bool frameBgTransparent;
     QImage* transparentBg;
-    unsigned int xSpacing, ySpacing;
+    unsigned int xSpacing, ySpacing, dragRectWidth;
 
     void updateAnimBg();
 public:
-    explicit Sheet(QGraphicsScene* s, QImage* bg, QObject *parent = 0);
+    explicit Sheet(QGraphicsScene* s, QImage* bg, unsigned int dragW, QObject *parent = 0);
     ~Sheet();
 
     void addAnimation(Animation* anim);
@@ -48,6 +48,9 @@ public:
 
     void setXSpacing(unsigned int x);
     void setYSpacing(unsigned int y);
+
+    unsigned int getWidth() {return width;}
+    unsigned int getHeight() {return curHeight;}
 
 signals:
 

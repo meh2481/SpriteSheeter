@@ -15,7 +15,7 @@
 #include <QTextStream>
 #include <QProgressDialog>
 
-#define DRAG_HANDLE_SIZE 5
+#define DRAG_HANDLE_SIZE 10
 #define SCENE_BOUNDS    300
 
 #define MAJOR_VERSION 1
@@ -103,7 +103,6 @@ private slots:
     void on_removeDuplicateFramesButton_clicked();
     void on_actionAbout_triggered();
     void on_actionBatch_Processing_triggered();
-
     void on_fontColSelect_clicked();
 
 private:
@@ -207,6 +206,8 @@ private:
     void loadFromStream(QDataStream& s);
 
     bool loadAnimatedGIF(QString sFilename);    //Returns false on non-multi-page gif or failure, true on success
+
+    bool mouseOverDragArea(int x, int y);
 
 protected:
     //void changeEvent(QEvent *e);
