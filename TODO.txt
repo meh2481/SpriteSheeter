@@ -13,6 +13,7 @@ UI Design Stories:
 -Option for minimizing sheet width/user specifying sheet width
 	-Sheet width box should snap to even values, rather than spinning by one pixel at a time
 -Rework upper toolbar; delete animations/frames in batches
+-Minimum width for sheet for dragging sheet width bar
 
 Technical Stories:
 -Refactor MainWindow.cpp and split into subclasses as needed

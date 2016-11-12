@@ -122,27 +122,28 @@ private:
     Sheet* sheet;
 
     //Variables for drawing the current sheet/animation
-    QImage* mCurSheet;
+    QImage* mCurSheet;  //TODO Remove
     QFont   sheetFont;
-    QList<QList<QImage> > mSheetFrames;
-    QList<QList<QImage> >::iterator mCurAnim;
-    QList<QList<QImage> >::iterator m_selDragToAnim;
-    QList<QImage>::iterator m_selDragToPos;
-    QList<QImage>::iterator mCurFrame;
-    QList<QImage>::iterator mCurSelected;
-    QList<QList<QImage> >::iterator mCurSelectedInAnim;
+    QList<QList<QImage> > mSheetFrames;  //TODO Remove
+    QList<QList<QImage> >::iterator mCurAnim;  //TODO Remove
+    QList<QList<QImage> >::iterator m_selDragToAnim;  //TODO Remove
+    QList<QImage>::iterator m_selDragToPos;  //TODO Remove
+    QList<QImage>::iterator mCurFrame;  //TODO Remove
+    QList<QImage>::iterator mCurSelected;  //TODO Remove
+    QList<QList<QImage> >::iterator mCurSelectedInAnim;  //TODO Remove
     bool m_bDraggingSelected;
     bool m_bSetDraggingCursor;
     QRect m_rLastDragHighlight;
     bool m_bLastDragInAnim;
-    QList<QString> mAnimNames;
-    QList<QString>::iterator mCurAnimName;
+    QList<QString> mAnimNames;  //TODO Replace with label class
+    QList<QString>::iterator mCurAnimName;  //TODO Remove
     QImage* transparentBg;
     QColor sheetBgCol;
     QColor frameBgCol;
     QColor animHighlightCol;
     QColor fontColor;
 
+    //TODO Replace with undo/redo classes
     QStack<QByteArray*> undoList;
     QStack<QByteArray*> redoList;
 
@@ -163,7 +164,7 @@ private:
     QGraphicsScene* animScene;
     QGraphicsPixmapItem* animItem;
     QGraphicsScene* msheetScene;
-    QGraphicsPixmapItem* sheetItem;
+    QGraphicsPixmapItem* sheetItem;  //TODO Remove
 
     //Animation update timer
     QTimer* animUpdateTimer;
@@ -175,24 +176,23 @@ private:
     bool bLoadMutex;
 
     //For clicking to select an animation
-    QList<QRect> mAnimRects;
+    QList<QRect> mAnimRects;  //TODO Remove
 
     QProgressDialog* progressBar;
 
     void openImportDiag();
     void importImage(QString s, int numxframes, int numyframes, bool bVert, bool bSplit);
     void importImageList(QStringList& fileList, QString prepend = QString(""), QString animName = QString(""));
-    void CenterParent(QWidget* parent, QWidget* child);
+    void centerParent(QWidget* parent, QWidget* child);
 
     void drawAnimation();
-    void drawSheet(bool bHighlight = true);
     QVector2D getSheetSize(int offsetX, int offsetY, bool bHighlight);
 
     void closeEvent(QCloseEvent *event);
     void readSettings();
     void cleanMemory();
 
-    void insertAnimHelper(QList<QImage> imgList, QString name);
+    void insertAnimHelper(QList<QImage> imgList, QString name);  //TODO Remove
 
     void fixWindowTitle();
     void genUndoState();
@@ -207,10 +207,11 @@ private:
 
     bool loadAnimatedGIF(QString sFilename);    //Returns false on non-multi-page gif or failure, true on success
 
-    bool mouseOverDragArea(int x, int y);
+    bool isMouseOverDragArea(int x, int y);
+    QGraphicsItem* isItemUnderCursor(int x, int y);
+    void setColorButtonIcons();   //Set the colors of the color selection buttons
 
 protected:
-    //void changeEvent(QEvent *e);
     bool eventFilter(QObject* obj, QEvent *event);
 
 };

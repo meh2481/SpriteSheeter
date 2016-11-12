@@ -76,7 +76,7 @@ void Sheet::recalc()
     {
         QBrush bgTexBrush(QColor(0,255,255));   //TODO User-configure
         dragRect = scene->addRect(dragRectPos, QPen(Qt::NoPen), bgTexBrush);
-        dragRect->setZValue(-1);  //Behind most things
+        dragRect->setZValue(-3);  //Always behind images and outline
     }
     else
         dragRect->setRect(dragRectPos);

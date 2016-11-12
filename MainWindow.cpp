@@ -107,23 +107,17 @@ MainWindow::MainWindow(QWidget *parent) :
     //Create animation sheet
     sheet = new Sheet(msheetScene, transparentBg, DRAG_HANDLE_SIZE);
 
+    //TODO Remove
+    if(mCurSheet == NULL)
+        mCurSheet = new QImage(5, 5, QImage::Format_ARGB32);
+    if(ui->sheetPreview->isHidden())
+        ui->sheetPreview->show();
+
     //Read in settings here
     readSettings();
 
     //Set color icons to proper color
-    QPixmap colIcon(32, 32);
-    colIcon.fill(sheetBgCol);
-    QIcon ic(colIcon);
-    ui->sheetBgColSelect->setIcon(ic);
-
-    colIcon.fill(frameBgCol);
-    QIcon ic2(colIcon);
-    ui->frameBgColSelect->setIcon(ic2);
-
-    colIcon.fill(fontColor);
-    QIcon ic3(colIcon);
-    ui->fontColSelect->setIcon(ic3);
-
+    setColorButtonIcons();
     fixWindowTitle();
 
 }
@@ -184,7 +178,6 @@ void MainWindow::importImageList(QStringList& fileList, QString prepend, QString
     //    if(mCurAnim != mSheetFrames.end())
     //        mCurFrame = mCurAnim->begin();
 
-    //    drawSheet();
     //    drawAnimation();
     //    genUndoState();
 }
@@ -278,7 +271,7 @@ void MainWindow::openImportDiag()
     {
         mImportWindow->show();
         //Center on parent
-        CenterParent(this, mImportWindow);
+        centerParent(this, mImportWindow);
     }
 }
 
@@ -303,6 +296,7 @@ void MainWindow::insertAnimHelper(QList<QImage> imgList, QString name)
 
 void MainWindow::importImage(QString s, int numxframes, int numyframes, bool bVert, bool bSplit)
 {
+    //TODO
     QImage image(s);
     if(image.isNull())
     {
@@ -353,13 +347,13 @@ void MainWindow::importImage(QString s, int numxframes, int numyframes, bool bVe
     if(mCurAnim != mSheetFrames.end())
         mCurFrame = mCurAnim->begin();
 
-    drawSheet();
+    //drawSheet();
     drawAnimation();
     genUndoState();
 }
 
 //Example from http://www.qtforum.org/article/28852/center-any-child-window-center-parent.html
-void MainWindow::CenterParent(QWidget* parent, QWidget* child)
+void MainWindow::centerParent(QWidget* parent, QWidget* child)
 {
     QPoint centerparent(
                 parent->x() + ((parent->frameGeometry().width() - child->frameGeometry().width()) /2),
@@ -431,163 +425,163 @@ QVector2D MainWindow::getSheetSize(int offsetX, int offsetY, bool bHighlight)
     return QVector2D(iSizeX, iSizeY);
 }
 
-// TODO Move to its own class/file
-void MainWindow::drawSheet(bool bHighlight)
-{
-    if(mCurSheet == NULL)
-        mCurSheet = new QImage(5, 5, QImage::Format_ARGB32);
-    if(ui->sheetPreview->isHidden())
-        ui->sheetPreview->show();
-    //msheetScene->setSceneRect(-500, -500, 500, 500);
-    return;  //Don't redraw unless we're saving
+//TODO Remove when functionality is replaced
+//void MainWindow::drawSheet(bool bHighlight)
+//{
+//    if(mCurSheet == NULL)
+//        mCurSheet = new QImage(5, 5, QImage::Format_ARGB32);
+//    if(ui->sheetPreview->isHidden())
+//        ui->sheetPreview->show();
+//    //msheetScene->setSceneRect(-500, -500, 500, 500);
+//    return;  //Don't redraw unless we're saving
 
-    msheetScene->clear();
+//    msheetScene->clear();
 
-    QFontMetrics fm(sheetFont);
-    float textHeight = fm.height() + 3;
-    int maxSheetWidth = ui->sheetWidthBox->value();
+//    QFontMetrics fm(sheetFont);
+//    float textHeight = fm.height() + 3;
+//    int maxSheetWidth = ui->sheetWidthBox->value();
 
-    //First pass: Figure out dimensions of final image
-    int offsetX = ui->xSpacingBox->value();
-    int offsetY = ui->ySpacingBox->value();
-    QVector2D size = getSheetSize(offsetX, offsetY, bHighlight);
-    int iSizeX = size.x();
-    int iSizeY = size.y();
+//    //First pass: Figure out dimensions of final image
+//    int offsetX = ui->xSpacingBox->value();
+//    int offsetY = ui->ySpacingBox->value();
+//    QVector2D size = getSheetSize(offsetX, offsetY, bHighlight);
+//    int iSizeX = size.x();
+//    int iSizeY = size.y();
 
-    if(bHighlight)
-        iSizeX += DRAG_HANDLE_SIZE;
+//    if(bHighlight)
+//        iSizeX += DRAG_HANDLE_SIZE;
 
-    //Only recreate sheet if we have to
-    if(mCurSheet && (iSizeX != mCurSheet->width() || iSizeY != mCurSheet->height()))
-    {
-        delete mCurSheet;
-        mCurSheet = NULL;
-    }
+//    //Only recreate sheet if we have to
+//    if(mCurSheet && (iSizeX != mCurSheet->width() || iSizeY != mCurSheet->height()))
+//    {
+//        delete mCurSheet;
+//        mCurSheet = NULL;
+//    }
 
-    if(!mCurSheet)
-        mCurSheet = new QImage(iSizeX, iSizeY, QImage::Format_ARGB32);
+//    if(!mCurSheet)
+//        mCurSheet = new QImage(iSizeX, iSizeY, QImage::Format_ARGB32);
 
-    //Create image of the proper size and fill it with a good bg color
-    QPainter painter(mCurSheet);
-    painter.setFont(sheetFont);
-    painter.setCompositionMode(QPainter::CompositionMode_Source);
-    if(ui->SheetBgTransparent->isChecked() && bHighlight)
-    {
-        QBrush bgTexBrush(*transparentBg);
-        painter.setCompositionMode(QPainter::CompositionMode_SourceOver);
-        painter.fillRect(0, 0, iSizeX, iSizeY, bgTexBrush);
-    }
-    else if(ui->SheetBgTransparent->isChecked())
-    {
-        mCurSheet->fill(QColor(0,0,0,0));
-    }
-    else
-        mCurSheet->fill(sheetBgCol);
+//    //Create image of the proper size and fill it with a good bg color
+//    QPainter painter(mCurSheet);
+//    painter.setFont(sheetFont);
+//    painter.setCompositionMode(QPainter::CompositionMode_Source);
+//    if(ui->SheetBgTransparent->isChecked() && bHighlight)
+//    {
+//        QBrush bgTexBrush(*transparentBg);
+//        painter.setCompositionMode(QPainter::CompositionMode_SourceOver);
+//        painter.fillRect(0, 0, iSizeX, iSizeY, bgTexBrush);
+//    }
+//    else if(ui->SheetBgTransparent->isChecked())
+//    {
+//        mCurSheet->fill(QColor(0,0,0,0));
+//    }
+//    else
+//        mCurSheet->fill(sheetBgCol);
 
-    //Second pass: Print each frame into the final image
-    int curX = offsetX;
-    int curY = offsetY;
-    sName = mAnimNames.begin();
-    mAnimRects.clear();
-    for(QList<QList<QImage> >::iterator ql = mSheetFrames.begin(); ql != mSheetFrames.end(); ql++)
-    {
-        QRect r;
-        r.setRect(0,curY-offsetY/2.0,iSizeX,0);
-        int ySize = 0;
+//    //Second pass: Print each frame into the final image
+//    int curX = offsetX;
+//    int curY = offsetY;
+//    sName = mAnimNames.begin();
+//    mAnimRects.clear();
+//    for(QList<QList<QImage> >::iterator ql = mSheetFrames.begin(); ql != mSheetFrames.end(); ql++)
+//    {
+//        QRect r;
+//        r.setRect(0,curY-offsetY/2.0,iSizeX,0);
+//        int ySize = 0;
 
-        //Highlight our current anim red
-        if(bHighlight && sName == mCurAnimName)
-        {
-            if(sName->length() && ui->animNameEnabled->isChecked())
-                painter.fillRect(0, curY-offsetY/2.0, mCurSheet->width(), hiliteH + textHeight + offsetY, animHighlightCol);
-            else
-                painter.fillRect(0, curY-offsetY/2.0, mCurSheet->width(), hiliteH + offsetY, animHighlightCol);
-        }
+//        //Highlight our current anim red
+//        if(bHighlight && sName == mCurAnimName)
+//        {
+//            if(sName->length() && ui->animNameEnabled->isChecked())
+//                painter.fillRect(0, curY-offsetY/2.0, mCurSheet->width(), hiliteH + textHeight + offsetY, animHighlightCol);
+//            else
+//                painter.fillRect(0, curY-offsetY/2.0, mCurSheet->width(), hiliteH + offsetY, animHighlightCol);
+//        }
 
-        //Draw label for animation
-        if(sName->length() && ui->animNameEnabled->isChecked())
-        {
-            painter.setPen(fontColor);
-            painter.drawText(QRectF(offsetX,curY,1000,textHeight), Qt::AlignLeft|Qt::AlignVCenter, *sName);
-            curY += textHeight;
-        }
-        sName++;
+//        //Draw label for animation
+//        if(sName->length() && ui->animNameEnabled->isChecked())
+//        {
+//            painter.setPen(fontColor);
+//            painter.drawText(QRectF(offsetX,curY,1000,textHeight), Qt::AlignLeft|Qt::AlignVCenter, *sName);
+//            curY += textHeight;
+//        }
+//        sName++;
 
-        for(QList<QImage>::iterator img = ql->begin(); img != ql->end(); img++)
-        {
-            //Test to see if we should start next line
-            if(curX + img->width() + offsetX > maxSheetWidth)
-            {
-                curY += offsetY + ySize;
-                ySize = 0;
-                curX = offsetX;
-            }
+//        for(QList<QImage>::iterator img = ql->begin(); img != ql->end(); img++)
+//        {
+//            //Test to see if we should start next line
+//            if(curX + img->width() + offsetX > maxSheetWidth)
+//            {
+//                curY += offsetY + ySize;
+//                ySize = 0;
+//                curX = offsetX;
+//            }
 
-            //Erase this portion of the image
-            if(bHighlight && ui->FrameBgTransparent->isChecked())
-            {
-                QBrush bgTexBrush(*transparentBg);
-                painter.setCompositionMode(QPainter::CompositionMode_SourceOver);
-                painter.fillRect(curX, curY, img->width(), img->height(), bgTexBrush);
-            }
-            else if(!ui->FrameBgTransparent->isChecked())
-            {
-                painter.setCompositionMode(QPainter::CompositionMode_SourceOver);
-                painter.fillRect(curX, curY, img->width(), img->height(), QBrush(frameBgCol));
-            }
+//            //Erase this portion of the image
+//            if(bHighlight && ui->FrameBgTransparent->isChecked())
+//            {
+//                QBrush bgTexBrush(*transparentBg);
+//                painter.setCompositionMode(QPainter::CompositionMode_SourceOver);
+//                painter.fillRect(curX, curY, img->width(), img->height(), bgTexBrush);
+//            }
+//            else if(!ui->FrameBgTransparent->isChecked())
+//            {
+//                painter.setCompositionMode(QPainter::CompositionMode_SourceOver);
+//                painter.fillRect(curX, curY, img->width(), img->height(), QBrush(frameBgCol));
+//            }
 
-            if(bHighlight)
-                painter.drawImage(curX, curY, *img);
-            else
-            {
-                QGraphicsPixmapItem* curImageItem = new QGraphicsPixmapItem(QPixmap::fromImage(*img));
-                curImageItem->setZValue(10);
-                curImageItem->setPos(curX, curY);
-                msheetScene->addItem(curImageItem);
-            }
+//            if(bHighlight)
+//                painter.drawImage(curX, curY, *img);
+//            else
+//            {
+//                QGraphicsPixmapItem* curImageItem = new QGraphicsPixmapItem(QPixmap::fromImage(*img));
+//                curImageItem->setZValue(10);
+//                curImageItem->setPos(curX, curY);
+//                msheetScene->addItem(curImageItem);
+//            }
 
-            //If we're highlighting this image, draw blue overtop
-            if(bHighlight && mCurSelected == img)
-            {
-                painter.fillRect(curX, curY, img->width(), img->height(), QBrush(QColor(0,0,255,100)));
-                painter.setCompositionMode(QPainter::CompositionMode_Source);
-            }
+//            //If we're highlighting this image, draw blue overtop
+//            if(bHighlight && mCurSelected == img)
+//            {
+//                painter.fillRect(curX, curY, img->width(), img->height(), QBrush(QColor(0,0,255,100)));
+//                painter.setCompositionMode(QPainter::CompositionMode_Source);
+//            }
 
-            if(img->height() > ySize)
-                ySize = img->height();
-            curX += img->width() + offsetX;
-        }
-        curY += offsetY + ySize;
-        curX = offsetX;
-        r.setBottom(curY-offsetY/2.0);
-        mAnimRects.push_back(r);
-    }
+//            if(img->height() > ySize)
+//                ySize = img->height();
+//            curX += img->width() + offsetX;
+//        }
+//        curY += offsetY + ySize;
+//        curX = offsetX;
+//        r.setBottom(curY-offsetY/2.0);
+//        mAnimRects.push_back(r);
+//    }
 
-    //Draw drag handle on right side
-    if(bHighlight)
-        painter.fillRect(iSizeX - DRAG_HANDLE_SIZE, 0, DRAG_HANDLE_SIZE, mCurSheet->height(), QColor(0,230,230,255));
+//    //Draw drag handle on right side
+//    if(bHighlight)
+//        painter.fillRect(iSizeX - DRAG_HANDLE_SIZE, 0, DRAG_HANDLE_SIZE, mCurSheet->height(), QColor(0,230,230,255));
 
-    painter.end();
+//    painter.end();
 
 
-    //Update the GUI to show this image
-    sheetItem = new QGraphicsPixmapItem(QPixmap::fromImage(*mCurSheet));
-    sheetItem->setZValue(-10);
-    msheetScene->addItem(sheetItem);
+//    //Update the GUI to show this image
+//    sheetItem = new QGraphicsPixmapItem(QPixmap::fromImage(*mCurSheet));
+//    sheetItem->setZValue(-10);
+//    msheetScene->addItem(sheetItem);
 
-    //Set the new rect of the scene
-    //Scale based on minimum scene bounds, and current viewport aspect ratio
-    int scene_bounds = SCENE_BOUNDS;
-    if(scene_bounds < mCurSheet->width()/2.0)
-        scene_bounds = mCurSheet->width()/2.0;
-    if(scene_bounds < mCurSheet->height()/2.0)
-        scene_bounds = mCurSheet->height()/2.0;
-    float hFac = (float)ui->sheetPreview->width()/(float)ui->sheetPreview->height();
-    msheetScene->setSceneRect(-scene_bounds*hFac, -scene_bounds, mCurSheet->width()+scene_bounds*2*hFac, mCurSheet->height()+scene_bounds*2);
+//    //Set the new rect of the scene
+//    //Scale based on minimum scene bounds, and current viewport aspect ratio
+//    int scene_bounds = SCENE_BOUNDS;
+//    if(scene_bounds < mCurSheet->width()/2.0)
+//        scene_bounds = mCurSheet->width()/2.0;
+//    if(scene_bounds < mCurSheet->height()/2.0)
+//        scene_bounds = mCurSheet->height()/2.0;
+//    float hFac = (float)ui->sheetPreview->width()/(float)ui->sheetPreview->height();
+//    msheetScene->setSceneRect(-scene_bounds*hFac, -scene_bounds, mCurSheet->width()+scene_bounds*2*hFac, mCurSheet->height()+scene_bounds*2);
 
-    if(ui->sheetPreview->isHidden())
-        ui->sheetPreview->show();
-}
+//    if(ui->sheetPreview->isHidden())
+//        ui->sheetPreview->show();
+//}
 
 //Redraw the sheet if either of these change
 void MainWindow::on_xSpacingBox_valueChanged(int arg1)
@@ -608,7 +602,8 @@ void MainWindow::genericSave(QString saveFilename)
 {
     if(saveFilename.length())
     {
-        drawSheet(false);   //Save a non-highlighted version
+        //drawSheet(false);   //Save a non-highlighted version
+        //TODO Create image and save
         lastSaveStr = saveFilename;
         if(saveFilename.contains(".sheet", Qt::CaseInsensitive))
         {
@@ -634,7 +629,7 @@ void MainWindow::genericSave(QString saveFilename)
                 //TODO Store file orig state
             }
         }
-        drawSheet(true);    //Redraw the highlighted version
+        //drawSheet(true);    //Redraw the highlighted version
     }
 }
 
@@ -694,9 +689,11 @@ void MainWindow::saveFileAs()
     genericSave(saveFilename);
 }
 
-//TODO Remove button and this function
+//TODO Remove/replace button. Remove this function
 void MainWindow::on_removeAnimButton_clicked()
 {
+    //TODO Wipe current animation from sheet
+
     if(mCurAnim == mSheetFrames.end() || mCurAnimName == mAnimNames.end())
         return;
 
@@ -707,8 +704,6 @@ void MainWindow::on_removeAnimButton_clicked()
     mCurAnimName = mAnimNames.erase(mCurAnimName);
     if(mCurAnimName == mAnimNames.end() && mCurAnimName != mAnimNames.begin())
         mCurAnimName--;
-
-    drawSheet();
 
     if(mCurAnimName != mAnimNames.end())
         ui->animationNameEditor->setText(*mCurAnimName);
@@ -747,9 +742,6 @@ void MainWindow::on_prevAnimButton_clicked()
     mCurAnimName--;
     mCurAnimName = mAnimNames.insert(mCurAnimName, curName);
 
-
-    drawSheet();
-
     if(mCurAnimName != mAnimNames.end())
         ui->animationNameEditor->setText(*mCurAnimName);
     else
@@ -779,8 +771,6 @@ void MainWindow::on_nextAnimButton_clicked()
     if(mCurAnimName != mAnimNames.end())
         mCurAnimName++;
     mCurAnimName = mAnimNames.insert(mCurAnimName, curName);
-
-    drawSheet();
 
     if(mCurAnimName != mAnimNames.end())
         ui->animationNameEditor->setText(*mCurAnimName);
@@ -908,7 +898,7 @@ void MainWindow::on_animNextFrameButton_clicked()
     drawAnimation();
 }
 
-bool MainWindow::mouseOverDragArea(int x, int y)
+bool MainWindow::isMouseOverDragArea(int x, int y)
 {
     return x >= sheet->getWidth() &&
             x <= sheet->getWidth() + DRAG_HANDLE_SIZE &&
@@ -916,24 +906,9 @@ bool MainWindow::mouseOverDragArea(int x, int y)
             y >= 0;
 }
 
-void MainWindow::mouseCursorPos(int x, int y)
+QGraphicsItem* MainWindow::isItemUnderCursor(int x, int y)
 {
-    if(sheet)
-    {
-        //Update cursor if need be
-        if(mouseOverDragArea(x, y))
-            ui->sheetPreview->setCursor(Qt::SizeHorCursor);
-
-        else if(!bDraggingSheetW && !m_bDraggingSelected)
-            ui->sheetPreview->setCursor(Qt::ArrowCursor);
-
-        //If dragging, update sheet width (set the box value directly so that it updates properly)
-        if(bDraggingSheetW)
-            ui->sheetWidthBox->setValue(mStartSheetW - (xStartDragSheetW - x));
-    }
-
-    //Grab a list of all items in the scene under the mouse cursor
-    static QGraphicsRectItem* rect = NULL;
+    //Get the list of all items under this position
     QList<QGraphicsItem *> items = msheetScene->items(
                 x,
                 y,
@@ -944,33 +919,49 @@ void MainWindow::mouseCursorPos(int x, int y)
                 mSheetZoom->getView()->transform());
 
     //Grab the topmost animation frame image
-    QGraphicsItem* it = NULL;
     foreach(QGraphicsItem* item, items)
     {
         if(!item->zValue()) //our animation frames are at a z of 0
-        {
-            it = item;
-            break;
-        }
+            return item;
+    }
+    return NULL;
+}
+
+void MainWindow::mouseCursorPos(int x, int y)
+{
+    if(sheet)
+    {
+        //Update cursor if need be
+        if(isMouseOverDragArea(x, y))
+            ui->sheetPreview->setCursor(Qt::SizeHorCursor);
+
+        else if(!bDraggingSheetW && !m_bDraggingSelected)
+            ui->sheetPreview->setCursor(Qt::ArrowCursor);
+
+        //If dragging, update sheet width (set the box value directly so that it updates properly)
+        if(bDraggingSheetW)
+            ui->sheetWidthBox->setValue(mStartSheetW - (xStartDragSheetW - x));
     }
 
-    //Draw box around currently-highlighted image
+    static QGraphicsRectItem* curSelectedRect = NULL;
+    QGraphicsItem* it = isItemUnderCursor(x, y);
     if(it != NULL)
     {
-        if(rect == NULL)
-            rect = msheetScene->addRect(it->boundingRect(), QPen(QColor(0,0,255), SELECT_RECT_THICKNESS));
-        rect->setRect(it->boundingRect());
-        rect->setPos(it->x(), it->y());
-        rect->setVisible(true);
-        rect->setZValue(2); //Above everything
+        //Draw box around currently-highlighted image
+        if(curSelectedRect == NULL)
+            curSelectedRect = msheetScene->addRect(it->boundingRect(), QPen(QColor(0,0,255), SELECT_RECT_THICKNESS));
+        curSelectedRect->setRect(it->boundingRect());
+        curSelectedRect->setPos(it->x(), it->y());
+        curSelectedRect->setVisible(true);
+        curSelectedRect->setZValue(2); //Above everything
     }
     else
     {
-        if(rect != NULL)
-            rect->setVisible(false);
+        if(curSelectedRect != NULL)
+            curSelectedRect->setVisible(false);
     }
 
-    //Show the mouse cursor pos cause why not
+    //Show the mouse cursor pos
     statusBar()->showMessage(QString::number(x) + ", " + QString::number(y));
     curMouseY = y;
     curMouseX = x;
@@ -981,7 +972,7 @@ void MainWindow::mouseDown(int x, int y)
     if(sheet)
     {
         //We're starting to drag the sheet size handle
-        if(mouseOverDragArea(x, y))
+        if(isMouseOverDragArea(x, y))
         {
             bDraggingSheetW = true;
             mStartSheetW = sheet->getWidth();
@@ -1039,7 +1030,6 @@ void MainWindow::mouseUp(int x, int y)
         if(bDraggingSheetW)
         {
             bDraggingSheetW = false;
-            //drawSheet();
             //genUndoState();
         }
     }
@@ -1239,24 +1229,10 @@ void MainWindow::readSettings()
     //Other initialization stuff!
 
     //Fill in frame/sheet colors
-    QPixmap colIcon(32, 32);
-
-    colIcon.fill(sheetBgCol);
-    QIcon ic(colIcon);
-    ui->sheetBgColSelect->setIcon(ic);
-
-    colIcon.fill(frameBgCol);
-    ic = QIcon(colIcon);
-    ui->frameBgColSelect->setIcon(ic);
-
-    colIcon.fill(fontColor);
-    ic = QIcon(colIcon);
-    ui->fontColSelect->setIcon(ic);
+    setColorButtonIcons();
 
     ui->frameBgColSelect->setEnabled(!ui->FrameBgTransparent->isChecked());
     ui->sheetBgColSelect->setEnabled(!ui->SheetBgTransparent->isChecked());
-
-    bLoadMutex = false;
 
     //Init sheet values
     if(sheet)
@@ -1269,6 +1245,8 @@ void MainWindow::readSettings()
         sheet->setBgTransparent(ui->SheetBgTransparent->isChecked());
         sheet->setFrameBgTransparent(ui->FrameBgTransparent->isChecked());
     }
+
+    bLoadMutex = false;
 }
 
 void MainWindow::on_sheetWidthBox_valueChanged(int arg1)
@@ -1306,7 +1284,8 @@ void MainWindow::newFile()
     mAnimNames.clear();
     mCurAnimName = mAnimNames.begin();
 
-    drawSheet();
+    //drawSheet();
+    //TODO wipe current sheet
     drawAnimation();
 
     sCurFilename = UNTITLED_IMAGE_STR;
@@ -1336,93 +1315,93 @@ void MainWindow::keyPressEvent(QKeyEvent* e)
         }
 
         mouseCursorPos(curMouseX, curMouseY);   //Select again
-        drawSheet();
+        //drawSheet();
         genUndoState();
     }
 
     //Shortcut keys if user enabled these
-    if(bShortcuts)
-    {
-        if(e->key() == Qt::Key_W)
-        {
-            if(e->modifiers() & Qt::ShiftModifier)
-            {
-                on_prevAnimButton_clicked();
-            }
-            else
-            {
-                //Move back one anim
-                if(mCurAnim != mSheetFrames.begin() && mCurAnimName != mAnimNames.begin())
-                {
-                    mCurAnim--;
-                    mCurAnimName--;
+//    if(bShortcuts)
+//    {
+//        if(e->key() == Qt::Key_W)
+//        {
+//            if(e->modifiers() & Qt::ShiftModifier)
+//            {
+//                on_prevAnimButton_clicked();
+//            }
+//            else
+//            {
+//                //Move back one anim
+//                if(mCurAnim != mSheetFrames.begin() && mCurAnimName != mAnimNames.begin())
+//                {
+//                    mCurAnim--;
+//                    mCurAnimName--;
 
-                    drawSheet();
+//                    drawSheet();
 
-                    if(mCurAnimName != mAnimNames.end())
-                        ui->animationNameEditor->setText(*mCurAnimName);
-                    else
-                        ui->animationNameEditor->setText(QString(""));
+//                    if(mCurAnimName != mAnimNames.end())
+//                        ui->animationNameEditor->setText(*mCurAnimName);
+//                    else
+//                        ui->animationNameEditor->setText(QString(""));
 
-                    if(mCurAnim != mSheetFrames.end())
-                        mCurFrame = mCurAnim->begin();
+//                    if(mCurAnim != mSheetFrames.end())
+//                        mCurFrame = mCurAnim->begin();
 
-                    drawAnimation();
-                }
-            }
-        }
-        else if(e->key() == Qt::Key_S)
-        {
-            if(e->modifiers() & Qt::ShiftModifier)
-            {
-                on_nextAnimButton_clicked();
-            }
-            else
-            {
-                //Move forward one anim
-                if(mCurAnim != mSheetFrames.end() && mCurAnimName != mAnimNames.end())
-                {
-                    mCurAnim++;
-                    mCurAnimName++;
-                    if(mCurAnim == mSheetFrames.end() || mCurAnimName == mAnimNames.end())
-                    {
-                        mCurAnim--;
-                        mCurAnimName--;
-                    }
-                    else
-                    {
-                        drawSheet();
+//                    drawAnimation();
+//                }
+//            }
+//        }
+//        else if(e->key() == Qt::Key_S)
+//        {
+//            if(e->modifiers() & Qt::ShiftModifier)
+//            {
+//                on_nextAnimButton_clicked();
+//            }
+//            else
+//            {
+//                //Move forward one anim
+//                if(mCurAnim != mSheetFrames.end() && mCurAnimName != mAnimNames.end())
+//                {
+//                    mCurAnim++;
+//                    mCurAnimName++;
+//                    if(mCurAnim == mSheetFrames.end() || mCurAnimName == mAnimNames.end())
+//                    {
+//                        mCurAnim--;
+//                        mCurAnimName--;
+//                    }
+//                    else
+//                    {
+//                        drawSheet();
 
-                        if(mCurAnimName != mAnimNames.end())
-                            ui->animationNameEditor->setText(*mCurAnimName);
-                        else
-                            ui->animationNameEditor->setText(QString(""));
+//                        if(mCurAnimName != mAnimNames.end())
+//                            ui->animationNameEditor->setText(*mCurAnimName);
+//                        else
+//                            ui->animationNameEditor->setText(QString(""));
 
-                        if(mCurAnim != mSheetFrames.end())
-                            mCurFrame = mCurAnim->begin();
+//                        if(mCurAnim != mSheetFrames.end())
+//                            mCurFrame = mCurAnim->begin();
 
-                        drawAnimation();
-                    }
-                }
-            }
-        }
-        else if(e->key() == Qt::Key_Q)
-        {
-            on_openStripButton_clicked();
-        }
-        else if(e->key() == Qt::Key_A)
-        {
-            on_openImagesButton_clicked();
-        }
-        else if(e->key() == Qt::Key_E)
-        {
-            on_removeAnimButton_clicked();
-        }
-        else if(e->key() == Qt::Key_D)
-        {
-            on_saveSheetButton_clicked();
-        }
-    }
+//                        drawAnimation();
+//                    }
+//                }
+//            }
+//        }
+//        else if(e->key() == Qt::Key_Q)
+//        {
+//            on_openStripButton_clicked();
+//        }
+//        else if(e->key() == Qt::Key_A)
+//        {
+//            on_openImagesButton_clicked();
+//        }
+//        else if(e->key() == Qt::Key_E)
+//        {
+//            on_removeAnimButton_clicked();
+//        }
+//        else if(e->key() == Qt::Key_D)
+//        {
+//            on_saveSheetButton_clicked();
+//        }
+//    }
 }
 
 void MainWindow::on_saveFrameButton_clicked()
@@ -1450,7 +1429,7 @@ bool MainWindow::eventFilter(QObject* obj, QEvent *event)
                     mCurAnimName--;
                 }
 
-                drawSheet();
+                //drawSheet();
 
                 if(mCurAnimName != mAnimNames.end())
                     ui->animationNameEditor->setText(*mCurAnimName);
@@ -1480,7 +1459,7 @@ bool MainWindow::eventFilter(QObject* obj, QEvent *event)
                     }
                 }
 
-                drawSheet();
+                //drawSheet();
 
                 if(mCurAnimName != mAnimNames.end())
                     ui->animationNameEditor->setText(*mCurAnimName);
@@ -1512,7 +1491,7 @@ void MainWindow::on_fontColSelect_clicked()
         colIcon.fill(fontColor);
         QIcon ic(colIcon);
         ui->fontColSelect->setIcon(ic);
-        drawSheet();
+        //TODO Update label's font color
         drawAnimation();
         genUndoState();
     }
@@ -1530,7 +1509,6 @@ void MainWindow::on_frameBgColSelect_clicked()
         ui->frameBgColSelect->setIcon(ic);
         if(sheet)
             sheet->setFrameBgCol(selected);
-        //        drawSheet();
         //        drawAnimation();
         //        genUndoState();
     }
@@ -1546,7 +1524,6 @@ void MainWindow::on_sheetBgColSelect_clicked()
         colIcon.fill(sheetBgCol);
         QIcon ic(colIcon);
         ui->sheetBgColSelect->setIcon(ic);
-        //drawSheet();
         //genUndoState();
         if(sheet)
             sheet->setBgCol(selected);
@@ -1557,7 +1534,6 @@ void MainWindow::on_FrameBgTransparent_toggled(bool checked)
 {
     if(bLoadMutex) return;
     ui->frameBgColSelect->setEnabled(!checked);
-    //    drawSheet();
     //    drawAnimation();
     //    genUndoState();
     if(sheet)
@@ -1588,7 +1564,7 @@ void MainWindow::on_balanceAnimButton_clicked()
     setBalanceDefWH(w, h);
 
     mBalanceWindow->show();
-    CenterParent(this, mBalanceWindow);
+    centerParent(this, mBalanceWindow);
 }
 
 void MainWindow::balance(int w, int h, BalanceSheetDialog::Pos vert, BalanceSheetDialog::Pos horiz)
@@ -1630,8 +1606,6 @@ void MainWindow::balance(int w, int h, BalanceSheetDialog::Pos vert, BalanceShee
     }
 
     mCurFrame = mCurAnim->begin();
-    qDebug() << "balance() draw sheet" << endl;
-    drawSheet();
     qDebug() << "balance() draw animation" << endl;
     drawAnimation();
     qDebug() << "balance() gen undo" << endl;
@@ -1811,7 +1785,7 @@ void MainWindow::loadFromStream(QDataStream& s)
     int major = MAJOR_VERSION;
     int minor = MINOR_VERSION;
     int rev = REV_VERSION;
-    s >> major >> minor >> rev;  //Later we'll care about this if the save format changes again
+    s >> major >> minor >> rev;
     if(major > MAJOR_VERSION || (major == MAJOR_VERSION && minor > MINOR_VERSION) || (major == MAJOR_VERSION && minor == MINOR_VERSION && rev > REV_VERSION))
     {
         QMessageBox::warning(this, "File Load", "This sheet file was created with a newer version of Sprite Sheeter than you currently have. Please update your Sprite Sheeter version");
@@ -1855,19 +1829,7 @@ void MainWindow::loadFromStream(QDataStream& s)
         s >> fontColor;
 
     //Fill in frame/sheet colors
-    QPixmap colIcon(32, 32);
-
-    colIcon.fill(sheetBgCol);
-    QIcon ic(colIcon);
-    ui->sheetBgColSelect->setIcon(ic);
-
-    colIcon.fill(frameBgCol);
-    ic = QIcon(colIcon);
-    ui->frameBgColSelect->setIcon(ic);
-
-    colIcon.fill(fontColor);
-    ic = QIcon(colIcon);
-    ui->fontColSelect->setIcon(ic);
+    setColorButtonIcons();
 
     bool bSheetBg, bFrameBg;
     s >> bFrameBg >> bSheetBg;
@@ -1894,7 +1856,6 @@ void MainWindow::loadFromStream(QDataStream& s)
         ui->animNameEnabled->setChecked(bNamesEnabled);
 
     //Done reading
-
 
     //Default to beginning of animation and frame lists...
     mCurAnim = mSheetFrames.begin();
@@ -1935,7 +1896,6 @@ void MainWindow::loadFromStream(QDataStream& s)
     }
 
     //Reset GUI stuff!
-    drawSheet();
     if(mCurAnimName != mAnimNames.end())
         ui->animationNameEditor->setText(*mCurAnimName);
 
@@ -1962,7 +1922,7 @@ void MainWindow::on_fontButton_clicked()
     if(ok)
     {
         sheetFont = font;
-        drawSheet();
+        //TODO Update font in labels
         genUndoState();
     }
 }
@@ -2040,32 +2000,22 @@ void MainWindow::updateUndoRedoMenu()
 
 void MainWindow::on_xSpacingBox_editingFinished()
 {
-    //    drawSheet();
     //    genUndoState();
-    //    if(sheet != NULL)
-    //        sheet->setXSpacing(ui->xSpacingBox->value());
 }
 
 void MainWindow::on_ySpacingBox_editingFinished()
 {
-    //    if(sheet != NULL)
-    //        sheet->setYSpacing(ui->ySpacingBox->value());
-    //    drawSheet();
     //    genUndoState();
 }
 
 void MainWindow::on_sheetWidthBox_editingFinished()
 {
-    //drawSheet();
     //genUndoState();
-    //    if(sheet != NULL)
-    //        sheet->setWidth(ui->sheetWidthBox->value());
 }
 
 void MainWindow::on_animationNameEditor_editingFinished()
 {
-    drawSheet();
-    genUndoState();
+    //genUndoState();
 }
 
 void MainWindow::enableShortcuts(bool b)
@@ -2079,13 +2029,14 @@ void MainWindow::on_animNameEnabled_toggled(bool checked)
     {
         ui->animationNameEditor->setEnabled(true);
         ui->fontButton->setEnabled(true);
+        ui->fontColSelect->setEnabled(true);
     }
     else
     {
         ui->animationNameEditor->setEnabled(false);
         ui->fontButton->setEnabled(false);
+        ui->fontColSelect->setEnabled(false);
     }
-    drawSheet();
     genUndoState();
 }
 
@@ -2108,7 +2059,7 @@ FIBITMAP* imageFromPixels(uint8_t* imgData, uint32_t width, uint32_t height)
                 pixel[FI_RGBA_GREEN] = imgData[curPos++];
                 pixel[FI_RGBA_RED] = imgData[curPos++];
                 pixel[FI_RGBA_ALPHA] = imgData[curPos++];
-                //Quantize low-alpha to magenta by hand...
+                //HACK Quantize low-alpha to magenta by hand...
                 if(pixel[FI_RGBA_ALPHA] <= 128)
                 {
                     pixel[FI_RGBA_RED] = 255;
@@ -2124,7 +2075,7 @@ FIBITMAP* imageFromPixels(uint8_t* imgData, uint32_t width, uint32_t height)
     return curImg;
 }
 
-//(see http://sourceforge.net/p/freeimage/discussion/36111/thread/ea987d97/) for discussion of FreeImage gif saving...
+//See http://sourceforge.net/p/freeimage/discussion/36111/thread/ea987d97/ for discussion of FreeImage gif saving...
 void MainWindow::on_ExportAnimButton_clicked()
 {
     if(!mCurSheet || mSheetFrames.empty() || mCurAnim == mSheetFrames.end()) return;
@@ -2149,7 +2100,7 @@ void MainWindow::on_ExportAnimButton_clicked()
             //Gotta get Qt image in proper format first
             imgTemp = imgTemp.convertToFormat(QImage::Format_ARGB32);
             QByteArray bytes((char*)imgTemp.bits(), imgTemp.byteCount());
-            //Make 32-bit image with magenta instead of transparency first...
+            //HACK Make 32-bit image with magenta instead of transparency first...
             FIBITMAP* page = imageFromPixels((uint8_t*)bytes.data(), imgTemp.width(), imgTemp.height());
             //Turn this into an 8-bit image next
             FIBITMAP* page8bit = FreeImage_ColorQuantize(page, FIQ_WUQUANT);
@@ -2226,7 +2177,6 @@ bool MainWindow::loadAnimatedGIF(QString sFilename)
     if(mCurAnim != mSheetFrames.end())
         mCurFrame = mCurAnim->begin();
 
-    drawSheet();
     drawAnimation();
     genUndoState();
 
@@ -2234,6 +2184,7 @@ bool MainWindow::loadAnimatedGIF(QString sFilename)
     return true;
 }
 
+//TODO Reverse current Animation class
 void MainWindow::on_reverseAnimButton_clicked()
 {
     if(mCurAnim == mSheetFrames.end()) return;
@@ -2243,13 +2194,12 @@ void MainWindow::on_reverseAnimButton_clicked()
     foreach(QImage img, newList)
         mCurAnim->prepend(img);
 
-
     mCurFrame = mCurAnim->begin();
-    drawSheet();
     drawAnimation();
     genUndoState();
 }
 
+//TODO Move duplicate testing to Animation class
 void MainWindow::on_removeDuplicateFramesButton_clicked()
 {
     if(mCurAnim == mSheetFrames.end()) return;
@@ -2275,7 +2225,7 @@ void MainWindow::on_removeDuplicateFramesButton_clicked()
     if(bFoundDuplicates)
     {
         mCurFrame = mCurAnim->begin();
-        drawSheet();
+        //TODO Sheet should recalc
         drawAnimation();
         genUndoState();
     }
@@ -2396,42 +2346,16 @@ void MainWindow::threadRenderingCanceled()
     progressBar = NULL;
 }
 
+void MainWindow::setColorButtonIcons()
+{
+    QPixmap colIcon(32, 32);
 
+    colIcon.fill(sheetBgCol);
+    ui->sheetBgColSelect->setIcon(QIcon(colIcon));
 
+    colIcon.fill(frameBgCol);
+    ui->frameBgColSelect->setIcon(QIcon(colIcon));
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+    colIcon.fill(fontColor);
+    ui->fontColSelect->setIcon(QIcon(colIcon));
+}
