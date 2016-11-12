@@ -177,7 +177,7 @@ private:
     void readSettings();
     void cleanMemory();
 
-    void insertAnimHelper(QList<QImage> imgList, QString name);  //TODO Remove
+    void insertAnimHelper(QVector<QImage*> imgList, QString name);  //TODO Remove
 
     void fixWindowTitle();
     void genUndoState();
@@ -195,7 +195,7 @@ private:
     bool isMouseOverDragArea(int x, int y);
     QGraphicsItem* isItemUnderCursor(int x, int y);
     void setColorButtonIcons();   //Set the colors of the color selection buttons
-
+    QStringList supportedFileFormats();
 protected:
     bool eventFilter(QObject* obj, QEvent *event);
 

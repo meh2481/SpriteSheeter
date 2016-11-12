@@ -44,6 +44,18 @@ void Animation::insertImage(QImage* img, QGraphicsScene* scene, unsigned int ind
     heightRecalc();
 }
 
+void Animation::insertImages(QVector<QImage*> imgs, QGraphicsScene* scene)
+{
+    foreach(QImage* img, imgs)
+        insertImage(img, scene);
+}
+
+void Animation::insertImages(QVector<QImage*> imgs, QGraphicsScene* scene, unsigned int index)
+{
+    foreach(QImage* img, imgs)
+        insertImage(img, scene, index++);
+}
+
 //TODO I don't think this is correct anymore
 void Animation::pullImages(Animation* other, QList<unsigned int> indices, unsigned int insertLocation)
 {

@@ -37,6 +37,12 @@ public:
     //Insert an image at the specified index and hand over control of the memory
     void insertImage(QImage* img, QGraphicsScene* scene, unsigned int index);
 
+    //Insert a list of images at the end of the animation and hand over control of the memory
+    void insertImages(QVector<QImage*> imgs, QGraphicsScene* scene);
+
+    //Insert a list of images at the specified index and hand over control of the memory
+    void insertImages(QVector<QImage*> imgs, QGraphicsScene* scene, unsigned int index);
+
     //Remove the given images from the given animation and add them to this one
     //Note the Qt syntax: otherIndices << 33 << 12 << 68 << 6 << 12;
     void pullImages(Animation* other, QList<unsigned int> otherIndices, unsigned int insertLocation);
