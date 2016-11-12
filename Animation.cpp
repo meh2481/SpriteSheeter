@@ -167,3 +167,12 @@ void Animation::setFrameBgVisible(bool b)
     foreach(QGraphicsRectItem* it, frameBackgrounds)
         it->setVisible(b);
 }
+
+void Animation::reverse()
+{
+    QVector<QGraphicsPixmapItem*> newList = images;
+    images.clear();
+    foreach(QGraphicsPixmapItem* img, newList)
+        images.prepend(img);
+    heightRecalc();
+}

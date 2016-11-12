@@ -70,6 +70,9 @@ public:
     //Get the last-calculated height for the animation
     unsigned int getCurHeight() {return curHeight;}
 
+    //Reverse the animation
+    void reverse();
+
 signals:
 
 public slots:

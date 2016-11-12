@@ -166,12 +166,11 @@ private:
     QProgressDialog* progressBar;
 
     void openImportDiag();
-    void importImage(QString s, int numxframes, int numyframes, bool bVert, bool bSplit);
+    void importImageAsSheet(QString s, int numxframes, int numyframes, bool bVert, bool bSplit);
     void importImageList(QStringList& fileList, QString prepend = QString(""), QString animName = QString(""));
     void centerParent(QWidget* parent, QWidget* child);
 
     void drawAnimation();
-//    QVector2D getSheetSize(int offsetX, int offsetY, bool bHighlight);
 
     void closeEvent(QCloseEvent *event);
     void readSettings();
@@ -179,7 +178,7 @@ private:
 
     void insertAnimHelper(QVector<QImage*> imgList, QString name);  //TODO Remove
 
-    void fixWindowTitle();
+    void updateWindowTitle();
     void genUndoState();
     void pushUndo();
     void clearUndo();
@@ -196,6 +195,8 @@ private:
     QGraphicsItem* isItemUnderCursor(int x, int y);
     void setColorButtonIcons();   //Set the colors of the color selection buttons
     QStringList supportedFileFormats();
+    QString getSaveFilename(const char* title);
+    void saveSettings();
 protected:
     bool eventFilter(QObject* obj, QEvent *event);
 

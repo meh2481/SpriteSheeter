@@ -15,6 +15,7 @@ Sheet::Sheet(QGraphicsScene* s, SheetEditorView* sheetView, QImage* bg, unsigned
     xSpacing = ySpacing = 0;
     dragRectWidth = dragW;
     sheetPreview = sheetView;
+    currentAnimation = 0;
 }
 
 Sheet::~Sheet()
@@ -35,6 +36,7 @@ void Sheet::addAnimation(Animation* anim, unsigned int index)
     anim->setFrameBgVisible(!frameBgTransparent || !sheetBgTransparent);
     recalc();
     updateSceneBounds();
+    currentAnimation = index;
 }
 
 void Sheet::addAnimation(Animation* anim)
@@ -169,5 +171,10 @@ void Sheet::updateSceneBounds()
         scene_bounds = curHeight/2.0;
     float hFac = (float)sheetPreview->width()/(float)sheetPreview->height();
     scene->setSceneRect(-scene_bounds*hFac, -scene_bounds, width+scene_bounds*hFac*2, curHeight+scene_bounds*2);
+}
 
+void Sheet::reverseCurrentAnimation()
+{
+    if(currentAnimation < animations.size())
+        animations.at(currentAnimation)->reverse();
 }

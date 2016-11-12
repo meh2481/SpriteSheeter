@@ -18,6 +18,7 @@ class Sheet : public QObject
     QGraphicsScene* scene;
 
     unsigned int width, curHeight;
+    unsigned int currentAnimation;
 
     Sheet(){}   //Private default constructor
     void recalc();
@@ -54,6 +55,7 @@ public:
     unsigned int getWidth() {return width;}
     unsigned int getHeight() {return curHeight;}
     void updateSceneBounds();
+    void reverseCurrentAnimation();
 
 signals:
 
