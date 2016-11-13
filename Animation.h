@@ -26,8 +26,10 @@ class Animation : public QObject
     QColor frameBgCol;
     bool frameBgTransparent;
     QImage* transparentBg;
+    unsigned int minWidth;  //Minimum width for this animation at the current width
 
     unsigned int heightRecalc();    //Recalculate where each image is on in the sheet
+    unsigned int widthOfImages();
 public:
     explicit Animation(QImage* bg, QObject *parent = 0);
     ~Animation();
@@ -86,6 +88,8 @@ public:
 
     //Test if a point is inside the animation
     bool isInside(int x, int y);
+
+    unsigned int getMinWidth() {return minWidth;}
 
 signals:
 

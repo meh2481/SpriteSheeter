@@ -54,12 +54,10 @@ public:
     unsigned int getWidth() {return width;}
     unsigned int getHeight() {return curHeight;}
     void updateSceneBounds();
-    //void reverseCurrentAnimation();
-    //bool removeDuplicateFrames();   //TODO determine if should be in the context of current animation, or sheet
     unsigned int size() {return animations.size();}
     Animation* getAnimation(unsigned int index);   //Return NULL or the current animation
     void refresh(){setWidth(width);updateSceneBounds();} //Recalculate sheet
-
+    unsigned int getMinWidth(); //Get the minimum width for the current width
 signals:
 
 public slots:

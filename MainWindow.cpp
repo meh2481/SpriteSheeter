@@ -45,12 +45,10 @@ MainWindow::MainWindow(QWidget *parent) :
     QObject::connect(ui->sheetPreview, SIGNAL(mousePressed(int,int)), this, SLOT(mouseDown(int, int)));
     QObject::connect(ui->sheetPreview, SIGNAL(mouseReleased(int,int)), this, SLOT(mouseUp(int, int)));
     QObject::connect(ui->actionNew, SIGNAL(triggered()), this, SLOT(newFile()));
-    //QObject::connect(ui->actionSave, SIGNAL(triggered()), this, SLOT(on_saveSheetButton_clicked()));
     QObject::connect(ui->actionSaveAs, SIGNAL(triggered()), this, SLOT(saveFileAs()));
     QObject::connect(ui->actionImport_WIP_Sheet, SIGNAL(triggered(bool)), this, SLOT(loadSheet()));
     QObject::connect(ui->actionUndo, SIGNAL(triggered(bool)), this, SLOT(undo()));
     QObject::connect(ui->actionRedo, SIGNAL(triggered(bool)), this, SLOT(redo()));
-    QObject::connect(ui->actionEnableShortcuts, SIGNAL(toggled(bool)), this, SLOT(enableShortcuts(bool)));
     QObject::connect(ui->sheetPreview, SIGNAL(droppedFiles(QStringList)), this, SLOT(addImages(QStringList)));
     QObject::connect(ui->sheetPreview, SIGNAL(droppedFolders(QStringList)), this, SLOT(addFolders(QStringList)));
     QObject::connect(mBalanceWindow, SIGNAL(balance(int,int,BalancePos::Pos,BalancePos::Pos)), this, SLOT(balance(int,int,BalancePos::Pos,BalancePos::Pos)));
@@ -61,7 +59,6 @@ MainWindow::MainWindow(QWidget *parent) :
     animItem = NULL;
     progressBar = NULL;
     transparentBg = new QImage("://bg");
-    bShortcuts = true;
     bLoadMutex = false;
 
     bDraggingSheetW = false;
@@ -71,7 +68,7 @@ MainWindow::MainWindow(QWidget *parent) :
     m_rLastDragHighlight.setCoords(0,0,0,0);
     m_bLastDragInAnim = false;
     sCurFilename = UNTITLED_IMAGE_STR;
-    //TODO Store initial undo state
+    //Store initial undo state
     pushUndo();
     updateUndoRedoMenu();
 
@@ -105,7 +102,7 @@ MainWindow::MainWindow(QWidget *parent) :
         ui->sheetPreview->show();
 
     //Read in settings here
-    readSettings();
+    loadSettings();
 
     //Set color icons to proper color
     setColorButtonIcons();
@@ -160,8 +157,8 @@ void MainWindow::importImageList(QStringList& fileList, QString prepend, QString
         sheet->addAnimation(animation);
     }
 
-    //    drawAnimation();
-    //    genUndoState();
+    drawAnimation();
+    genUndoState();
 }
 
 QStringList MainWindow::supportedFileFormats()
@@ -293,7 +290,7 @@ void MainWindow::importImageAsSheet(QString s, int numxframes, int numyframes, b
     QImage image(s);
     if(image.isNull())
     {
-        QMessageBox::information(this,"Image Import", "Error opening image " + s);
+        QMessageBox::information(this, "Image Import", "Error opening image " + s);
         return;
     }
     QString fileName = QFileInfo(s).baseName();
@@ -458,7 +455,6 @@ void MainWindow::saveFileAs()
     genericSave(getSaveFilename("Save Sheet As"));
 }
 
-//TODO Rename/replace button
 void MainWindow::on_removeAnimButton_clicked()
 {
     //TODO Wipe current animation from sheet
@@ -473,9 +469,10 @@ void MainWindow::on_animationNameEditor_textChanged(const QString& arg1)
     //TODO Update current label
 }
 
-//TODO Replace with updater for animation class
 void MainWindow::drawAnimation()
 {
+    //TODO
+
     //    if(mCurAnim == mSheetFrames.end() || !mCurAnim->size() || mCurFrame == mCurAnim->end())
     //    {
     //        if(animItem)
@@ -510,9 +507,10 @@ void MainWindow::drawAnimation()
     //    animScene->setSceneRect(0, 0, animFrame.width(), animFrame.height());
 }
 
-//TODO Replace with updater for animation class
 void MainWindow::animUpdate()
 {
+    //TODO
+
     //    if(mCurAnim == mSheetFrames.end() || !mCurAnim->size())
     //        return;
 
@@ -537,6 +535,7 @@ void MainWindow::on_animationSpeedSpinbox_valueChanged(int arg1)
 
 void MainWindow::on_animPlayButton_clicked()
 {
+    //TODO Update icon
     if(!animUpdateTimer->isActive())
     {
         int iInterval = 1000/ui->animationSpeedSpinbox->value();
@@ -548,11 +547,6 @@ void MainWindow::on_animPlayButton_clicked()
     }
 
 }
-
-//void MainWindow::on_animPauseButton_clicked()
-//{
-//    animUpdateTimer->stop();
-//}
 
 void MainWindow::on_animStopButton_clicked()
 {
@@ -887,13 +881,12 @@ void MainWindow::saveSettings()
     settings.setValue("lastOpenDir", lastOpenDir);
     settings.setValue("lastImportExportStr", lastImportExportStr);
     settings.setValue("sheetFont", sheetFont.toString());
-    settings.setValue("shortcuts", bShortcuts);
     settings.setValue("animNames", ui->animNameEnabled->isChecked());
     settings.setValue("lastGIFStr", lastGIFStr);
     //settings.setValue("", );
 }
 
-void MainWindow::readSettings()
+void MainWindow::loadSettings()
 {
     //Read in settings from config (registry or wherever it is)
     bLoadMutex = true;
@@ -929,11 +922,6 @@ void MainWindow::readSettings()
         sheetFont = QFont("MS Shell Dlg 2", 8);
     else
         sheetFont.fromString(sFontVal);
-    if(settings.value("shortcuts").isValid())
-    {
-        bShortcuts = settings.value("shortcuts").toBool();
-        ui->actionEnableShortcuts->setChecked(bShortcuts);
-    }
     if(settings.value("animNames").isValid())
         ui->animNameEnabled->setChecked(settings.value("animNames").toBool());
     if(settings.value("lastGIFStr").isValid())
@@ -1218,6 +1206,7 @@ void MainWindow::balance(int w, int h, BalancePos::Pos vert, BalancePos::Pos hor
     anim->balance(QPoint(w,h), vert, horiz);
     sheet->refresh();
 
+    //TODO Update animation frame preview
     //    mCurFrame = mCurAnim->begin();
     qDebug() << "balance() draw animation" << endl;
     drawAnimation();
@@ -1285,7 +1274,6 @@ void MainWindow::saveSheet(QString filename)
         {
             QDataStream s(&f);
             s.setVersion(QDataStream::Qt_5_6);
-
             saveToStream(s);
         }
     }
@@ -1415,7 +1403,7 @@ void MainWindow::loadFromStream(QDataStream& s)
         s >> numFrames;
         for(int j = 0; j < numFrames; j++)
         {
-            //Default image saving (PNG) is sloooowwww... save as TIFF instead. Larger but way faster.
+            //Load from TIFF
             QImage img;
             QByteArray imgByteArray;
             s >> imgByteArray;
@@ -1559,12 +1547,12 @@ void MainWindow::updateWindowTitle()
 
 void MainWindow::genUndoState()
 {
-    //    if(mSheetFrames.size() == 0 && sCurFilename == UNTITLED_IMAGE_STR && undoList.size() < 2)
-    //    {
-    //        clearUndo();
-    //        pushUndo(); //Save this as our starting state
-    //        return;   //Don't generate undo states on empty sheet
-    //    }
+    if((!sheet || !sheet->size()) && sCurFilename == UNTITLED_IMAGE_STR && undoList.size() < 2)
+    {
+        clearUndo();
+        pushUndo(); //Save this as our starting state
+        return;   //Don't generate undo states on empty sheet
+    }
 
     //Set the window title if this is the first the file has been modified
     if(!bFileModified)
@@ -1636,11 +1624,6 @@ void MainWindow::on_animationNameEditor_editingFinished()
     genUndoState();
 }
 
-void MainWindow::enableShortcuts(bool b)
-{
-    bShortcuts = b;
-}
-
 void MainWindow::on_animNameEnabled_toggled(bool checked)
 {
     if(checked)
@@ -1710,6 +1693,9 @@ void MainWindow::on_ExportAnimButton_clicked()
 
         //Open GIF image for writing
         FIMULTIBITMAP* bmp = FreeImage_OpenMultiBitmap(FIF_GIF, saveFilename.toStdString().c_str(), true, false);
+
+        //TODO Add GIF saving to somewhere not here. Likely Animation class or some other class entirely
+
         //DWORD dwFrameTime = (DWORD)((1000.0f / (float)ui->animationSpeedSpinbox->value()) + 0.5f); //Framerate of gif image
 
         //        for(QList<QImage>::iterator i = mCurAnim->begin(); i != mCurAnim->end(); i++)
@@ -1932,7 +1918,7 @@ void MainWindow::finishedBatchRender()
 {
     if(!progressBar) return;
 
-    //once progress bar is set to maximum, izz DONE, so test this first
+    //once progress bar is set to maximum, import is done, so test this first
     if(progressBar->value()+1 >= progressBar->maximum())
     {
         progressBar->setValue(progressBar->value()+1);
@@ -1960,4 +1946,13 @@ void MainWindow::setColorButtonIcons()
 
     colIcon.fill(fontColor);
     ui->fontColSelect->setIcon(QIcon(colIcon));
+}
+
+void MainWindow::on_minWidthButton_clicked()
+{
+    if(sheet)
+    {
+        unsigned int width = sheet->getMinWidth();
+        ui->sheetWidthBox->setValue(width); //Updates width of sheet automatically
+    }
 }

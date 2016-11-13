@@ -177,3 +177,14 @@ Animation* Sheet::getAnimation(unsigned int index)
         return animations.at(index);
     return NULL;
 }
+
+unsigned int Sheet::getMinWidth()
+{
+    unsigned int minWidth = 0;
+    foreach(Animation* anim, animations)
+    {
+        if(minWidth < anim->getMinWidth())
+            minWidth = anim->getMinWidth();
+    }
+    return minWidth;
+}

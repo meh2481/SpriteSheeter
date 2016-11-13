@@ -423,7 +423,7 @@
                <string>Set the font to use for animation labels</string>
               </property>
               <property name="text">
-               <string>Font...</string>
+               <string>Set Font...</string>
               </property>
              </widget>
             </item>
@@ -463,7 +463,7 @@
                <string>Balance or resize the frames of the current animation</string>
               </property>
               <property name="text">
-               <string>Balance/Resize Animation...</string>
+               <string>Balance Animation...</string>
               </property>
              </widget>
             </item>
@@ -490,7 +490,7 @@
                <string>Reverse the order of the frames in the current animation</string>
               </property>
               <property name="text">
-               <string>Reverse Animation Order</string>
+               <string>Reverse Frame Order</string>
               </property>
              </widget>
             </item>
@@ -726,7 +726,6 @@
     <addaction name="actionUndo"/>
     <addaction name="actionRedo"/>
     <addaction name="separator"/>
-    <addaction name="actionEnableShortcuts"/>
     <addaction name="actionBatch_Processing"/>
    </widget>
    <widget class="QMenu" name="menuHelp">
@@ -805,17 +804,6 @@
    </property>
    <property name="shortcut">
     <string>Ctrl+Shift+S</string>
-   </property>
-  </action>
-  <action name="actionEnableShortcuts">
-   <property name="checkable">
-    <bool>true</bool>
-   </property>
-   <property name="checked">
-    <bool>true</bool>
-   </property>
-   <property name="text">
-    <string>Enable WASD Shortcuts</string>
    </property>
   </action>
   <action name="actionAbout">

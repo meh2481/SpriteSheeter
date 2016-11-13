@@ -56,7 +56,6 @@ public slots:
     void mouseUp(int x, int y);
     void newFile();
     void saveFileAs();
-    void enableShortcuts(bool b);
     void undo();
     void redo();
     void saveSheet(QString filename = QString());
@@ -73,11 +72,9 @@ private slots:
     void on_openImagesButton_clicked();
     void on_xSpacingBox_valueChanged(int arg1);
     void on_ySpacingBox_valueChanged(int arg1);
-    //void on_saveSheetButton_clicked();
     void on_removeAnimButton_clicked();
     void on_animationNameEditor_textChanged(const QString &arg1);
     void on_animPlayButton_clicked();
-    //void on_animPauseButton_clicked();
     void on_animStopButton_clicked();
     void on_animPrevFrameButton_clicked();
     void on_animNextFrameButton_clicked();
@@ -102,6 +99,8 @@ private slots:
     void on_actionAbout_triggered();
     void on_actionBatch_Processing_triggered();
     void on_fontColSelect_clicked();
+
+    void on_minWidthButton_clicked();
 
 private:
     Ui::MainWindow*         ui;
@@ -145,7 +144,6 @@ private:
     int curMouseY;
 
     bool bFileModified;
-    bool bShortcuts;
     QString sCurFilename;
 
     //Variables for dealing with the Qt draw engine
@@ -172,7 +170,7 @@ private:
     void drawAnimation();
 
     void closeEvent(QCloseEvent *event);
-    void readSettings();
+    void loadSettings();
     void cleanMemory();
 
     void insertAnimHelper(QVector<QImage*> imgList, QString name);  //TODO Remove

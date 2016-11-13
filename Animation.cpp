@@ -13,6 +13,7 @@ Animation::Animation(QImage* bg, QObject *parent) : QObject(parent)
     frameBgTransparent = false;
     transparentBg = bg;
     curHeight = 0;
+    minWidth = 0;
 }
 
 Animation::~Animation()
@@ -76,11 +77,22 @@ void Animation::pullImages(Animation* other, QList<unsigned int> indices, unsign
     other->heightRecalc();
 }
 
+unsigned int Animation::widthOfImages()
+{
+    unsigned int imgWidth = 0;
+    for(QMap<QGraphicsPixmapItem*, QImage*>::iterator i = imageMap.begin(); i != imageMap.end(); i++)
+        imgWidth += i.value()->width();
+    return imgWidth + (spacingX*(images.size()+1));
+}
+
 unsigned int Animation::heightRecalc()
 {
     int curX = spacingX;
     int curY = spacingY;
     unsigned int tallestHeight = 0;
+    minWidth = widthOfImages();
+    if(minWidth > width)
+        minWidth = 0;
     for(int i = 0; i < images.size(); i++)
     {
         QGraphicsPixmapItem* pixmapItem = images.at(i);
@@ -96,6 +108,8 @@ unsigned int Animation::heightRecalc()
         pixmapItem->setPos(curX + offsetX, curY + offsetY);
         frameBackgrounds.at(i)->setRect(curX + offsetX, curY + offsetY, image->width(), image->height());
         curX += spacingX + image->width();
+        if(minWidth < curX)
+            minWidth = curX;
     }
     curHeight = curY + spacingY + tallestHeight;
     return curHeight;
