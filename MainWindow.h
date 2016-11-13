@@ -73,13 +73,11 @@ private slots:
     void on_openImagesButton_clicked();
     void on_xSpacingBox_valueChanged(int arg1);
     void on_ySpacingBox_valueChanged(int arg1);
-    void on_saveSheetButton_clicked();
+    //void on_saveSheetButton_clicked();
     void on_removeAnimButton_clicked();
     void on_animationNameEditor_textChanged(const QString &arg1);
-    void on_prevAnimButton_clicked();
-    void on_nextAnimButton_clicked();
     void on_animPlayButton_clicked();
-    void on_animPauseButton_clicked();
+    //void on_animPauseButton_clicked();
     void on_animStopButton_clicked();
     void on_animPrevFrameButton_clicked();
     void on_animNextFrameButton_clicked();
@@ -198,6 +196,7 @@ private:
     QStringList supportedFileFormats();
     QString getSaveFilename(const char* title);
     void saveSettings();
+    void saveFile();
 protected:
     bool eventFilter(QObject* obj, QEvent *event);
 

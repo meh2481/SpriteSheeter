@@ -38,84 +38,9 @@
         <item>
          <layout class="QHBoxLayout" name="horizontalLayout_2">
           <item>
-           <widget class="QLabel" name="label_6">
-            <property name="text">
-             <string>Current Animation:</string>
-            </property>
-           </widget>
-          </item>
-          <item>
-           <layout class="QVBoxLayout" name="verticalLayout">
-            <property name="spacing">
-             <number>0</number>
-            </property>
-            <item>
-             <widget class="QPushButton" name="prevAnimButton">
-              <property name="maximumSize">
-               <size>
-                <width>16777215</width>
-                <height>12</height>
-               </size>
-              </property>
-              <property name="toolTip">
-               <string>Move current animation up the spritesheet (W)</string>
-              </property>
-              <property name="text">
-               <string/>
-              </property>
-              <property name="icon">
-               <iconset resource="spritesheetertest1.qrc">
-                <normaloff>:/images/up.png</normaloff>:/images/up.png</iconset>
-              </property>
-              <property name="iconSize">
-               <size>
-                <width>16</width>
-                <height>6</height>
-               </size>
-              </property>
-              <property name="autoDefault">
-               <bool>false</bool>
-              </property>
-              <property name="default">
-               <bool>false</bool>
-              </property>
-              <property name="flat">
-               <bool>false</bool>
-              </property>
-             </widget>
-            </item>
-            <item>
-             <widget class="QPushButton" name="nextAnimButton">
-              <property name="maximumSize">
-               <size>
-                <width>16777215</width>
-                <height>12</height>
-               </size>
-              </property>
-              <property name="toolTip">
-               <string>Move current animation down the spritesheet (S)</string>
-              </property>
-              <property name="text">
-               <string/>
-              </property>
-              <property name="icon">
-               <iconset resource="spritesheetertest1.qrc">
-                <normaloff>:/images/down.png</normaloff>:/images/down.png</iconset>
-              </property>
-              <property name="iconSize">
-               <size>
-                <width>16</width>
-                <height>6</height>
-               </size>
-              </property>
-             </widget>
-            </item>
-           </layout>
-          </item>
-          <item>
            <widget class="QPushButton" name="removeAnimButton">
             <property name="toolTip">
-             <string>Delete current animation (E)</string>
+             <string>Delete selected animation (Delete)</string>
             </property>
             <property name="text">
              <string/>
@@ -142,7 +67,7 @@
           <item>
            <widget class="QPushButton" name="openStripButton">
             <property name="toolTip">
-             <string>Import single animation from list of images (Q)</string>
+             <string>Import single animation from list of images</string>
             </property>
             <property name="text">
              <string>Add Frame Sequence...</string>
@@ -152,7 +77,7 @@
           <item>
            <widget class="QPushButton" name="openImagesButton">
             <property name="toolTip">
-             <string>Load a single image as an animation sheet with multiple frames (A)</string>
+             <string>Load a single image as an animation sheet with multiple frames</string>
             </property>
             <property name="text">
              <string>Import Sheet...</string>
@@ -194,7 +119,7 @@
             <item>
              <widget class="QLabel" name="label_3">
               <property name="toolTip">
-               <string>X spacing between frames</string>
+               <string>Horizontal spacing between animation frames</string>
               </property>
               <property name="text">
                <string>X Spacing:</string>
@@ -207,7 +132,7 @@
             <item>
              <widget class="QSpinBox" name="xSpacingBox">
               <property name="toolTip">
-               <string>X spacing between frames</string>
+               <string>Horizontal spacing between animation frames</string>
               </property>
               <property name="maximum">
                <number>999</number>
@@ -224,7 +149,7 @@
             <item>
              <widget class="QLabel" name="label_4">
               <property name="toolTip">
-               <string>Y spacing between frames</string>
+               <string>Vertical spacing between animation frames and animations</string>
               </property>
               <property name="text">
                <string>Y Spacing:</string>
@@ -237,7 +162,7 @@
             <item>
              <widget class="QSpinBox" name="ySpacingBox">
               <property name="toolTip">
-               <string>Y spacing between frames</string>
+               <string>Vertical spacing between animation frames and animations</string>
               </property>
               <property name="maximum">
                <number>999</number>
@@ -254,10 +179,10 @@
             <item>
              <widget class="QLabel" name="label_5">
               <property name="toolTip">
-               <string>Maximum allowed width for this spritesheet</string>
+               <string>Width of this spritesheet</string>
               </property>
               <property name="text">
-               <string>Maximum Sheet Width:</string>
+               <string>Sheet Width:</string>
               </property>
               <property name="alignment">
                <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
@@ -270,10 +195,13 @@
                <bool>true</bool>
               </property>
               <property name="toolTip">
-               <string>Maximum allowed width for this spritesheet</string>
+               <string>Width of this spritesheet</string>
               </property>
               <property name="maximum">
                <number>1000000</number>
+              </property>
+              <property name="singleStep">
+               <number>10</number>
               </property>
               <property name="value">
                <number>10000</number>
@@ -281,12 +209,12 @@
              </widget>
             </item>
             <item>
-             <widget class="QPushButton" name="saveSheetButton">
+             <widget class="QPushButton" name="minWidthButton">
               <property name="toolTip">
-               <string>Save the current spritesheet (D)</string>
+               <string>Set the sheet width to the smallest width possible to remove whitespace</string>
               </property>
               <property name="text">
-               <string>Save Sheet</string>
+               <string>Minimize Width</string>
               </property>
              </widget>
             </item>
@@ -321,20 +249,6 @@
           <item>
            <layout class="QHBoxLayout" name="horizontalLayout_4">
             <item>
-             <widget class="QPushButton" name="animPrevFrameButton">
-              <property name="toolTip">
-               <string>Previous animation frame</string>
-              </property>
-              <property name="text">
-               <string/>
-              </property>
-              <property name="icon">
-               <iconset resource="spritesheetertest1.qrc">
-                <normaloff>:/images/prev.png</normaloff>:/images/prev.png</iconset>
-              </property>
-             </widget>
-            </item>
-            <item>
              <widget class="AnimPreview" name="animationPreview" native="true">
               <property name="sizePolicy">
                <sizepolicy hsizetype="Expanding" vsizetype="Preferred">
@@ -347,20 +261,6 @@
                 <width>200</width>
                 <height>200</height>
                </size>
-              </property>
-             </widget>
-            </item>
-            <item>
-             <widget class="QPushButton" name="animNextFrameButton">
-              <property name="toolTip">
-               <string>Next animation frame</string>
-              </property>
-              <property name="text">
-               <string/>
-              </property>
-              <property name="icon">
-               <iconset resource="spritesheetertest1.qrc">
-                <normaloff>:/images/next.png</normaloff>:/images/next.png</iconset>
               </property>
              </widget>
             </item>
@@ -382,9 +282,23 @@
              </spacer>
             </item>
             <item>
+             <widget class="QPushButton" name="animPrevFrameButton">
+              <property name="toolTip">
+               <string>Previous animation frame</string>
+              </property>
+              <property name="text">
+               <string/>
+              </property>
+              <property name="icon">
+               <iconset resource="spritesheetertest1.qrc">
+                <normaloff>:/images/prev.png</normaloff>:/images/prev.png</iconset>
+              </property>
+             </widget>
+            </item>
+            <item>
              <widget class="QPushButton" name="animPlayButton">
               <property name="toolTip">
-               <string>Play animation</string>
+               <string>Play/Pause animation</string>
               </property>
               <property name="text">
                <string/>
@@ -392,20 +306,6 @@
               <property name="icon">
                <iconset resource="spritesheetertest1.qrc">
                 <normaloff>:/images/media-play.png</normaloff>:/images/media-play.png</iconset>
-              </property>
-             </widget>
-            </item>
-            <item>
-             <widget class="QPushButton" name="animPauseButton">
-              <property name="toolTip">
-               <string>Pause animation</string>
-              </property>
-              <property name="text">
-               <string/>
-              </property>
-              <property name="icon">
-               <iconset resource="spritesheetertest1.qrc">
-                <normaloff>:/images/pause.png</normaloff>:/images/pause.png</iconset>
               </property>
              </widget>
             </item>
@@ -420,6 +320,20 @@
               <property name="icon">
                <iconset resource="spritesheetertest1.qrc">
                 <normaloff>:/stop</normaloff>:/stop</iconset>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QPushButton" name="animNextFrameButton">
+              <property name="toolTip">
+               <string>Next animation frame</string>
+              </property>
+              <property name="text">
+               <string/>
+              </property>
+              <property name="icon">
+               <iconset resource="spritesheetertest1.qrc">
+                <normaloff>:/images/next.png</normaloff>:/images/next.png</iconset>
               </property>
              </widget>
             </item>
@@ -442,6 +356,9 @@
            <layout class="QHBoxLayout" name="horizontalLayout_6">
             <item>
              <widget class="QLabel" name="label_2">
+              <property name="toolTip">
+               <string>Playback speed of animation preview</string>
+              </property>
               <property name="text">
                <string>Animation Speed (fps):</string>
               </property>
@@ -485,6 +402,9 @@
            <layout class="QHBoxLayout" name="horizontalLayout_11">
             <item>
              <widget class="QLabel" name="label">
+              <property name="toolTip">
+               <string>Name to give this animation on the sheet</string>
+              </property>
               <property name="text">
                <string>Animation Name:</string>
               </property>
@@ -499,6 +419,9 @@
             </item>
             <item>
              <widget class="QPushButton" name="fontButton">
+              <property name="toolTip">
+               <string>Set the font to use for animation labels</string>
+              </property>
               <property name="text">
                <string>Font...</string>
               </property>
@@ -508,6 +431,9 @@
           </item>
           <item>
            <widget class="QCheckBox" name="animNameEnabled">
+            <property name="toolTip">
+             <string>Show labels for animations</string>
+            </property>
             <property name="text">
              <string>Show Animation Names</string>
             </property>
@@ -518,6 +444,9 @@
           </item>
           <item>
            <widget class="QPushButton" name="saveFrameButton">
+            <property name="toolTip">
+             <string>Save the current animation frame as a TSR-friendly 148x125 image</string>
+            </property>
             <property name="text">
              <string>Save Current Frame as TSR Icon...</string>
             </property>
@@ -530,6 +459,9 @@
             </property>
             <item>
              <widget class="QPushButton" name="balanceAnimButton">
+              <property name="toolTip">
+               <string>Balance or resize the frames of the current animation</string>
+              </property>
               <property name="text">
                <string>Balance/Resize Animation...</string>
               </property>
@@ -612,6 +544,9 @@
               </item>
               <item>
                <widget class="QPushButton" name="fontColSelect">
+                <property name="toolTip">
+                 <string>Color for animation name labels</string>
+                </property>
                 <property name="text">
                  <string/>
                 </property>
@@ -656,6 +591,9 @@
                 <property name="enabled">
                  <bool>false</bool>
                 </property>
+                <property name="toolTip">
+                 <string>Background color for animation frames</string>
+                </property>
                 <property name="text">
                  <string/>
                 </property>
@@ -667,6 +605,9 @@
               </item>
               <item>
                <widget class="QCheckBox" name="FrameBgTransparent">
+                <property name="toolTip">
+                 <string>Toggle animation frame transparency</string>
+                </property>
                 <property name="text">
                  <string>Transparent</string>
                 </property>
@@ -707,6 +648,9 @@
               </item>
               <item>
                <widget class="QPushButton" name="sheetBgColSelect">
+                <property name="toolTip">
+                 <string>Background color for sheet</string>
+                </property>
                 <property name="text">
                  <string/>
                 </property>
@@ -718,6 +662,9 @@
               </item>
               <item>
                <widget class="QCheckBox" name="SheetBgTransparent">
+                <property name="toolTip">
+                 <string>Toggle sheet background transparency</string>
+                </property>
                 <property name="text">
                  <string>Transparent</string>
                 </property>

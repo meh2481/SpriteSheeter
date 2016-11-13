@@ -45,7 +45,7 @@ MainWindow::MainWindow(QWidget *parent) :
     QObject::connect(ui->sheetPreview, SIGNAL(mousePressed(int,int)), this, SLOT(mouseDown(int, int)));
     QObject::connect(ui->sheetPreview, SIGNAL(mouseReleased(int,int)), this, SLOT(mouseUp(int, int)));
     QObject::connect(ui->actionNew, SIGNAL(triggered()), this, SLOT(newFile()));
-    QObject::connect(ui->actionSave, SIGNAL(triggered()), this, SLOT(on_saveSheetButton_clicked()));
+    //QObject::connect(ui->actionSave, SIGNAL(triggered()), this, SLOT(on_saveSheetButton_clicked()));
     QObject::connect(ui->actionSaveAs, SIGNAL(triggered()), this, SLOT(saveFileAs()));
     QObject::connect(ui->actionImport_WIP_Sheet, SIGNAL(triggered(bool)), this, SLOT(loadSheet()));
     QObject::connect(ui->actionUndo, SIGNAL(triggered(bool)), this, SLOT(undo()));
@@ -433,7 +433,7 @@ QString MainWindow::getSaveFilename(const char* title)
 }
 
 //Save file
-void MainWindow::on_saveSheetButton_clicked()
+void MainWindow::saveFile()
 {
     if(!sheet || !sheet->size())
         return;
@@ -471,16 +471,6 @@ void MainWindow::on_animationNameEditor_textChanged(const QString& arg1)
 {
     Q_UNUSED(arg1)
     //TODO Update current label
-}
-
-//TODO Remove button and this function
-void MainWindow::on_prevAnimButton_clicked()
-{
-}
-
-//TODO Remove button and this function
-void MainWindow::on_nextAnimButton_clicked()
-{
 }
 
 //TODO Replace with updater for animation class
@@ -545,17 +535,24 @@ void MainWindow::on_animationSpeedSpinbox_valueChanged(int arg1)
     animUpdateTimer->start(iInterval);
 }
 
-//TODO Combine play/pause buttons
 void MainWindow::on_animPlayButton_clicked()
 {
-    int iInterval = 1000/ui->animationSpeedSpinbox->value();
-    animUpdateTimer->start(iInterval);
+    if(!animUpdateTimer->isActive())
+    {
+        int iInterval = 1000/ui->animationSpeedSpinbox->value();
+        animUpdateTimer->start(iInterval);
+    }
+    else
+    {
+        animUpdateTimer->stop();
+    }
+
 }
 
-void MainWindow::on_animPauseButton_clicked()
-{
-    animUpdateTimer->stop();
-}
+//void MainWindow::on_animPauseButton_clicked()
+//{
+//    animUpdateTimer->stop();
+//}
 
 void MainWindow::on_animStopButton_clicked()
 {
@@ -846,7 +843,7 @@ void MainWindow::closeEvent(QCloseEvent *event)
 
         if(dialog == QMessageBox::Save)
         {
-            on_saveSheetButton_clicked();
+            saveFile();
             if(bFileModified)   //If they still haven't saved...
             {
                 event->ignore();
@@ -983,7 +980,7 @@ void MainWindow::newFile()
 
         if(dialog == QMessageBox::Save)
         {
-            on_saveSheetButton_clicked();
+            saveFile();
             if(bFileModified)   //If they still haven't saved...
                 return;
         }
@@ -1306,7 +1303,7 @@ void MainWindow::loadSheet(QString openFilename)
 
         if(dialog == QMessageBox::Save)
         {
-            on_saveSheetButton_clicked();
+            saveFile();
             if(bFileModified)   //If they still haven't saved...
                 return;
         }
