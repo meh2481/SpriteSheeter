@@ -888,6 +888,7 @@ void MainWindow::saveSettings()
     settings.setValue("sheetFont", sheetFont.toString());
     settings.setValue("animNames", ui->animNameEnabled->isChecked());
     settings.setValue("lastGIFStr", lastGIFStr);
+    settings.setValue("minimizeSheetWidth", ui->minWidthCheckbox->isChecked());
     //settings.setValue("", );
 }
 
@@ -918,6 +919,7 @@ void MainWindow::loadSettings()
         fontColor.setGreen(settings.value("fontColg").toInt());
         fontColor.setBlue(settings.value("fontColb").toInt());
     }
+    ui->minWidthCheckbox->setChecked(settings.value("minimizeSheetWidth", true).toBool());
     lastSaveStr = settings.value("lastSaveStr").toString();
     lastIconStr = settings.value("lastIconStr").toString();
     lastOpenDir = settings.value("lastOpenDir").toString();
