@@ -1610,16 +1610,22 @@ void MainWindow::updateUndoRedoMenu()
 
 void MainWindow::on_xSpacingBox_editingFinished()
 {
+    if(ui->minWidthCheckbox->isChecked())
+        minimizeSheetWidth();
     genUndoState();
 }
 
 void MainWindow::on_ySpacingBox_editingFinished()
 {
+    if(ui->minWidthCheckbox->isChecked())
+        minimizeSheetWidth();
     genUndoState();
 }
 
 void MainWindow::on_sheetWidthBox_editingFinished()
 {
+    if(ui->minWidthCheckbox->isChecked())
+        minimizeSheetWidth();
     sheet->updateSceneBounds();
     genUndoState();
 }
