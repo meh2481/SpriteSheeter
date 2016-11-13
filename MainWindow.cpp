@@ -53,7 +53,7 @@ MainWindow::MainWindow(QWidget *parent) :
     QObject::connect(ui->actionEnableShortcuts, SIGNAL(toggled(bool)), this, SLOT(enableShortcuts(bool)));
     QObject::connect(ui->sheetPreview, SIGNAL(droppedFiles(QStringList)), this, SLOT(addImages(QStringList)));
     QObject::connect(ui->sheetPreview, SIGNAL(droppedFolders(QStringList)), this, SLOT(addFolders(QStringList)));
-    QObject::connect(mBalanceWindow, SIGNAL(balance(int,int,BalanceSheetDialog::Pos,BalanceSheetDialog::Pos)), this, SLOT(balance(int,int,BalanceSheetDialog::Pos,BalanceSheetDialog::Pos)));
+    QObject::connect(mBalanceWindow, SIGNAL(balance(int,int,BalancePos::Pos,BalancePos::Pos)), this, SLOT(balance(int,int,BalancePos::Pos,BalancePos::Pos)));
     QObject::connect(this, SIGNAL(setBalanceDefWH(int,int)), mBalanceWindow, SLOT(defaultWH(int,int)));
     QObject::connect(this, SIGNAL(setIconImage(QImage)), mIconExportWindow, SLOT(setImage(QImage)));
     QObject::connect(mRecentDocuments, SIGNAL(openFile(QString)), this, SLOT(loadSheet(QString)));
@@ -1219,7 +1219,7 @@ void MainWindow::balance(int w, int h, BalancePos::Pos vert, BalancePos::Pos hor
         return;
 
     anim->balance(QPoint(w,h), vert, horiz);
-    sheet->setWidth(sheet->getWidth()); //HACK Force a sheet width update
+    sheet->refresh();
 
     //    mCurFrame = mCurAnim->begin();
     qDebug() << "balance() draw animation" << endl;
