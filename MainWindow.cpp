@@ -435,9 +435,11 @@ QString MainWindow::getSaveFilename(const char* title)
 //Save file
 void MainWindow::on_saveSheetButton_clicked()
 {
-    //if(!mCurSheet || !mSheetFrames.size()) return;
+    if(!sheet || !sheet->size())
+        return;
 
-    if(!bFileModified) return;  //Don't bother saving if we already have
+    if(!bFileModified)
+        return;  //Don't bother saving if we already have
 
     QString saveFilename;
     if(sCurFilename == UNTITLED_IMAGE_STR)  //Haven't saved this yet
@@ -450,7 +452,9 @@ void MainWindow::on_saveSheetButton_clicked()
 
 void MainWindow::saveFileAs()
 {
-    //if(!mCurSheet || !mSheetFrames.size()) return;
+    if(!sheet || !sheet->size())
+        return;
+
     genericSave(getSaveFilename("Save Sheet As"));
 }
 
@@ -1041,8 +1045,8 @@ void MainWindow::on_saveFrameButton_clicked()
 {
     //TODO Set image for saving TSR icon
 
-    //    if(mCurAnim == mSheetFrames.end() || !mCurAnim->size() || mCurFrame == mCurAnim->end())
-    //        return;
+    if(!sheet || !sheet->size())
+        return;
 
     //    setIconImage(*mCurFrame);
     mIconExportWindow->show();
@@ -1187,21 +1191,17 @@ void MainWindow::on_SheetBgTransparent_toggled(bool checked)
         sheet->setBgTransparent(checked);
 }
 
-//TODO Balancing should be part of the animation class
 void MainWindow::on_balanceAnimButton_clicked()
 {
-    //    if(mCurAnim == mSheetFrames.end() || !mCurAnim->size() || mCurFrame == mCurAnim->end())
-    //        return;
+    if(!sheet || !sheet->size())
+        return;
 
-    //int w = 0, h = 0;
-    //    foreach(QImage img, *mCurAnim)
-    //    {
-    //        if(img.width() > w)
-    //            w = img.width();
-    //        if(img.height() > h)
-    //            h = img.height();
-    //    }
-    //    setBalanceDefWH(w, h);
+    Animation* anim = sheet->getCurAnimation();
+    if(!anim)
+        return;
+
+    QPoint curAnimSz = anim->getMaxFrameSize();
+    setBalanceDefWH(curAnimSz.x(), curAnimSz.y());
 
     mBalanceWindow->show();
     centerParent(this, mBalanceWindow);
@@ -1209,48 +1209,17 @@ void MainWindow::on_balanceAnimButton_clicked()
 
 void MainWindow::balance(int w, int h, BalanceSheetDialog::Pos vert, BalanceSheetDialog::Pos horiz)
 {
-    Q_UNUSED(w)
-    Q_UNUSED(h)
-    Q_UNUSED(vert)
-    Q_UNUSED(horiz)
     qDebug() << "enter function balance()" << endl;
 
-    //TODO Add balance functionality to Animation class
+    if(!sheet || !sheet->size())
+        return;
 
-    //    if(mCurAnim == mSheetFrames.end() || !mCurAnim->size())
-    //        return;
+    Animation* anim = sheet->getCurAnimation();
+    if(!anim)
+        return;
 
-    //    QMutableListIterator<QImage> it(*mCurAnim);
-    //    while(it.hasNext())
-    //    {
-    //        qDebug() << "balance() loop begin" << endl;
-    //        QImage img = it.next();
-
-    //        //Use vert/horiz
-    //        int xPos, yPos;
-    //        if(vert == BalanceSheetDialog::Up)
-    //            yPos = 0;
-    //        else if(vert == BalanceSheetDialog::Mid)
-    //            yPos = (h/2)-(img.height()/2);
-    //        else
-    //            yPos = h - img.height();
-
-    //        if(horiz == BalanceSheetDialog::Left)
-    //            xPos = 0;
-    //        else if(horiz == BalanceSheetDialog::Mid)
-    //            xPos = (w/2)-(img.width()/2);
-    //        else
-    //            xPos = w - img.width();
-
-    //        qDebug() << "balance() create final image" << endl;
-    //        QImage final(w, h, QImage::Format_ARGB32);
-    //        final.fill(QColor(0,0,0,0));
-    //        QPainter painter(&final);
-    //        qDebug() << "balance() draw new img size" << endl;
-    //        painter.drawImage(xPos, yPos, img);
-    //        painter.end();
-    //        it.setValue(final);
-    //    }
+    anim->balance(QPoint(w,h), vert, horiz);
+    sheet->setWidth(sheet->getWidth()); //HACK Force a sheet width update
 
     //    mCurFrame = mCurAnim->begin();
     qDebug() << "balance() draw animation" << endl;
@@ -1301,7 +1270,8 @@ void MainWindow::saveSheet(QString filename)
 {
     if(!filename.size())
     {
-        //if(!mCurSheet || !mSheetFrames.size()) return;
+        if(!sheet || !sheet->size())
+            return;
 
         QString saveFilename = QFileDialog::getSaveFileName(this,
                                                             tr("Export WIP Sheet"),
@@ -1729,7 +1699,8 @@ FIBITMAP* imageFromPixels(uint8_t* imgData, uint32_t width, uint32_t height)
 //See http://sourceforge.net/p/freeimage/discussion/36111/thread/ea987d97/ for discussion of FreeImage gif saving...
 void MainWindow::on_ExportAnimButton_clicked()
 {
-    //if(!mCurSheet || mSheetFrames.empty() || mCurAnim == mSheetFrames.end()) return;
+    if(!sheet || !sheet->size())
+        return;
 
     QString saveFilename = QFileDialog::getSaveFileName(this,
                                                         tr("Save GIF Animation"),
@@ -1845,9 +1816,9 @@ void MainWindow::on_removeDuplicateFramesButton_clicked()
 {
     if(sheet && sheet->removeDuplicateFrames())
     {
-        //        mCurFrame = mCurAnim->begin();
-        //        drawAnimation();
-        //        genUndoState();
+        //mCurFrame = mCurAnim->begin();
+        //drawAnimation();
+        genUndoState();
     }
 }
 

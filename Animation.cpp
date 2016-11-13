@@ -93,7 +93,8 @@ unsigned int Animation::heightRecalc()
         else if(image->height() > tallestHeight)
             tallestHeight = image->height();
         pixmapItem->setPos(curX + offsetX, curY + offsetY);
-        frameBackgrounds.at(i)->setPos(curX + offsetX, curY + offsetY);
+        //frameBackgrounds.at(i)->setPos(curX + offsetX, curY + offsetY);
+        frameBackgrounds.at(i)->setRect(curX + offsetX, curY + offsetY, image->width(), image->height());
         curX += spacingX + image->width();
     }
     curHeight = curY + spacingY + tallestHeight;
@@ -219,4 +220,59 @@ bool Animation::removeDuplicateFrames()
         }
     }
     return bFoundDuplicates;
+}
+
+QPoint Animation::getMaxFrameSize()
+{
+    int w = 0, h = 0;
+    for(QMap<QGraphicsPixmapItem*, QImage*>::iterator img = imageMap.begin(); img != imageMap.end(); img++)
+    {
+        if(img.value()->width() > w)
+            w = img.value()->width();
+        if(img.value()->height() > h)
+            h = img.value()->height();
+    }
+    return QPoint(w, h);
+}
+
+void Animation::balance(QPoint sz, BalanceSheetDialog::Pos vert, BalanceSheetDialog::Pos horiz)
+{
+    unsigned int w = sz.x();
+    unsigned int h = sz.y();
+    //QMutableVectorIterator<QGraphicsPixmapItem*> it(images);
+    foreach(QGraphicsPixmapItem* item, images)
+    {
+//        qDebug() << "balance() loop begin" << endl;
+//        QGraphicsPixmapItem* item = it.next();
+        QImage* img = imageMap.value(item);
+
+        //Use vert/horiz
+        int xPos, yPos;
+        if(vert == BalanceSheetDialog::Up)
+            yPos = 0;
+        else if(vert == BalanceSheetDialog::Mid)
+            yPos = (h/2)-(img->height()/2);
+        else
+            yPos = h - img->height();
+
+        if(horiz == BalanceSheetDialog::Left)
+            xPos = 0;
+        else if(horiz == BalanceSheetDialog::Mid)
+            xPos = (w/2)-(img->width()/2);
+        else
+            xPos = w - img->width();
+
+//        qDebug() << "balance() create final image" << endl;
+        QImage* final = new QImage(w, h, QImage::Format_ARGB32);
+        final->fill(QColor(0,0,0,0));
+        QPainter painter(final);
+//        qDebug() << "balance() draw new img size" << endl;
+        painter.drawImage(xPos, yPos, *img);
+        painter.end();
+        //it.setValue(final);
+        item->setPixmap(QPixmap::fromImage(*final));
+        imageMap.insert(item, final);
+        delete img;
+    }
+    heightRecalc();
 }

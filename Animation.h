@@ -8,6 +8,7 @@
 #include <QGraphicsPixmapItem>
 #include <QGraphicsRectItem>
 #include <QColor>
+#include "BalanceSheetDialog.h"
 
 class Animation : public QObject
 {
@@ -75,6 +76,13 @@ public:
 
     //Remove duplicate frames from the current animation (return true if duplicates found/removed)
     bool removeDuplicateFrames();
+
+    //Get the largest width/height out of all animation frames
+    QPoint getMaxFrameSize();
+
+    //Balance sheet to the given size
+    //TODO don't include BalanceSheetDialog just for this
+    void balance(QPoint sz, BalanceSheetDialog::Pos vert, BalanceSheetDialog::Pos horiz);
 
 signals:
 

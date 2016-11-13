@@ -57,6 +57,8 @@ public:
     void updateSceneBounds();
     void reverseCurrentAnimation();
     bool removeDuplicateFrames();   //TODO determine if should be in the context of current animation, or sheet
+    unsigned int size() {return animations.size();}
+    Animation* getCurAnimation();   //Return NULL or the current animation
 
 signals:
 

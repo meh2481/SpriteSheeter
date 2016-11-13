@@ -192,3 +192,10 @@ bool Sheet::removeDuplicateFrames()
     }
     return false;
 }
+
+Animation* Sheet::getCurAnimation()
+{
+    if(currentAnimation < animations.size())
+        return animations.at(currentAnimation);
+    return NULL;
+}

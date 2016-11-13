@@ -7,7 +7,7 @@
 #include <QGraphicsPixmapItem>
 
 namespace Ui {
-class balanceSheet;
+    class balanceSheet;
 }
 
 class BalanceSheetDialog : public QDialog
