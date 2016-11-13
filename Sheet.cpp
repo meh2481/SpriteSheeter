@@ -59,6 +59,7 @@ void Sheet::recalc()
         anim->setOffset(0, curY);
         curY += anim->setWidth(width);
     }
+    curY += ySpacing;
     sceneRect.setBottom(curY);
     sceneRect.setRight(width);
 

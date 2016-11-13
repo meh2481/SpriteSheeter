@@ -91,7 +91,7 @@ unsigned int Animation::heightRecalc()
     int curY = spacingY;
     unsigned int tallestHeight = 0;
     minWidth = widthOfImages();
-    if(minWidth > width)
+    if(minWidth > (unsigned int)width)
         minWidth = 0;
     for(int i = 0; i < images.size(); i++)
     {
@@ -108,10 +108,10 @@ unsigned int Animation::heightRecalc()
         pixmapItem->setPos(curX + offsetX, curY + offsetY);
         frameBackgrounds.at(i)->setRect(curX + offsetX, curY + offsetY, image->width(), image->height());
         curX += spacingX + image->width();
-        if(minWidth < curX)
+        if(minWidth < (unsigned int)curX)
             minWidth = curX;
     }
-    curHeight = curY + spacingY + tallestHeight;
+    curHeight = curY + tallestHeight;
     return curHeight;
 }
 

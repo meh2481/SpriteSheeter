@@ -9,20 +9,15 @@ UI Design Stories:
 -Rework animation movement/editing:
 	-Clicking animations should outline/select
 	-Can click-drag animations around and between each other
--Option for minimizing sheet width/user specifying sheet width
-	-Sheet width box should snap to even values, rather than spinning by one pixel at a time
 -Rework upper toolbar; delete animations/frames in batches
--Minimum width for sheet for dragging sheet width bar
 -Save/Save As disabled in main menu when new file/not saveable
 -Make Play & Pause buttons the same button
 -Remove stop button?
--Put nextframe/prevframe buttons in line with play/pause/stop
+-Update prev/next frame button icons to better fit with icon style of row
 -Autocrop frames in an animation to remove whitespace (while maintaining balance)
 
 Technical Stories:
 -Refactor MainWindow.cpp and split into subclasses as needed
-	-Default w/h of balance window shouldn't be handled by MainWindow
--Re-add balance/resize
 -Rather than specifying image types manually, remove filter entirely or add ALL actual file types we support to filter
 -More robust undo/redo system (current brute force approach is super slow)
 	-Abstract undo/redo class 
