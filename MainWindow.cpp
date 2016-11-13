@@ -155,10 +155,11 @@ void MainWindow::importImageList(QStringList& fileList, QString prepend, QString
                 qDebug() << "Unable to open image " << imgPath << endl;
         }
         sheet->addAnimation(animation);
-    }
 
-    drawAnimation();
-    genUndoState();
+        minimizeSheetWidth();
+        drawAnimation();
+        genUndoState();
+    }
 }
 
 QStringList MainWindow::supportedFileFormats()
@@ -640,7 +641,11 @@ void MainWindow::mouseCursorPos(int x, int y)
 
         //If dragging, update sheet width (set the box value directly so that it updates properly)
         if(bDraggingSheetW)
+        {
             ui->sheetWidthBox->setValue(mStartSheetW - (xStartDragSheetW - x));
+            if(ui->minWidthCheckbox->isChecked())
+                minimizeSheetWidth();
+        }
     }
 
     static QGraphicsRectItem* curSelectedRect = NULL;
@@ -1948,11 +1953,14 @@ void MainWindow::setColorButtonIcons()
     ui->fontColSelect->setIcon(QIcon(colIcon));
 }
 
-void MainWindow::on_minWidthButton_clicked()
+void MainWindow::on_minWidthCheckbox_toggled(bool checked)
 {
-    if(sheet)
-    {
-        unsigned int width = sheet->getMinWidth();
-        ui->sheetWidthBox->setValue(width); //Updates width of sheet automatically
-    }
+    if(sheet && checked)
+        minimizeSheetWidth();
+}
+
+void MainWindow::minimizeSheetWidth()
+{
+    unsigned int width = sheet->getMinWidth();
+    ui->sheetWidthBox->setValue(width); //Updates width of sheet automatically
 }

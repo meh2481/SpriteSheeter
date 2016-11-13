@@ -99,8 +99,7 @@ private slots:
     void on_actionAbout_triggered();
     void on_actionBatch_Processing_triggered();
     void on_fontColSelect_clicked();
-
-    void on_minWidthButton_clicked();
+    void on_minWidthCheckbox_toggled(bool checked);
 
 private:
     Ui::MainWindow*         ui;
@@ -195,6 +194,7 @@ private:
     QString getSaveFilename(const char* title);
     void saveSettings();
     void saveFile();
+    void minimizeSheetWidth();
 protected:
     bool eventFilter(QObject* obj, QEvent *event);
 

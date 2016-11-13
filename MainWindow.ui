@@ -209,12 +209,15 @@
              </widget>
             </item>
             <item>
-             <widget class="QPushButton" name="minWidthButton">
+             <widget class="QCheckBox" name="minWidthCheckbox">
               <property name="toolTip">
                <string>Set the sheet width to the smallest width possible to remove whitespace</string>
               </property>
               <property name="text">
                <string>Minimize Width</string>
+              </property>
+              <property name="checked">
+               <bool>true</bool>
               </property>
              </widget>
             </item>
