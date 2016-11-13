@@ -37,7 +37,8 @@ HEADERS  += \
     RecentDocuments.h \
     BatchRenderer.h \
     Animation.h \
-    Sheet.h
+    Sheet.h \
+    BalancePos.h
 
 FORMS    += \
     BalanceSheetDialog.ui \

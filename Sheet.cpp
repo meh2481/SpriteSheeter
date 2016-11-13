@@ -15,7 +15,6 @@ Sheet::Sheet(QGraphicsScene* s, SheetEditorView* sheetView, QImage* bg, unsigned
     xSpacing = ySpacing = 0;
     dragRectWidth = dragW;
     sheetPreview = sheetView;
-    currentAnimation = 0;
 }
 
 Sheet::~Sheet()
@@ -27,7 +26,7 @@ Sheet::~Sheet()
 
 void Sheet::addAnimation(Animation* anim, unsigned int index)
 {
-    if(index > animations.size())
+    if(index > (unsigned int)animations.size())
         index = animations.size();
     animations.insert(index, anim);
     anim->setSpacing(xSpacing, ySpacing);
@@ -36,7 +35,6 @@ void Sheet::addAnimation(Animation* anim, unsigned int index)
     anim->setFrameBgVisible(!frameBgTransparent || !sheetBgTransparent);
     recalc();
     updateSceneBounds();
-    currentAnimation = index;
 }
 
 void Sheet::addAnimation(Animation* anim)
@@ -173,29 +171,9 @@ void Sheet::updateSceneBounds()
     scene->setSceneRect(-scene_bounds*hFac, -scene_bounds, width+scene_bounds*hFac*2, curHeight+scene_bounds*2);
 }
 
-void Sheet::reverseCurrentAnimation()
+Animation* Sheet::getAnimation(unsigned int index)
 {
-    if(currentAnimation < animations.size())
-        animations.at(currentAnimation)->reverse();
-}
-
-bool Sheet::removeDuplicateFrames()
-{
-    if(currentAnimation < animations.size())
-    {
-        if(animations.at(currentAnimation)->removeDuplicateFrames())
-        {
-            recalc();
-            updateSceneBounds();
-            return true;
-        }
-    }
-    return false;
-}
-
-Animation* Sheet::getCurAnimation()
-{
-    if(currentAnimation < animations.size())
-        return animations.at(currentAnimation);
+    if(index < (unsigned int)animations.size())
+        return animations.at(index);
     return NULL;
 }

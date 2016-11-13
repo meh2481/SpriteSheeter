@@ -15,7 +15,9 @@ UI Design Stories:
 -Minimum width for sheet for dragging sheet width bar
 -Save/Save As disabled in main menu when new file/not saveable
 -Make Play & Pause buttons the same button
+-Remove stop button?
 -Put nextframe/prevframe buttons in line with play/pause/stop
+-Autocrop frames in an animation to remove whitespace (while maintaining balance)
 
 Technical Stories:
 -Refactor MainWindow.cpp and split into subclasses as needed

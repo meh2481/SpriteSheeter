@@ -11,6 +11,7 @@
 #include "RecentDocuments.h"
 #include "Animation.h"
 #include "Sheet.h"
+#include "BalancePos.h"
 #include <QStack>
 #include <QTextStream>
 #include <QProgressDialog>
@@ -62,7 +63,7 @@ public slots:
     void loadSheet(QString openFilename = QString());
     void addImages(QStringList l);
     void addFolders(QStringList l);
-    void balance(int w, int h, BalanceSheetDialog::Pos vert, BalanceSheetDialog::Pos horiz);
+    void balance(int w, int h, BalancePos::Pos vert, BalancePos::Pos horiz);
 
     void startedBatchRender(QString sheetName);
     void finishedBatchRender();

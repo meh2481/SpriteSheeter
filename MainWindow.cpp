@@ -1196,7 +1196,7 @@ void MainWindow::on_balanceAnimButton_clicked()
     if(!sheet || !sheet->size())
         return;
 
-    Animation* anim = sheet->getCurAnimation();
+    Animation* anim = sheet->getAnimation(sheet->size()-1); //TODO Anim select
     if(!anim)
         return;
 
@@ -1207,14 +1207,14 @@ void MainWindow::on_balanceAnimButton_clicked()
     centerParent(this, mBalanceWindow);
 }
 
-void MainWindow::balance(int w, int h, BalanceSheetDialog::Pos vert, BalanceSheetDialog::Pos horiz)
+void MainWindow::balance(int w, int h, BalancePos::Pos vert, BalancePos::Pos horiz)
 {
     qDebug() << "enter function balance()" << endl;
 
     if(!sheet || !sheet->size())
         return;
 
-    Animation* anim = sheet->getCurAnimation();
+    Animation* anim = sheet->getAnimation(sheet->size()-1); //TODO Anim select
     if(!anim)
         return;
 
@@ -1806,7 +1806,14 @@ bool MainWindow::loadAnimatedGIF(QString sFilename)
 void MainWindow::on_reverseAnimButton_clicked()
 {
     if(sheet)
-        sheet->reverseCurrentAnimation();
+    {
+        Animation* anim = sheet->getAnimation(sheet->size()-1);    //TODO Selected anim
+        if(anim)
+        {
+            anim->reverse();
+            sheet->refresh();   //Tell sheet to recalculate positions
+        }
+    }
 
     drawAnimation();
     genUndoState();
@@ -1814,8 +1821,15 @@ void MainWindow::on_reverseAnimButton_clicked()
 
 void MainWindow::on_removeDuplicateFramesButton_clicked()
 {
-    if(sheet && sheet->removeDuplicateFrames())
+    if(sheet && sheet->size())
     {
+        Animation* anim = sheet->getAnimation(sheet->size()-1);   //TODO Selected anim
+        if(anim)
+        {
+            if(anim->removeDuplicateFrames())
+                sheet->refresh();
+        }
+
         //mCurFrame = mCurAnim->begin();
         //drawAnimation();
         genUndoState();

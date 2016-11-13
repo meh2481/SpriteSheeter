@@ -2,6 +2,7 @@
 #include <QDebug>
 #include <QPixmap>
 #include <QBrush>
+#include <QPainter>
 
 Animation::Animation(QImage* bg, QObject *parent) : QObject(parent)
 {
@@ -28,7 +29,7 @@ void Animation::insertImage(QImage* img, QGraphicsScene* scene)
 
 void Animation::insertImage(QImage* img, QGraphicsScene* scene, unsigned int index)
 {
-    if(index > images.size())
+    if(index > (unsigned int)images.size())
         index = images.size();
     QGraphicsPixmapItem* item = new QGraphicsPixmapItem(QPixmap::fromImage(*img));
     images.insert(index, item);
@@ -59,7 +60,7 @@ void Animation::insertImages(QVector<QImage*> imgs, QGraphicsScene* scene, unsig
 //TODO I don't think this is correct anymore
 void Animation::pullImages(Animation* other, QList<unsigned int> indices, unsigned int insertLocation)
 {
-    if(insertLocation > images.length())
+    if(insertLocation > (unsigned int)images.length())
         insertLocation = images.length();
 
     qSort(indices); //Sort
@@ -90,10 +91,9 @@ unsigned int Animation::heightRecalc()
             curX = spacingX;
             tallestHeight = image->height();
         }
-        else if(image->height() > tallestHeight)
+        else if((unsigned int)image->height() > tallestHeight)
             tallestHeight = image->height();
         pixmapItem->setPos(curX + offsetX, curY + offsetY);
-        //frameBackgrounds.at(i)->setPos(curX + offsetX, curY + offsetY);
         frameBackgrounds.at(i)->setRect(curX + offsetX, curY + offsetY, image->width(), image->height());
         curX += spacingX + image->width();
     }
@@ -235,29 +235,27 @@ QPoint Animation::getMaxFrameSize()
     return QPoint(w, h);
 }
 
-void Animation::balance(QPoint sz, BalanceSheetDialog::Pos vert, BalanceSheetDialog::Pos horiz)
+void Animation::balance(QPoint sz, BalancePos::Pos vert, BalancePos::Pos horiz)
 {
     unsigned int w = sz.x();
     unsigned int h = sz.y();
-    //QMutableVectorIterator<QGraphicsPixmapItem*> it(images);
     foreach(QGraphicsPixmapItem* item, images)
     {
 //        qDebug() << "balance() loop begin" << endl;
-//        QGraphicsPixmapItem* item = it.next();
         QImage* img = imageMap.value(item);
 
         //Use vert/horiz
         int xPos, yPos;
-        if(vert == BalanceSheetDialog::Up)
+        if(vert == BalancePos::Up)
             yPos = 0;
-        else if(vert == BalanceSheetDialog::Mid)
+        else if(vert == BalancePos::Mid)
             yPos = (h/2)-(img->height()/2);
         else
             yPos = h - img->height();
 
-        if(horiz == BalanceSheetDialog::Left)
+        if(horiz == BalancePos::Left)
             xPos = 0;
-        else if(horiz == BalanceSheetDialog::Mid)
+        else if(horiz == BalancePos::Mid)
             xPos = (w/2)-(img->width()/2);
         else
             xPos = w - img->width();
@@ -269,10 +267,17 @@ void Animation::balance(QPoint sz, BalanceSheetDialog::Pos vert, BalanceSheetDia
 //        qDebug() << "balance() draw new img size" << endl;
         painter.drawImage(xPos, yPos, *img);
         painter.end();
-        //it.setValue(final);
         item->setPixmap(QPixmap::fromImage(*final));
         imageMap.insert(item, final);
         delete img;
     }
     heightRecalc();
+}
+
+bool Animation::isInside(int x, int y)
+{
+    return (x >= offsetX &&
+            x <= offsetX + width &&
+            y >= offsetY &&
+            y <= offsetY + curHeight);
 }

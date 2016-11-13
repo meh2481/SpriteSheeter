@@ -8,7 +8,7 @@
 #include <QGraphicsPixmapItem>
 #include <QGraphicsRectItem>
 #include <QColor>
-#include "BalanceSheetDialog.h"
+#include "BalancePos.h"
 
 class Animation : public QObject
 {
@@ -19,7 +19,7 @@ class Animation : public QObject
     QVector<QGraphicsPixmapItem*> images;               //Actual images for this animation
     QVector<QGraphicsRectItem*> frameBackgrounds;       //Background items for each frame
     QMap<QGraphicsPixmapItem*, QImage*> imageMap;
-    int offsetX, offsetY;
+    int offsetX, offsetY;   //Position on the screen
     int spacingX, spacingY;
     int width;
     int curHeight;  //Last-calculated height for the animation
@@ -82,7 +82,10 @@ public:
 
     //Balance sheet to the given size
     //TODO don't include BalanceSheetDialog just for this
-    void balance(QPoint sz, BalanceSheetDialog::Pos vert, BalanceSheetDialog::Pos horiz);
+    void balance(QPoint sz, BalancePos::Pos vert, BalancePos::Pos horiz);
+
+    //Test if a point is inside the animation
+    bool isInside(int x, int y);
 
 signals:
 

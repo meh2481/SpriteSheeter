@@ -18,7 +18,6 @@ class Sheet : public QObject
     QGraphicsScene* scene;
 
     unsigned int width, curHeight;
-    unsigned int currentAnimation;
 
     Sheet(){}   //Private default constructor
     void recalc();
@@ -55,10 +54,11 @@ public:
     unsigned int getWidth() {return width;}
     unsigned int getHeight() {return curHeight;}
     void updateSceneBounds();
-    void reverseCurrentAnimation();
-    bool removeDuplicateFrames();   //TODO determine if should be in the context of current animation, or sheet
+    //void reverseCurrentAnimation();
+    //bool removeDuplicateFrames();   //TODO determine if should be in the context of current animation, or sheet
     unsigned int size() {return animations.size();}
-    Animation* getCurAnimation();   //Return NULL or the current animation
+    Animation* getAnimation(unsigned int index);   //Return NULL or the current animation
+    void refresh(){setWidth(width);updateSceneBounds();} //Recalculate sheet
 
 signals:
 

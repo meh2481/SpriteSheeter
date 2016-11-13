@@ -6,7 +6,7 @@ BalanceSheetDialog::BalanceSheetDialog(QWidget *parent) : QDialog(parent),
     ui(new Ui::balanceSheet)
 {
     ui->setupUi(this);
-    vertPos = horizPos = Mid;
+    vertPos = horizPos = BalancePos::Mid;
 }
 
 BalanceSheetDialog::~BalanceSheetDialog()
@@ -47,72 +47,72 @@ void BalanceSheetDialog::clearIcons()
 
 void BalanceSheetDialog::on_pos_ul_clicked()
 {
-    vertPos = Up;
-    horizPos = Left;
+    vertPos = BalancePos::Up;
+    horizPos = BalancePos::Left;
     clearIcons();
     ui->pos_ul->setIcon(QIcon("://stop"));
 }
 
 void BalanceSheetDialog::on_pos_um_clicked()
 {
-    vertPos = Up;
-    horizPos = Mid;
+    vertPos = BalancePos::Up;
+    horizPos = BalancePos::Mid;
     clearIcons();
     ui->pos_um->setIcon(QIcon("://stop"));
 }
 
 void BalanceSheetDialog::on_pos_ur_clicked()
 {
-    vertPos = Up;
-    horizPos = Right;
+    vertPos = BalancePos::Up;
+    horizPos = BalancePos::Right;
     clearIcons();
     ui->pos_ur->setIcon(QIcon("://stop"));
 }
 
 void BalanceSheetDialog::on_pos_ml_clicked()
 {
-    vertPos = Mid;
-    horizPos = Left;
+    vertPos = BalancePos::Mid;
+    horizPos = BalancePos::Left;
     clearIcons();
     ui->pos_ml->setIcon(QIcon("://stop"));
 }
 
 void BalanceSheetDialog::on_pos_mm_clicked()
 {
-    vertPos = Mid;
-    horizPos = Mid;
+    vertPos = BalancePos::Mid;
+    horizPos = BalancePos::Mid;
     clearIcons();
     ui->pos_mm->setIcon(QIcon("://stop"));
 }
 
 void BalanceSheetDialog::on_pos_mr_clicked()
 {
-    vertPos = Mid;
-    horizPos = Right;
+    vertPos = BalancePos::Mid;
+    horizPos = BalancePos::Right;
     clearIcons();
     ui->pos_mr->setIcon(QIcon("://stop"));
 }
 
 void BalanceSheetDialog::on_pos_bl_clicked()
 {
-    vertPos = Down;
-    horizPos = Left;
+    vertPos = BalancePos::Down;
+    horizPos = BalancePos::Left;
     clearIcons();
     ui->pos_bl->setIcon(QIcon("://stop"));
 }
 
 void BalanceSheetDialog::on_pos_bm_clicked()
 {
-    vertPos = Down;
-    horizPos = Mid;
+    vertPos = BalancePos::Down;
+    horizPos = BalancePos::Mid;
     clearIcons();
     ui->pos_bm->setIcon(QIcon("://stop"));
 }
 
 void BalanceSheetDialog::on_pos_br_clicked()
 {
-    vertPos = Down;
-    horizPos = Right;
+    vertPos = BalancePos::Down;
+    horizPos = BalancePos::Right;
     clearIcons();
     ui->pos_br->setIcon(QIcon("://stop"));
 }
