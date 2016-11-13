@@ -188,3 +188,15 @@ unsigned int Sheet::getMinWidth()
     }
     return minWidth;
 }
+
+unsigned int Sheet::getSmallestPossibleWidth()
+{
+    unsigned int minWidth = 0;
+    foreach(Animation* anim, animations)
+    {
+        unsigned int animSmallest = anim->getSmallestImageWidth();
+        if(minWidth < animSmallest)
+            minWidth = animSmallest;
+    }
+    return minWidth + xSpacing*2;
+}

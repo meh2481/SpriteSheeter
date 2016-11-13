@@ -89,7 +89,8 @@ public:
     //Test if a point is inside the animation
     bool isInside(int x, int y);
 
-    unsigned int getMinWidth() {return minWidth;}
+    unsigned int getMinWidth() {return minWidth;}   //Get the minimum width for the current width
+    unsigned int getSmallestImageWidth();           //Get the smallest possible width for this animation
 
 signals:
 

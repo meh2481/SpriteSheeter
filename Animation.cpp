@@ -295,3 +295,8 @@ bool Animation::isInside(int x, int y)
             y >= offsetY &&
             y <= offsetY + curHeight);
 }
+
+unsigned int Animation::getSmallestImageWidth()
+{
+    return getMaxFrameSize().x();
+}

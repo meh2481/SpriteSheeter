@@ -957,8 +957,13 @@ void MainWindow::loadSettings()
 
 void MainWindow::on_sheetWidthBox_valueChanged(int arg1)
 {
-    if(sheet != NULL)
+    if(sheet)
+    {
+        unsigned int smallestPossible = sheet->getSmallestPossibleWidth();
+        if((unsigned int) arg1 < smallestPossible)
+            arg1 = smallestPossible;
         sheet->setWidth(arg1);
+    }
 }
 
 void MainWindow::newFile()
@@ -1617,8 +1622,6 @@ void MainWindow::on_xSpacingBox_editingFinished()
 
 void MainWindow::on_ySpacingBox_editingFinished()
 {
-    if(ui->minWidthCheckbox->isChecked())
-        minimizeSheetWidth();
     genUndoState();
 }
 
