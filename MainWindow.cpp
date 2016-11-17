@@ -144,13 +144,13 @@ void MainWindow::importImageList(QStringList& fileList, QString prepend, QString
 
     if(fileList.size())
     {
-        Animation* animation = new Animation(transparentBg, this);
+        Animation* animation = new Animation(transparentBg, msheetScene, this);
         foreach(QString s1, fileList)
         {
             QString imgPath = prepend + s1;
             QImage* image = new QImage(imgPath);
             if(!image->isNull())
-                animation->insertImage(image, msheetScene);
+                animation->insertImage(image);
             else
                 qDebug() << "Unable to open image " << imgPath << endl;
         }
@@ -280,8 +280,8 @@ void MainWindow::insertAnimHelper(QVector<QImage*> imgList, QString name)
     if(imgList.size())
     {
         //TODO Insert above (below?) current animation
-        Animation* animation = new Animation(transparentBg, this);
-        animation->insertImages(imgList, msheetScene);
+        Animation* animation = new Animation(transparentBg, msheetScene, this);
+        animation->insertImages(imgList);
         sheet->addAnimation(animation);
     }
 }
@@ -682,6 +682,12 @@ void MainWindow::mouseDown(int x, int y)
             bDraggingSheetW = true;
             mStartSheetW = sheet->getWidth();
             xStartDragSheetW = x;
+        }
+        else
+        {
+            QGraphicsItem* it = isItemUnderCursor(x, y);
+            if(it)
+                sheet->clicked(x,y,it);
         }
 
         //TODO

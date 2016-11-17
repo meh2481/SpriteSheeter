@@ -4,7 +4,7 @@
 #include <QBrush>
 #include <QPainter>
 
-Animation::Animation(QImage* bg, QObject *parent) : QObject(parent)
+Animation::Animation(QImage* bg, QGraphicsScene* s, QObject *parent) : QObject(parent)
 {
     offsetX = offsetY = 0;
     spacingX = spacingY = 0;
@@ -14,6 +14,7 @@ Animation::Animation(QImage* bg, QObject *parent) : QObject(parent)
     transparentBg = bg;
     curHeight = 0;
     minWidth = 0;
+    scene=s;
 }
 
 Animation::~Animation()
@@ -23,18 +24,19 @@ Animation::~Animation()
         delete img.value(); //Image memory, however, does not
 }
 
-void Animation::insertImage(QImage* img, QGraphicsScene* scene)
+void Animation::insertImage(QImage* img)
 {
-    insertImage(img, scene, images.size());
+    insertImage(img, images.size());
 }
 
-void Animation::insertImage(QImage* img, QGraphicsScene* scene, unsigned int index)
+void Animation::insertImage(QImage* img, unsigned int index)
 {
     if(index > (unsigned int)images.size())
         index = images.size();
     QGraphicsPixmapItem* item = new QGraphicsPixmapItem(QPixmap::fromImage(*img));
     images.insert(index, item);
     imageMap.insert(item, img);
+    selected.insert(index, false);
     scene->addItem(item);
     //Add background for this also
     QBrush brush(frameBgCol);
@@ -43,22 +45,29 @@ void Animation::insertImage(QImage* img, QGraphicsScene* scene, unsigned int ind
     QGraphicsRectItem* bgRect = scene->addRect(0, 0, img->width(), img->height(), QPen(Qt::NoPen), brush);
     bgRect->setZValue(-1);  //Behind images
     frameBackgrounds.insert(index, bgRect);
+    //Insert foreground selection for this also
+    brush = QBrush(QColor(0,0,255,120));
+    bgRect = scene->addRect(0, 0, img->width(), img->height(), QPen(Qt::NoPen), brush);
+    bgRect->setZValue(1);  //In front of images
+    bgRect->setVisible(false);
+    selectedForegrounds.insert(index, bgRect);
+    //Set selected to false
+    selected.insert(index, false);
     heightRecalc();
 }
 
-void Animation::insertImages(QVector<QImage*> imgs, QGraphicsScene* scene)
+void Animation::insertImages(QVector<QImage*> imgs)
 {
     foreach(QImage* img, imgs)
-        insertImage(img, scene);
+        insertImage(img);
 }
 
-void Animation::insertImages(QVector<QImage*> imgs, QGraphicsScene* scene, unsigned int index)
+void Animation::insertImages(QVector<QImage*> imgs, unsigned int index)
 {
     foreach(QImage* img, imgs)
-        insertImage(img, scene, index++);
+        insertImage(img, index++);
 }
 
-//TODO I don't think this is correct anymore
 void Animation::pullImages(Animation* other, QList<unsigned int> indices, unsigned int insertLocation)
 {
     if(insertLocation > (unsigned int)images.length())
@@ -70,8 +79,21 @@ void Animation::pullImages(Animation* other, QList<unsigned int> indices, unsign
     foreach(unsigned int i, indices)
     {
         QGraphicsPixmapItem* img = other->images.at(i);
+        //Update image lists
         images.insert(insertLocation, img);
         other->images.remove(i);
+        //Update image/pixmapitem maps
+        imageMap.insert(img, other->imageMap.value(img));
+        other->imageMap.remove(img);
+        //Update selected flags
+        selected.insert(insertLocation, other->selected.at(i));
+        other->selected.remove(i);
+        //Update frame backgrounds
+        frameBackgrounds.insert(insertLocation, other->frameBackgrounds.at(i));
+        other->frameBackgrounds.remove(i);
+        //Update selection foregrounds
+        selectedForegrounds.insert(insertLocation, other->selectedForegrounds.at(i));
+        other->selectedForegrounds.remove(i);
     }
     heightRecalc();
     other->heightRecalc();
@@ -107,6 +129,7 @@ unsigned int Animation::heightRecalc()
             tallestHeight = image->height();
         pixmapItem->setPos(curX + offsetX, curY + offsetY);
         frameBackgrounds.at(i)->setRect(curX + offsetX, curY + offsetY, image->width(), image->height());
+        selectedForegrounds.at(i)->setRect(curX + offsetX, curY + offsetY, image->width(), image->height());
         curX += spacingX + image->width();
         if(minWidth < (unsigned int)curX)
             minWidth = curX;
@@ -189,6 +212,10 @@ void Animation::reverse()
     images.clear();
     foreach(QGraphicsPixmapItem* img, newList)
         images.prepend(img);
+    QVector<bool> newSelected = selected;
+    selected.clear();
+    foreach(bool b, newSelected)
+        selected.prepend(b);
     heightRecalc();
 }
 
@@ -221,8 +248,11 @@ bool Animation::removeDuplicateFrames()
                 bFoundDuplicates = true;
                 //Remove testee
                 images.removeAt(testee);
+                selected.removeAt(testee);
                 QGraphicsRectItem* rectItem = frameBackgrounds.at(testee);
                 frameBackgrounds.removeAt(testee);
+                rectItem = selectedForegrounds.at(testee);
+                selectedForegrounds.removeAt(testee);
                 testee--;
                 //Remove from scene
                 QGraphicsScene* scene = testeeItem->scene();
@@ -299,4 +329,19 @@ bool Animation::isInside(int x, int y)
 unsigned int Animation::getSmallestImageWidth()
 {
     return getMaxFrameSize().x();
+}
+
+void Animation::toggleSelect(QGraphicsItem* it)
+{
+    for(int i = 0; i < images.size(); i++)
+    {
+        if(images.at(i) == it)
+        {
+            bool bSelect = !selected.at(i);
+            qDebug() << "Setting " << i << " selected to " << bSelect;
+            selected[i] = bSelect;
+            selectedForegrounds.at(i)->setVisible(bSelect);
+            break;
+        }
+    }
 }

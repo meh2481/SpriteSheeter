@@ -59,6 +59,7 @@ public:
     void refresh(){setWidth(width);updateSceneBounds();} //Recalculate sheet
     unsigned int getMinWidth(); //Get the minimum width for the current width
     unsigned int getSmallestPossibleWidth();    //Get the smallest possible width for this sheet (width of largest animation frame image)
+    void clicked(int x, int y, QGraphicsItem* it);
 signals:
 
 public slots:

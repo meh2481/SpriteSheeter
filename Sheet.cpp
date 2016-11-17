@@ -201,3 +201,24 @@ unsigned int Sheet::getSmallestPossibleWidth()
     }
     return minWidth + xSpacing*2;
 }
+
+void Sheet::clicked(int x, int y, QGraphicsItem* it)
+{
+    Q_UNUSED(x)
+
+    unsigned int curY = 0;
+    Animation* over = NULL;
+    foreach(Animation* anim, animations)
+    {
+        //anim->toggleSelect(it);
+        curY += anim->getCurHeight();
+        if(curY > y)
+        {
+            over = anim;
+            break;
+        }
+    }
+
+    if(over)
+        over->toggleSelect(it);
+}

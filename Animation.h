@@ -16,9 +16,12 @@ class Animation : public QObject
 
     Animation(){}
 
+    QGraphicsScene* scene;
     QVector<QGraphicsPixmapItem*> images;               //Actual images for this animation
     QVector<QGraphicsRectItem*> frameBackgrounds;       //Background items for each frame
+    QVector<QGraphicsRectItem*> selectedForegrounds;    //Foreground items for each selected frame
     QMap<QGraphicsPixmapItem*, QImage*> imageMap;
+    QVector<bool> selected;
     int offsetX, offsetY;   //Position on the screen
     int spacingX, spacingY;
     int width;
@@ -31,20 +34,20 @@ class Animation : public QObject
     unsigned int heightRecalc();    //Recalculate where each image is on in the sheet
     unsigned int widthOfImages();
 public:
-    explicit Animation(QImage* bg, QObject *parent = 0);
+    explicit Animation(QImage* bg, QGraphicsScene* s, QObject *parent = 0);
     ~Animation();
 
     //Insert an image at the end of the animation and hand over control of the memory
-    void insertImage(QImage* img, QGraphicsScene* scene);
+    void insertImage(QImage* img);
 
     //Insert an image at the specified index and hand over control of the memory
-    void insertImage(QImage* img, QGraphicsScene* scene, unsigned int index);
+    void insertImage(QImage* img, unsigned int index);
 
     //Insert a list of images at the end of the animation and hand over control of the memory
-    void insertImages(QVector<QImage*> imgs, QGraphicsScene* scene);
+    void insertImages(QVector<QImage*> imgs);
 
     //Insert a list of images at the specified index and hand over control of the memory
-    void insertImages(QVector<QImage*> imgs, QGraphicsScene* scene, unsigned int index);
+    void insertImages(QVector<QImage*> imgs, unsigned int index);
 
     //Remove the given images from the given animation and add them to this one
     //Note the Qt syntax: otherIndices << 33 << 12 << 68 << 6 << 12;
@@ -91,6 +94,8 @@ public:
 
     unsigned int getMinWidth() {return minWidth;}   //Get the minimum width for the current width
     unsigned int getSmallestImageWidth();           //Get the smallest possible width for this animation
+
+    void toggleSelect(QGraphicsItem* it); //Select the given item as a frame
 
 signals:
 
