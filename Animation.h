@@ -97,6 +97,8 @@ public:
 
     void toggleSelect(QGraphicsItem* it); //Select the given item as a frame
 
+    bool deleteSelected();
+
 signals:
 
 public slots:

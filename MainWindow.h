@@ -117,6 +117,8 @@ private:
     //Animation variables
     Sheet* sheet;
 
+    QGraphicsItem* clicked; //Last scene item the user clicked on
+
     //Variables for drawing the current sheet/animation
     QFont   sheetFont;
     bool m_bDraggingSelected;

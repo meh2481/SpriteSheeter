@@ -338,10 +338,35 @@ void Animation::toggleSelect(QGraphicsItem* it)
         if(images.at(i) == it)
         {
             bool bSelect = !selected.at(i);
-            qDebug() << "Setting " << i << " selected to " << bSelect;
+            qDebug() << "Setting" << i << "selected to" << bSelect;
             selected[i] = bSelect;
             selectedForegrounds.at(i)->setVisible(bSelect);
             break;
         }
     }
+}
+
+bool Animation::deleteSelected()
+{
+    for(int i = images.size()-1; i >= 0; i--)
+    {
+        if(selected.at(i))
+        {
+            //First clean up items from scene
+            scene->removeItem(frameBackgrounds.at(i));
+            scene->removeItem(selectedForegrounds.at(i));
+            selected.remove(i);
+            frameBackgrounds.remove(i);
+            selectedForegrounds.remove(i);
+            //Then, remove from image map and map
+            QGraphicsPixmapItem* img = images.at(i);
+            images.remove(i);
+            QImage* imgToDelete = imageMap.value(img);
+            delete imgToDelete;
+            imageMap.remove(img);
+            scene->removeItem(img);
+            //Done
+        }
+    }
+    return(!images.size());
 }

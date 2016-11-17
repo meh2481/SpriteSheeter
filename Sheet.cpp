@@ -222,3 +222,14 @@ void Sheet::clicked(int x, int y, QGraphicsItem* it)
     if(over)
         over->toggleSelect(it);
 }
+
+void Sheet::deleteSelected()
+{
+    for(int i = animations.size()-1; i >= 0; i--)
+    {
+        if(animations.at(i)->deleteSelected())
+            animations.remove(i);   //TODO Figure out if blank anims make sense
+    }
+    recalc();
+    updateSceneBounds();
+}

@@ -58,6 +58,7 @@ MainWindow::MainWindow(QWidget *parent) :
 
     animItem = NULL;
     progressBar = NULL;
+    clicked = NULL;
     transparentBg = new QImage("://bg");
     bLoadMutex = false;
 
@@ -685,9 +686,9 @@ void MainWindow::mouseDown(int x, int y)
         }
         else
         {
-            QGraphicsItem* it = isItemUnderCursor(x, y);
-            if(it)
-                sheet->clicked(x,y,it);
+            clicked = isItemUnderCursor(x, y);
+            //if(it)
+            //    sheet->clicked(x,y,it);
         }
 
         //TODO
@@ -747,6 +748,15 @@ void MainWindow::mouseUp(int x, int y)
             bDraggingSheetW = false;
             sheet->updateSceneBounds();
             //genUndoState();
+        }
+        else
+        {
+            QGraphicsItem* itemUnder = isItemUnderCursor(x, y);
+            if(clicked && itemUnder == clicked)
+            {
+                //TODO Also support click+drag
+                sheet->clicked(x,y,clicked);
+            }
         }
     }
 
@@ -1023,25 +1033,14 @@ void MainWindow::keyPressEvent(QKeyEvent* e)
 {
     Q_UNUSED(e)
 
-    //TODO allow deleting currently selected frames/animations
+    //TODO allow deleting currently selected animations
 
-    //Deleting current selected frame
-    //    if(e->key() == Qt::Key_Delete && mSheetFrames.size() && mCurAnim != mSheetFrames.end() && mCurSelected != mCurAnim->end() && mCurSelectedInAnim != mSheetFrames.end())
-    //    {
-    //        mCurSelectedInAnim->erase(mCurSelected);
-    //        mCurSelected = mCurSelectedInAnim->end();
-
-    //        //Test and see if this anim is now empty
-    //        if(!mCurSelectedInAnim->size())
-    //        {
-    //            mCurAnim = mCurSelectedInAnim;
-    //            on_removeAnimButton_clicked();  //Simulate deleting this anim
-    //        }
-
-    //        mouseCursorPos(curMouseX, curMouseY);   //Select again
-    //        //drawSheet();
-    //        genUndoState();
-    //    }
+    //Deleting current selected frame(s)
+    if(e->key() == Qt::Key_Delete && sheet)
+    {
+        sheet->deleteSelected();
+        genUndoState();
+    }
 }
 
 void MainWindow::on_saveFrameButton_clicked()

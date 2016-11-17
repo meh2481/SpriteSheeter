@@ -60,6 +60,7 @@ public:
     unsigned int getMinWidth(); //Get the minimum width for the current width
     unsigned int getSmallestPossibleWidth();    //Get the smallest possible width for this sheet (width of largest animation frame image)
     void clicked(int x, int y, QGraphicsItem* it);
+    void deleteSelected();  //Delete currently selected frames/animations
 signals:
 
 public slots:
