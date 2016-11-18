@@ -107,7 +107,7 @@ MainWindow::MainWindow(QWidget *parent) :
     curSelectedRect->setZValue(2); //Above most everything
     curSelectedRect->setVisible(false);
 
-    curDragLine = msheetScene->addLine(0, 0, 0, 0, linePen);
+    curDragLine = msheetScene->addLine(0, 0, 10, 10, linePen);
     curDragLine->setZValue(2);
     curDragLine->setVisible(false);
 
@@ -672,11 +672,15 @@ void MainWindow::mouseCursorPos(int x, int y)
             else
             {
                 QLine pos = sheet->getDragPos(x, y);
-                if(pos.x1() > 0 && pos.y1() > 0)
+                //qDebug() << "Drag pos" << pos;
+                if(pos.x1() >= 0 && pos.y1() >= 0)
                 {
+                    //qDebug() << "set line";
                     curDragLine->setLine(pos);
                     curDragLine->setVisible(true);
                 }
+                else
+                    curDragLine->setVisible(false);
             }
         }
     }
@@ -693,9 +697,12 @@ void MainWindow::mouseDown(int x, int y)
     selected = NULL;
     if(sheet)
     {
+        qDebug() << "Mouse click on sheet" << x << y;
+
         //We're starting to drag the sheet size handle
         if(isMouseOverDragArea(x, y))
         {
+            qDebug() << "Mouse dragging sheet width";
             bDraggingSheetW = true;
             mStartSheetW = sheet->getWidth();
             xStartDragSheetW = x;
@@ -703,10 +710,17 @@ void MainWindow::mouseDown(int x, int y)
         else
         {
             clicked = isItemUnderCursor(x, y);
-            if(sheet->selected(clicked))
-                selected = clicked;
-            //if(it)
-            //    sheet->clicked(x,y,it);
+            if(clicked)
+            {
+                qDebug() << "Mouse clicked on item";
+                if(sheet->selected(clicked))
+                {
+                    qDebug() << "Mouse clicked selected item; start drag";
+                    selected = clicked;
+                }
+                //if(it)
+                //    sheet->clicked(x,y,it);
+            }
         }
 
         //TODO
@@ -776,6 +790,7 @@ void MainWindow::mouseUp(int x, int y)
         }
     }
     selected = NULL;
+    curDragLine->setVisible(false);
 
     //TODO
 
@@ -1230,8 +1245,6 @@ void MainWindow::on_balanceAnimButton_clicked()
 
 void MainWindow::balance(int w, int h, BalancePos::Pos vert, BalancePos::Pos horiz)
 {
-    qDebug() << "enter function balance()" << endl;
-
     if(!sheet || !sheet->size())
         return;
 
@@ -1244,11 +1257,8 @@ void MainWindow::balance(int w, int h, BalancePos::Pos vert, BalancePos::Pos hor
 
     //TODO Update animation frame preview
     //    mCurFrame = mCurAnim->begin();
-    qDebug() << "balance() draw animation" << endl;
     drawAnimation();
-    qDebug() << "balance() gen undo" << endl;
     genUndoState();
-    qDebug() << "balance() end" << endl;
 }
 
 void MainWindow::undo()

@@ -6,6 +6,8 @@
 #include <QColor>
 #include "BalancePos.h"
 
+#define FRAME_SELECT_THICKNESS 2
+
 class Frame
 {
     //Empty private default constructor

@@ -16,7 +16,7 @@ Frame::Frame(QGraphicsScene* s, QImage* i, QColor bgCol, QImage* tBg, bool frame
     bg = scene->addRect(0, 0, img->width(), img->height(), QPen(Qt::NoPen), QBrush(frameBgCol));
     bg->setZValue(-1);  //Behind images
     //Add fg rect
-    fg = scene->addRect(0, 0, img->width(), img->height(), QPen(Qt::NoPen), QBrush(QColor(0,0,255,120)));
+    fg = scene->addRect(0, 0, img->width(), img->height(), QPen(QColor(0,0,255), FRAME_SELECT_THICKNESS), QBrush(QColor(0,0,255,120)));
     fg->setZValue(1);  //In front of images
     fg->setVisible(false);
 }

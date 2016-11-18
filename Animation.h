@@ -11,6 +11,11 @@
 #include "BalancePos.h"
 #include "Frame.h"
 
+#define ANIM_DRAG_SPACINGY 0.2
+#define ANIM_DRAG_SPACINGX 0.2
+#define ANIM_BEFORE -1
+#define ANIM_AFTER -2
+
 class Animation : public QObject
 {
     Q_OBJECT
@@ -99,6 +104,8 @@ public:
     bool hasSelected(); //Return true if any frames in this animation are selected
 
     bool isSelected(QGraphicsItem* it);   //Return true if this item is in this sheet and selected
+
+    QLine getDragPos(int x, int y);
 
 signals:
 

@@ -283,3 +283,35 @@ bool Animation::isSelected(QGraphicsItem* it)
     }
     return false;
 }
+
+QLine Animation::getDragPos(int x, int y)
+{
+    QPoint size = getMaxFrameSize();
+    QLine result(-1,-1,-1,-1);
+    x -= offsetX;
+    y -= offsetY;
+    //Before animation if near the top
+    if(y-spacingY <= size.y() * ANIM_DRAG_SPACINGY)
+        return QLine(offsetX, offsetY+spacingY*0.5, offsetX + width, offsetY+spacingY*0.5);
+    //After animation if near the bottom
+    if(y >= curHeight - (size.y() * ANIM_DRAG_SPACINGY))
+        return QLine(offsetX, offsetY + curHeight+spacingY*0.5, offsetX + width, offsetY + curHeight+spacingY*0.5);
+    //Position inside animation
+    int curX = spacingX;
+    int curY = spacingY;
+    unsigned int tallestHeight = 0;
+    foreach(Frame* f, frames)
+    {
+        if(f->getWidth() + curX + spacingX > width)
+        {
+            curY += tallestHeight + spacingY;     //Next line
+            curX = spacingX;
+            tallestHeight = f->getHeight();
+        }
+        else if((unsigned int)f->getHeight() > tallestHeight)
+            tallestHeight = f->getHeight();
+        curX += spacingX + f->getWidth();
+    }
+
+    return result;
+}

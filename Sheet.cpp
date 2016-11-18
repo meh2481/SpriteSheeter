@@ -268,9 +268,6 @@ QLine Sheet::getDragPos(int x, int y)
     }
 
     if(over)
-    {
-        //TODO real line pos
-        return QLine(0, curY-over->getCurHeight(), width, curY);
-    }
+        return over->getDragPos(x,y);
     return QLine(-1,-1,-1,-1);
 }
