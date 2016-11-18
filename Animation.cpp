@@ -287,7 +287,7 @@ bool Animation::isSelected(QGraphicsItem* it)
 QLine Animation::getDragPos(int x, int y)
 {
     QPoint size = getMaxFrameSize();
-    QLine result(-1,-1,-1,-1);
+
     x -= offsetX;
     y -= offsetY;
     //Before animation if near the top
@@ -310,8 +310,26 @@ QLine Animation::getDragPos(int x, int y)
         }
         else if((unsigned int)f->getHeight() > tallestHeight)
             tallestHeight = f->getHeight();
+
+        //Test to see if we're near this frame
+        //Current pos y
+        if(y <= curY + f->getHeight() + spacingY/2.0)
+        {
+            int startY = offsetY + curY - spacingY / 2.0;
+            int endY = startY + f->getHeight() + spacingY;  //TODO: Handle unbalanced animations
+            int startX = offsetX + curX - spacingX / 2.0;
+            int endX = startX + f->getWidth() + spacingX;
+            //Before current frame
+            if(x < curX + f->getWidth() / 2.0)
+                return QLine(startX, startY, startX, endY);
+            //After current frame
+            //TODO: Handle anim lines that don't span the whole sheet width
+            if(x <= curX + f->getWidth() + spacingX / 2.0)
+                return QLine(endX, startY, endX, endY);
+        }
+
         curX += spacingX + f->getWidth();
     }
 
-    return result;
+    return QLine(-1,-1,-1,-1);;
 }
