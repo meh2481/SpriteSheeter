@@ -19,40 +19,23 @@ Animation::Animation(QImage* bg, QGraphicsScene* s, QObject *parent) : QObject(p
 
 Animation::~Animation()
 {
-    //Graphics scene cleans up after itself already
-    for(QMap<QGraphicsPixmapItem*, QImage*>::iterator img = imageMap.begin(); img != imageMap.end(); img++)
-        delete img.value(); //Image memory, however, does not
+    foreach(Frame* f, frames)
+        delete f;
 }
 
 void Animation::insertImage(QImage* img)
 {
-    insertImage(img, images.size());
+    insertImage(img, frames.size());
 }
 
 void Animation::insertImage(QImage* img, unsigned int index)
 {
-    if(index > (unsigned int)images.size())
-        index = images.size();
-    QGraphicsPixmapItem* item = new QGraphicsPixmapItem(QPixmap::fromImage(*img));
-    images.insert(index, item);
-    imageMap.insert(item, img);
-    selected.insert(index, false);
-    scene->addItem(item);
-    //Add background for this also
-    QBrush brush(frameBgCol);
-    if(frameBgTransparent)
-        brush = QBrush(*transparentBg);
-    QGraphicsRectItem* bgRect = scene->addRect(0, 0, img->width(), img->height(), QPen(Qt::NoPen), brush);
-    bgRect->setZValue(-1);  //Behind images
-    frameBackgrounds.insert(index, bgRect);
-    //Insert foreground selection for this also
-    brush = QBrush(QColor(0,0,255,120));
-    bgRect = scene->addRect(0, 0, img->width(), img->height(), QPen(Qt::NoPen), brush);
-    bgRect->setZValue(1);  //In front of images
-    bgRect->setVisible(false);
-    selectedForegrounds.insert(index, bgRect);
-    //Set selected to false
-    selected.insert(index, false);
+    if(index > (unsigned int)frames.size())
+        index = frames.size();
+
+    Frame* f = new Frame(scene, img, frameBgCol, transparentBg, frameBgTransparent);
+    frames.insert(index, f);
+
     heightRecalc();
 }
 
@@ -70,41 +53,15 @@ void Animation::insertImages(QVector<QImage*> imgs, unsigned int index)
 
 void Animation::pullImages(Animation* other, QList<unsigned int> indices, unsigned int insertLocation)
 {
-    if(insertLocation > (unsigned int)images.length())
-        insertLocation = images.length();
-
-    qSort(indices); //Sort
-    std::reverse(indices.begin(), indices.end());   //Reverse
-
-    foreach(unsigned int i, indices)
-    {
-        QGraphicsPixmapItem* img = other->images.at(i);
-        //Update image lists
-        images.insert(insertLocation, img);
-        other->images.remove(i);
-        //Update image/pixmapitem maps
-        imageMap.insert(img, other->imageMap.value(img));
-        other->imageMap.remove(img);
-        //Update selected flags
-        selected.insert(insertLocation, other->selected.at(i));
-        other->selected.remove(i);
-        //Update frame backgrounds
-        frameBackgrounds.insert(insertLocation, other->frameBackgrounds.at(i));
-        other->frameBackgrounds.remove(i);
-        //Update selection foregrounds
-        selectedForegrounds.insert(insertLocation, other->selectedForegrounds.at(i));
-        other->selectedForegrounds.remove(i);
-    }
-    heightRecalc();
-    other->heightRecalc();
+    //TODO
 }
 
 unsigned int Animation::widthOfImages()
 {
     unsigned int imgWidth = 0;
-    for(QMap<QGraphicsPixmapItem*, QImage*>::iterator i = imageMap.begin(); i != imageMap.end(); i++)
-        imgWidth += i.value()->width();
-    return imgWidth + (spacingX*(images.size()+1));
+    foreach(Frame* f, frames)
+        imgWidth += f->getWidth();
+    return imgWidth + (spacingX*(frames.size()+1));
 }
 
 unsigned int Animation::heightRecalc()
@@ -115,22 +72,18 @@ unsigned int Animation::heightRecalc()
     minWidth = widthOfImages();
     if(minWidth > (unsigned int)width)
         minWidth = 0;
-    for(int i = 0; i < images.size(); i++)
+    foreach(Frame* f, frames)
     {
-        QGraphicsPixmapItem* pixmapItem = images.at(i);
-        QImage* image = imageMap.value(pixmapItem);
-        if(image->width() + curX + spacingX > width)
+        if(f->getWidth() + curX + spacingX > width)
         {
             curY += tallestHeight + spacingY;     //Next line
             curX = spacingX;
-            tallestHeight = image->height();
+            tallestHeight = f->getHeight();
         }
-        else if((unsigned int)image->height() > tallestHeight)
-            tallestHeight = image->height();
-        pixmapItem->setPos(curX + offsetX, curY + offsetY);
-        frameBackgrounds.at(i)->setRect(curX + offsetX, curY + offsetY, image->width(), image->height());
-        selectedForegrounds.at(i)->setRect(curX + offsetX, curY + offsetY, image->width(), image->height());
-        curX += spacingX + image->width();
+        else if((unsigned int)f->getHeight() > tallestHeight)
+            tallestHeight = f->getHeight();
+        f->setPosition(curX + offsetX, curY + offsetY);
+        curX += spacingX + f->getWidth();
         if(minWidth < (unsigned int)curX)
             minWidth = curX;
     }
@@ -181,9 +134,8 @@ void Animation::setFrameBgCol(QColor c)
     frameBgCol = c;
     if(!frameBgTransparent)
     {
-        QBrush brush(c);
-        foreach(QGraphicsRectItem* bg, frameBackgrounds)
-            bg->setBrush(brush);
+        foreach(Frame* f, frames)
+            f->setFrameBgCol(c);
     }
 }
 
@@ -192,48 +144,44 @@ void Animation::setFrameBgTransparent(bool b)
     if(frameBgTransparent != b)
     {
         frameBgTransparent = b;
-        QBrush brush(frameBgCol);
-        if(frameBgTransparent)
-            brush = QBrush(*transparentBg);
-        foreach(QGraphicsRectItem* it, frameBackgrounds)
-            it->setBrush(brush);
+        foreach(Frame* f, frames)
+            f->setFrameBgTransparent(b);
     }
 }
 
 void Animation::setFrameBgVisible(bool b)
 {
-    foreach(QGraphicsRectItem* it, frameBackgrounds)
-        it->setVisible(b);
+    foreach(Frame* f, frames)
+        f->setFrameBgVisible(b);
 }
 
 void Animation::reverse()
 {
-    QVector<QGraphicsPixmapItem*> newList = images;
-    images.clear();
-    foreach(QGraphicsPixmapItem* img, newList)
-        images.prepend(img);
-    QVector<bool> newSelected = selected;
-    selected.clear();
-    foreach(bool b, newSelected)
-        selected.prepend(b);
+    if(frames.size() < 2)
+        return;
+
+    QVector<Frame*> newList = frames;
+    frames.clear();
+    foreach(Frame* f, newList)
+        frames.prepend(f);
     heightRecalc();
 }
 
 bool Animation::removeDuplicateFrames()
 {
-    if(images.size() < 2)
+    if(frames.size() < 2)
         return false;
 
     bool bFoundDuplicates = false;
 
-    for(int tester = 0; tester < images.size(); tester++)
+    for(int tester = 0; tester < frames.size(); tester++)
     {
-        for(int testee = tester+1; testee < images.size(); testee++)
+        for(int testee = tester+1; testee < frames.size(); testee++)
         {
-            QGraphicsPixmapItem* testerItem = images[tester];
-            QGraphicsPixmapItem* testeeItem = images[testee];
-            QImage* testerImg = imageMap.value(testerItem);
-            QImage* testeeImg = imageMap.value(testeeItem);
+            Frame* testerItem = frames[tester];
+            Frame* testeeItem = frames[testee];
+            QImage* testerImg = testerItem->getImage();
+            QImage* testeeImg = testeeItem->getImage();
 
             //Images of different size
             if(testeeImg->width() != testerImg->width() || testeeImg->height() != testerImg->height())
@@ -246,20 +194,9 @@ bool Animation::removeDuplicateFrames()
             if(std::memcmp(testeeImg->bits(), testerImg->bits(), testeeImg->byteCount()) == 0)
             {
                 bFoundDuplicates = true;
-                //Remove testee
-                images.removeAt(testee);
-                selected.removeAt(testee);
-                QGraphicsRectItem* rectItem = frameBackgrounds.at(testee);
-                frameBackgrounds.removeAt(testee);
-                rectItem = selectedForegrounds.at(testee);
-                selectedForegrounds.removeAt(testee);
+                frames.removeAt(testee);
                 testee--;
-                //Remove from scene
-                QGraphicsScene* scene = testeeItem->scene();
-                scene->removeItem(testeeItem);
-                scene->removeItem(rectItem);
-                imageMap.remove(testeeItem);
-                delete testeeImg;   //Free image
+                delete testeeItem;   //Free image
             }
         }
     }
@@ -269,12 +206,12 @@ bool Animation::removeDuplicateFrames()
 QPoint Animation::getMaxFrameSize()
 {
     int w = 0, h = 0;
-    for(QMap<QGraphicsPixmapItem*, QImage*>::iterator img = imageMap.begin(); img != imageMap.end(); img++)
+    foreach(Frame* f, frames)
     {
-        if(img.value()->width() > w)
-            w = img.value()->width();
-        if(img.value()->height() > h)
-            h = img.value()->height();
+        if(f->getWidth() > w)
+            w = f->getWidth();
+        if(f->getHeight() > h)
+            h = f->getHeight();
     }
     return QPoint(w, h);
 }
@@ -283,38 +220,8 @@ void Animation::balance(QPoint sz, BalancePos::Pos vert, BalancePos::Pos horiz)
 {
     unsigned int w = sz.x();
     unsigned int h = sz.y();
-    foreach(QGraphicsPixmapItem* item, images)
-    {
-//        qDebug() << "balance() loop begin" << endl;
-        QImage* img = imageMap.value(item);
-
-        //Use vert/horiz
-        int xPos, yPos;
-        if(vert == BalancePos::Up)
-            yPos = 0;
-        else if(vert == BalancePos::Mid)
-            yPos = (h/2)-(img->height()/2);
-        else
-            yPos = h - img->height();
-
-        if(horiz == BalancePos::Left)
-            xPos = 0;
-        else if(horiz == BalancePos::Mid)
-            xPos = (w/2)-(img->width()/2);
-        else
-            xPos = w - img->width();
-
-//        qDebug() << "balance() create final image" << endl;
-        QImage* final = new QImage(w, h, QImage::Format_ARGB32);
-        final->fill(QColor(0,0,0,0));
-        QPainter painter(final);
-//        qDebug() << "balance() draw new img size" << endl;
-        painter.drawImage(xPos, yPos, *img);
-        painter.end();
-        item->setPixmap(QPixmap::fromImage(*final));
-        imageMap.insert(item, final);
-        delete img;
-    }
+    foreach(Frame* f, frames)
+        f->resize(w, h, vert, horiz);
     heightRecalc();
 }
 
@@ -333,14 +240,11 @@ unsigned int Animation::getSmallestImageWidth()
 
 void Animation::toggleSelect(QGraphicsItem* it)
 {
-    for(int i = 0; i < images.size(); i++)
+    foreach(Frame* f, frames)
     {
-        if(images.at(i) == it)
+        if(f->isThis(it))
         {
-            bool bSelect = !selected.at(i);
-            qDebug() << "Setting" << i << "selected to" << bSelect;
-            selected[i] = bSelect;
-            selectedForegrounds.at(i)->setVisible(bSelect);
+            f->selectToggle();
             break;
         }
     }
@@ -348,25 +252,34 @@ void Animation::toggleSelect(QGraphicsItem* it)
 
 bool Animation::deleteSelected()
 {
-    for(int i = images.size()-1; i >= 0; i--)
+    for(int i = frames.size()-1; i >= 0; i--)
     {
-        if(selected.at(i))
+        if(frames.at(i)->isSelected())
         {
-            //First clean up items from scene
-            scene->removeItem(frameBackgrounds.at(i));
-            scene->removeItem(selectedForegrounds.at(i));
-            selected.remove(i);
-            frameBackgrounds.remove(i);
-            selectedForegrounds.remove(i);
-            //Then, remove from image map and map
-            QGraphicsPixmapItem* img = images.at(i);
-            images.remove(i);
-            QImage* imgToDelete = imageMap.value(img);
-            delete imgToDelete;
-            imageMap.remove(img);
-            scene->removeItem(img);
-            //Done
+            Frame* f = frames.at(i);
+            frames.remove(i);
+            delete f;
         }
     }
-    return(!images.size());
+    return(!frames.size());
+}
+
+bool Animation::hasSelected()
+{
+    foreach(Frame* f, frames)
+    {
+        if(f->isSelected())
+            return true;
+    }
+    return false;
+}
+
+bool Animation::isSelected(QGraphicsItem* it)
+{
+    foreach(Frame* f, frames)
+    {
+        if(f->isThis(it) && f->isSelected())
+            return true;
+    }
+    return false;
 }

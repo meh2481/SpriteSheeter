@@ -118,6 +118,9 @@ private:
     Sheet* sheet;
 
     QGraphicsItem* clicked; //Last scene item the user clicked on
+    QGraphicsItem* selected; //Last scene item the user clicked on that was currently selected
+    QGraphicsRectItem* curSelectedRect; //Rect for showing hovered anim frame
+    QGraphicsLineItem* curDragLine;
 
     //Variables for drawing the current sheet/animation
     QFont   sheetFont;

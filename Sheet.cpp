@@ -206,11 +206,10 @@ void Sheet::clicked(int x, int y, QGraphicsItem* it)
 {
     Q_UNUSED(x)
 
-    unsigned int curY = 0;
+    int curY = 0;
     Animation* over = NULL;
     foreach(Animation* anim, animations)
     {
-        //anim->toggleSelect(it);
         curY += anim->getCurHeight();
         if(curY > y)
         {
@@ -232,4 +231,46 @@ void Sheet::deleteSelected()
     }
     recalc();
     updateSceneBounds();
+}
+
+bool Sheet::hasSelectedFrames()
+{
+    foreach(Animation* anim, animations)
+    {
+        if(anim->hasSelected())
+            return true;
+    }
+    return false;
+}
+
+bool Sheet::selected(QGraphicsItem* it)
+{
+    foreach(Animation* anim, animations)
+    {
+        if(anim->isSelected(it))
+            return true;
+    }
+    return false;
+}
+
+QLine Sheet::getDragPos(int x, int y)
+{
+    int curY = 0;
+    Animation* over = NULL;
+    foreach(Animation* anim, animations)
+    {
+        curY += anim->getCurHeight();
+        if(curY > y)
+        {
+            over = anim;
+            break;
+        }
+    }
+
+    if(over)
+    {
+        //TODO real line pos
+        return QLine(0, curY-over->getCurHeight(), width, curY);
+    }
+    return QLine(-1,-1,-1,-1);
 }

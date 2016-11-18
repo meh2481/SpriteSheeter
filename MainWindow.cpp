@@ -58,7 +58,7 @@ MainWindow::MainWindow(QWidget *parent) :
 
     animItem = NULL;
     progressBar = NULL;
-    clicked = NULL;
+    clicked = selected = NULL;
     transparentBg = new QImage("://bg");
     bLoadMutex = false;
 
@@ -101,6 +101,15 @@ MainWindow::MainWindow(QWidget *parent) :
 
     if(ui->sheetPreview->isHidden())
         ui->sheetPreview->show();
+
+    QPen linePen(QColor(0,0,255), SELECT_RECT_THICKNESS);
+    curSelectedRect = msheetScene->addRect(QRect(0,0,0,0), linePen);
+    curSelectedRect->setZValue(2); //Above most everything
+    curSelectedRect->setVisible(false);
+
+    curDragLine = msheetScene->addLine(0, 0, 0, 0, linePen);
+    curDragLine->setZValue(2);
+    curDragLine->setVisible(false);
 
     //Read in settings here
     loadSettings();
@@ -631,12 +640,12 @@ QGraphicsItem* MainWindow::isItemUnderCursor(int x, int y)
 
 void MainWindow::mouseCursorPos(int x, int y)
 {
+    bool bSelectRectVisible = false;
     if(sheet)
     {
         //Update cursor if need be
-        if(isMouseOverDragArea(x, y))
+        if(isMouseOverDragArea(x, y) && !selected)
             ui->sheetPreview->setCursor(Qt::SizeHorCursor);
-
         else if(!bDraggingSheetW && !m_bDraggingSelected)
             ui->sheetPreview->setCursor(Qt::ArrowCursor);
 
@@ -647,25 +656,31 @@ void MainWindow::mouseCursorPos(int x, int y)
             if(ui->minWidthCheckbox->isChecked())
                 minimizeSheetWidth();
         }
+        else
+        {
+            if(!selected)
+            {
+                QGraphicsItem* it = isItemUnderCursor(x, y);
+                if(it != NULL)
+                {
+                    //Draw box around currently-highlighted image
+                    curSelectedRect->setRect(it->boundingRect());
+                    curSelectedRect->setPos(it->x(), it->y());
+                    bSelectRectVisible = true;
+                }
+            }
+            else
+            {
+                QLine pos = sheet->getDragPos(x, y);
+                if(pos.x1() > 0 && pos.y1() > 0)
+                {
+                    curDragLine->setLine(pos);
+                    curDragLine->setVisible(true);
+                }
+            }
+        }
     }
-
-    static QGraphicsRectItem* curSelectedRect = NULL;
-    QGraphicsItem* it = isItemUnderCursor(x, y);
-    if(it != NULL)
-    {
-        //Draw box around currently-highlighted image
-        if(curSelectedRect == NULL)
-            curSelectedRect = msheetScene->addRect(it->boundingRect(), QPen(QColor(0,0,255), SELECT_RECT_THICKNESS));
-        curSelectedRect->setRect(it->boundingRect());
-        curSelectedRect->setPos(it->x(), it->y());
-        curSelectedRect->setVisible(true);
-        curSelectedRect->setZValue(2); //Above everything
-    }
-    else
-    {
-        if(curSelectedRect != NULL)
-            curSelectedRect->setVisible(false);
-    }
+    curSelectedRect->setVisible(bSelectRectVisible);
 
     //Show the mouse cursor pos
     statusBar()->showMessage(QString::number(x) + ", " + QString::number(y));
@@ -675,6 +690,7 @@ void MainWindow::mouseCursorPos(int x, int y)
 
 void MainWindow::mouseDown(int x, int y)
 {
+    selected = NULL;
     if(sheet)
     {
         //We're starting to drag the sheet size handle
@@ -687,6 +703,8 @@ void MainWindow::mouseDown(int x, int y)
         else
         {
             clicked = isItemUnderCursor(x, y);
+            if(sheet->selected(clicked))
+                selected = clicked;
             //if(it)
             //    sheet->clicked(x,y,it);
         }
@@ -738,9 +756,6 @@ void MainWindow::mouseDown(int x, int y)
 
 void MainWindow::mouseUp(int x, int y)
 {
-    Q_UNUSED(x)
-    Q_UNUSED(y)
-
     if(sheet)
     {
         if(bDraggingSheetW)
@@ -757,8 +772,10 @@ void MainWindow::mouseUp(int x, int y)
                 //TODO Also support click+drag
                 sheet->clicked(x,y,clicked);
             }
+            //TODO If selected
         }
     }
+    selected = NULL;
 
     //TODO
 
@@ -1035,9 +1052,11 @@ void MainWindow::keyPressEvent(QKeyEvent* e)
 
     //TODO allow deleting currently selected animations
 
-    //Deleting current selected frame(s)
-    if(e->key() == Qt::Key_Delete && sheet)
+
+    //Delete current selected frame(s)
+    if(e->key() == Qt::Key_Delete && sheet && sheet->hasSelectedFrames())
     {
+        //TODO Don't bork when deleting while dragging/selecting
         sheet->deleteSelected();
         genUndoState();
     }

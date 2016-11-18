@@ -9,6 +9,7 @@
 #include <QGraphicsRectItem>
 #include <QColor>
 #include "BalancePos.h"
+#include "Frame.h"
 
 class Animation : public QObject
 {
@@ -17,11 +18,7 @@ class Animation : public QObject
     Animation(){}
 
     QGraphicsScene* scene;
-    QVector<QGraphicsPixmapItem*> images;               //Actual images for this animation
-    QVector<QGraphicsRectItem*> frameBackgrounds;       //Background items for each frame
-    QVector<QGraphicsRectItem*> selectedForegrounds;    //Foreground items for each selected frame
-    QMap<QGraphicsPixmapItem*, QImage*> imageMap;
-    QVector<bool> selected;
+    QVector<Frame*> frames;
     int offsetX, offsetY;   //Position on the screen
     int spacingX, spacingY;
     int width;
@@ -97,7 +94,11 @@ public:
 
     void toggleSelect(QGraphicsItem* it); //Select the given item as a frame
 
-    bool deleteSelected();
+    bool deleteSelected();  //Return true if now empty after deletion
+
+    bool hasSelected(); //Return true if any frames in this animation are selected
+
+    bool isSelected(QGraphicsItem* it);   //Return true if this item is in this sheet and selected
 
 signals:
 
