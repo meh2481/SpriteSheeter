@@ -112,6 +112,8 @@ public:
     //ANIM_BEFORE if before this animation, ANIM_AFTER if after, ANIM_NONE if not on this animation
     int getDropPos(int x, int y);
 
+    bool isEmpty() {return frames.isEmpty();}
+
 signals:
 
 public slots:

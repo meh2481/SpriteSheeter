@@ -35,6 +35,7 @@ class Sheet : public QObject
     SheetEditorView* sheetPreview;
 
     void updateAnimBg();
+    void deleteEmpty(); //Delete empty animations
 public:
     explicit Sheet(QGraphicsScene* s, SheetEditorView* sheetView, QImage* bg, unsigned int dragW, QObject *parent = 0);
     ~Sheet();
@@ -65,6 +66,7 @@ public:
     bool selected(QGraphicsItem* it);   //Return true if this item is selected
     QLine getDragPos(int x, int y);
     void dropped(int x, int y);
+
 signals:
 
 public slots:

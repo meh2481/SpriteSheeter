@@ -292,42 +292,57 @@ void Sheet::dropped(int x, int y)
 
     if(over)
     {
-        QVector<Frame*> pulledFrames;
+        //Get the position to drop
         int location = over->getDropPos(x, y);
-        if(location >= 0)
+
+        //Break out if there's no drop position
+        if(location == ANIM_NONE)
+            return;
+
+        //Pull frames from animations
+        QVector<Frame*> pulledFrames;
+        foreach(Animation* anim, animations)
         {
-            foreach(Animation* anim, animations)
-            {
-                QVector<Frame*> frames = anim->pullSelected((anim == over)?(&location):(NULL));
-                foreach(Frame* f, frames)
-                    pulledFrames.append(f);
-            }
+            QVector<Frame*> frames = anim->pullSelected((anim == over)?(&location):(NULL));
+            foreach(Frame* f, frames)
+                pulledFrames.append(f);
+        }
+
+        //Figure out what to do with them
+        if(location >= 0)                   //Add to this anim
+        {
             over->addImages(pulledFrames, location);
         }
-        else if(location == ANIM_BEFORE)
+        else if(location == ANIM_BEFORE)    //Add before this anim
         {
-            foreach(Animation* anim, animations)
-            {
-                QVector<Frame*> frames = anim->pullSelected(NULL);
-                foreach(Frame* f, frames)
-                    pulledFrames.append(f);
-            }
             Animation* anim = new Animation(transparentBg, scene);
             anim->addImages(pulledFrames, 0);
             addAnimation(anim, overIndex);
         }
-        else if(location == ANIM_AFTER)
+        else if(location == ANIM_AFTER)     //Add after this anim
         {
-            foreach(Animation* anim, animations)
-            {
-                QVector<Frame*> frames = anim->pullSelected(NULL);
-                foreach(Frame* f, frames)
-                    pulledFrames.append(f);
-            }
             Animation* anim = new Animation(transparentBg, scene);
             anim->addImages(pulledFrames, 0);
-            addAnimation(anim, overIndex+1);
+            addAnimation(anim, overIndex + 1);
         }
+
+        //Delete animations that are empty as a result of this
+        deleteEmpty();
+
+        //Recalculate sheet positions
         refresh();
+    }
+}
+
+void Sheet::deleteEmpty()
+{
+    for(int i = 0; i < animations.size(); i++)
+    {
+        if(animations.at(i)->isEmpty())
+        {
+            delete animations.at(i);
+            animations.remove(i);
+            i--;
+        }
     }
 }
