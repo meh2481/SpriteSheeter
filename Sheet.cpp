@@ -257,10 +257,11 @@ QLine Sheet::getDragPos(int x, int y)
 {
     int curY = 0;
     Animation* over = NULL;
-    foreach(Animation* anim, animations)
+    for(int i = 0; i < animations.size(); i++)
     {
+        Animation* anim = animations.at(i);
         curY += anim->getCurHeight();
-        if(curY > y)
+        if(curY > y || i >= animations.size()-1)
         {
             over = anim;
             break;
@@ -269,6 +270,7 @@ QLine Sheet::getDragPos(int x, int y)
 
     if(over)
         return over->getDragPos(x,y);
+
     return QLine(-1,-1,-1,-1);
 }
 
@@ -276,14 +278,16 @@ void Sheet::dropped(int x, int y)
 {
     int curY = 0;
     Animation* over = NULL;
+    int overIndex = 0;
     foreach(Animation* anim, animations)
     {
         curY += anim->getCurHeight();
-        if(curY > y)
+        if(curY > y || overIndex >= animations.size()-1)
         {
             over = anim;
             break;
         }
+        overIndex++;
     }
 
     if(over)
@@ -300,7 +304,30 @@ void Sheet::dropped(int x, int y)
             }
             over->addImages(pulledFrames, location);
         }
-        //TODO Add before/after anim as needed
+        else if(location == ANIM_BEFORE)
+        {
+            foreach(Animation* anim, animations)
+            {
+                QVector<Frame*> frames = anim->pullSelected(NULL);
+                foreach(Frame* f, frames)
+                    pulledFrames.append(f);
+            }
+            Animation* anim = new Animation(transparentBg, scene);
+            anim->addImages(pulledFrames, 0);
+            addAnimation(anim, overIndex);
+        }
+        else if(location == ANIM_AFTER)
+        {
+            foreach(Animation* anim, animations)
+            {
+                QVector<Frame*> frames = anim->pullSelected(NULL);
+                foreach(Frame* f, frames)
+                    pulledFrames.append(f);
+            }
+            Animation* anim = new Animation(transparentBg, scene);
+            anim->addImages(pulledFrames, 0);
+            addAnimation(anim, overIndex+1);
+        }
         refresh();
     }
 }

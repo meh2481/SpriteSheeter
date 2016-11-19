@@ -781,10 +781,10 @@ void MainWindow::mouseUp(int x, int y)
         else
         {
             QGraphicsItem* itemUnder = isItemUnderCursor(x, y);
-            if(selected)
-                sheet->dropped(x, y);
-            else if(clicked && itemUnder == clicked)
+            if(clicked && itemUnder == clicked)
                 sheet->clicked(x,y,clicked);
+            else if(selected)
+                sheet->dropped(x, y);
         }
     }
     selected = NULL;
