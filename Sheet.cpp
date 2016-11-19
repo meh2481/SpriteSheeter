@@ -202,7 +202,7 @@ unsigned int Sheet::getSmallestPossibleWidth()
     return minWidth + xSpacing*2;
 }
 
-void Sheet::clicked(int x, int y, QGraphicsItem* it)
+bool Sheet::clicked(int x, int y, QGraphicsItem* it)
 {
     Q_UNUSED(x)
 
@@ -219,7 +219,8 @@ void Sheet::clicked(int x, int y, QGraphicsItem* it)
     }
 
     if(over)
-        over->toggleSelect(it);
+        return over->toggleSelect(it);
+    return false;
 }
 
 void Sheet::deleteSelected()
@@ -251,6 +252,32 @@ bool Sheet::selected(QGraphicsItem* it)
             return true;
     }
     return false;
+}
+
+void Sheet::selectLine(QGraphicsItem* from, QGraphicsItem* to)
+{
+    bool selecting = false;
+    foreach(Animation* anim, animations)
+    {
+        foreach(Frame* f, anim->getFrames())
+        {
+            if(f->isThis(to) && !selecting)
+            {
+                QGraphicsItem* tmp = to;
+                to = from;
+                from = tmp;
+            }
+            if(f->isThis(from))
+                selecting = true;
+            if(selecting)
+            {
+                if(!f->isSelected())
+                    f->selectToggle();
+            }
+            if(f->isThis(to))
+                return;
+        }
+    }
 }
 
 QLine Sheet::getDragPos(int x, int y)
@@ -345,4 +372,10 @@ void Sheet::deleteEmpty()
             i--;
         }
     }
+}
+
+void Sheet::deselectAll()
+{
+    foreach(Animation* anim, animations)
+        anim->deselectAll();
 }

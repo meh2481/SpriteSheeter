@@ -119,6 +119,7 @@ private:
 
     QGraphicsItem* clicked; //Last scene item the user clicked on
     QGraphicsItem* selected; //Last scene item the user clicked on that was currently selected
+    QGraphicsItem* lastSelected;    //Last item that was clicked (persists after clicking stops)
     QGraphicsRectItem* curSelectedRect; //Rect for showing hovered anim frame
     QGraphicsLineItem* curDragLine;
 

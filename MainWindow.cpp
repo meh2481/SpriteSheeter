@@ -58,7 +58,7 @@ MainWindow::MainWindow(QWidget *parent) :
 
     animItem = NULL;
     progressBar = NULL;
-    clicked = selected = NULL;
+    clicked = selected = lastSelected = NULL;
     transparentBg = new QImage("://bg");
     bLoadMutex = false;
 
@@ -697,12 +697,12 @@ void MainWindow::mouseDown(int x, int y)
     selected = NULL;
     if(sheet)
     {
-        qDebug() << "Mouse click on sheet" << x << y;
+//        qDebug() << "Mouse click on sheet" << x << y;
 
         //We're starting to drag the sheet size handle
         if(isMouseOverDragArea(x, y))
         {
-            qDebug() << "Mouse dragging sheet width";
+//            qDebug() << "Mouse dragging sheet width";
             bDraggingSheetW = true;
             mStartSheetW = sheet->getWidth();
             xStartDragSheetW = x;
@@ -712,10 +712,10 @@ void MainWindow::mouseDown(int x, int y)
             clicked = isItemUnderCursor(x, y);
             if(clicked)
             {
-                qDebug() << "Mouse clicked on item";
+//                qDebug() << "Mouse clicked on item";
                 if(sheet->selected(clicked))
                 {
-                    qDebug() << "Mouse clicked selected item; start drag";
+//                    qDebug() << "Mouse clicked selected item; start drag";
                     selected = clicked;
                 }
                 //if(it)
@@ -782,9 +782,24 @@ void MainWindow::mouseUp(int x, int y)
         {
             QGraphicsItem* itemUnder = isItemUnderCursor(x, y);
             if(clicked && itemUnder == clicked)
-                sheet->clicked(x,y,clicked);
+            {
+                //Shift-click to select line
+                if(lastSelected && QGuiApplication::keyboardModifiers() & Qt::ShiftModifier)
+                {
+                    sheet->selectLine(clicked, lastSelected);
+                    sheet->clicked(x, y, clicked);
+                }
+                //Ctrl-click to select multiple
+                else if(!(QGuiApplication::keyboardModifiers() & Qt::ControlModifier))
+                    sheet->deselectAll();
+
+                if(sheet->clicked(x, y, clicked))
+                    lastSelected = clicked;
+            }
             else if(selected)
                 sheet->dropped(x, y);
+            else if(!itemUnder)
+                sheet->deselectAll();
         }
     }
     selected = NULL;

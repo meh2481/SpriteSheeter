@@ -98,7 +98,7 @@ public:
     unsigned int getMinWidth() {return minWidth;}   //Get the minimum width for the current width
     unsigned int getSmallestImageWidth();           //Get the smallest possible width for this animation
 
-    void toggleSelect(QGraphicsItem* it); //Select the given item as a frame
+    bool toggleSelect(QGraphicsItem* it); //Select the given item as a frame (return selected)
 
     bool deleteSelected();  //Return true if now empty after deletion
 
@@ -113,6 +113,10 @@ public:
     int getDropPos(int x, int y);
 
     bool isEmpty() {return frames.isEmpty();}
+
+    void deselectAll();
+
+    QVector<Frame*>& getFrames() {return frames;}
 
 signals:
 

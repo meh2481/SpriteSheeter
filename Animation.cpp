@@ -260,16 +260,17 @@ unsigned int Animation::getSmallestImageWidth()
     return getMaxFrameSize().x();
 }
 
-void Animation::toggleSelect(QGraphicsItem* it)
+bool Animation::toggleSelect(QGraphicsItem* it)
 {
     foreach(Frame* f, frames)
     {
         if(f->isThis(it))
         {
             f->selectToggle();
-            break;
+            return f->isSelected();
         }
     }
+    return false;
 }
 
 bool Animation::deleteSelected()
@@ -431,4 +432,13 @@ int Animation::getDropPos(int x, int y)
     }
 
     return ANIM_NONE;
+}
+
+void Animation::deselectAll()
+{
+    foreach(Frame* f, frames)
+    {
+        if(f->isSelected())
+            f->selectToggle();
+    }
 }

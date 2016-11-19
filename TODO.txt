@@ -28,7 +28,6 @@ Technical Stories:
 	-Everything that can be undone/redone has instantiation
 	-Two stacks for undo/redo; clear redo stack when pushing onto undo stack
 -Odd visual bugs when resizing sheets sometimes
-
 -Commandline argument support?
 
 User stories:
@@ -50,3 +49,4 @@ User stories:
 -Offset frames by a few pixels l/r/u/d; not to be confused with moving frames around in an animation (Current workaround: use the balance animation button)
 -Drag-and-drop should support .sheet file format
 -Ctrl-Z appears to not work
+-Create user guide? At the very least, a FAQ may help since e.g. the Balance Animation button isn't well understood
