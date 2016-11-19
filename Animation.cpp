@@ -51,9 +51,31 @@ void Animation::insertImages(QVector<QImage*> imgs, unsigned int index)
         insertImage(img, index++);
 }
 
-void Animation::pullImages(Animation* other, QList<unsigned int> indices, unsigned int insertLocation)
+void Animation::addImages(QVector<Frame*> imgs, unsigned int index)
 {
-    //TODO
+    foreach(Frame* f, imgs)
+        frames.insert(index++, f);
+    heightRecalc();
+}
+
+QVector<Frame*> Animation::pullSelected(int* pullLoc)
+{
+    QVector<Frame*> imgList;
+
+    for(int i = 0; i < frames.size(); i++)
+    {
+        Frame* f = frames.at(i);
+        if(f->isSelected())
+        {
+            if(pullLoc != NULL && *pullLoc > i)
+                (*pullLoc)--;
+            imgList.append(f);
+            frames.remove(i);
+            i--;
+        }
+    }
+
+    return imgList;
 }
 
 unsigned int Animation::widthOfImages()
@@ -317,7 +339,7 @@ QLine Animation::getDragPos(int x, int y)
         if(y <= curY + f->getHeight() + spacingY/2.0)
         {
             int runningTotalW = curX + f->getWidth() + spacingX;
-            //Find tallest image on this line
+            //Find tallest image on this line (unbalanced animations)
             for(int j = i+1; j < frames.size(); j++)
             {
                 if(frames.at(j)->getWidth() + spacingX > width)
@@ -328,7 +350,7 @@ QLine Animation::getDragPos(int x, int y)
             }
             //Calculate positions for before & after this frame
             int startY = offsetY + curY - spacingY / 2.0;
-            int endY = startY + tallestHeight + spacingY;  //TODO: Handle unbalanced animations
+            int endY = startY + tallestHeight + spacingY;
             int startX = offsetX + curX - spacingX / 2.0;
             int endX = startX + f->getWidth() + spacingX;
             QLine before(startX, startY, startX, endY);
@@ -353,5 +375,60 @@ QLine Animation::getDragPos(int x, int y)
         curX += spacingX + f->getWidth();
     }
 
-    return QLine(-1,-1,-1,-1);;
+    return QLine(-1,-1,-1,-1);
+}
+
+int Animation::getDropPos(int x, int y)
+{
+    QPoint size = getMaxFrameSize();
+
+    x -= offsetX;
+    y -= offsetY;
+    //Before animation if near the top
+    if(y-spacingY <= size.y() * ANIM_DRAG_SPACINGY)
+        return ANIM_BEFORE;
+    //After animation if near the bottom
+    if(y >= curHeight - (size.y() * ANIM_DRAG_SPACINGY))
+        return ANIM_AFTER;
+    //Position inside animation
+    int curX = spacingX;
+    int curY = spacingY;
+    unsigned int tallestHeight = 0;
+    for(int i = 0; i < frames.size(); i++)
+    {
+        Frame* f = frames.at(i);
+        if(f->getWidth() + curX + spacingX > width)
+        {
+            curY += tallestHeight + spacingY;     //Next line
+            curX = spacingX;
+            tallestHeight = f->getHeight();
+        }
+        else if((unsigned int)f->getHeight() > tallestHeight)
+            tallestHeight = f->getHeight();
+
+        //Test to see if we're near this frame
+        //Current pos y
+        if(y <= curY + f->getHeight() + spacingY/2.0)
+        {
+            //Before current frame
+            if(x < curX + f->getWidth() / 2.0)
+                return i;
+            //After current frame
+            if(x <= curX + f->getWidth() + spacingX / 2.0)
+                return i+1;
+            if(i < frames.size()-1)
+            {
+                Frame* next = frames.at(i+1);
+                //At end of current line
+                if(curX + f->getWidth() + next->getWidth() + spacingX*2 > width)
+                    return i+1;
+            }
+            else    //End of animation
+                return i+1;
+        }
+
+        curX += spacingX + f->getWidth();
+    }
+
+    return ANIM_NONE;
 }

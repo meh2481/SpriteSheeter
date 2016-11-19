@@ -64,6 +64,7 @@ public:
     bool hasSelectedFrames();     //Return true if there are selected frames in this sheet
     bool selected(QGraphicsItem* it);   //Return true if this item is selected
     QLine getDragPos(int x, int y);
+    void dropped(int x, int y);
 signals:
 
 public slots:

@@ -14,6 +14,7 @@
 #define ANIM_DRAG_SPACINGY 0.2
 #define ANIM_BEFORE -1
 #define ANIM_AFTER -2
+#define ANIM_NONE -3
 
 class Animation : public QObject
 {
@@ -50,9 +51,10 @@ public:
     //Insert a list of images at the specified index and hand over control of the memory
     void insertImages(QVector<QImage*> imgs, unsigned int index);
 
-    //Remove the given images from the given animation and add them to this one
-    //Note the Qt syntax: otherIndices << 33 << 12 << 68 << 6 << 12;
-    void pullImages(Animation* other, QList<unsigned int> otherIndices, unsigned int insertLocation);
+    //Remove the selected images from the given animation and add them to this one
+    void addImages(QVector<Frame*> imgs, unsigned int index);
+
+    QVector<Frame*> pullSelected(int* pullLoc = NULL); //Remove selected frames from this anim
 
     //Set the width of the animation. Return the new height
     unsigned int setWidth(unsigned int width);
@@ -105,6 +107,10 @@ public:
     bool isSelected(QGraphicsItem* it);   //Return true if this item is in this sheet and selected
 
     QLine getDragPos(int x, int y);
+
+    //Get location in the animation this is dropped.
+    //ANIM_BEFORE if before this animation, ANIM_AFTER if after, ANIM_NONE if not on this animation
+    int getDropPos(int x, int y);
 
 signals:
 

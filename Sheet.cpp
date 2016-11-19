@@ -271,3 +271,36 @@ QLine Sheet::getDragPos(int x, int y)
         return over->getDragPos(x,y);
     return QLine(-1,-1,-1,-1);
 }
+
+void Sheet::dropped(int x, int y)
+{
+    int curY = 0;
+    Animation* over = NULL;
+    foreach(Animation* anim, animations)
+    {
+        curY += anim->getCurHeight();
+        if(curY > y)
+        {
+            over = anim;
+            break;
+        }
+    }
+
+    if(over)
+    {
+        QVector<Frame*> pulledFrames;
+        int location = over->getDropPos(x, y);
+        if(location >= 0)
+        {
+            foreach(Animation* anim, animations)
+            {
+                QVector<Frame*> frames = anim->pullSelected((anim == over)?(&location):(NULL));
+                foreach(Frame* f, frames)
+                    pulledFrames.append(f);
+            }
+            over->addImages(pulledFrames, location);
+        }
+        //TODO Add before/after anim as needed
+        refresh();
+    }
+}
