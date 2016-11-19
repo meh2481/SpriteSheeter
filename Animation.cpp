@@ -300,8 +300,9 @@ QLine Animation::getDragPos(int x, int y)
     int curX = spacingX;
     int curY = spacingY;
     unsigned int tallestHeight = 0;
-    foreach(Frame* f, frames)
+    for(int i = 0; i < frames.size(); i++)
     {
+        Frame* f = frames.at(i);
         if(f->getWidth() + curX + spacingX > width)
         {
             curY += tallestHeight + spacingY;     //Next line
@@ -315,17 +316,38 @@ QLine Animation::getDragPos(int x, int y)
         //Current pos y
         if(y <= curY + f->getHeight() + spacingY/2.0)
         {
+            int runningTotalW = curX + f->getWidth() + spacingX;
+            //Find tallest image on this line
+            for(int j = i+1; j < frames.size(); j++)
+            {
+                if(frames.at(j)->getWidth() + spacingX > width)
+                    break;
+                runningTotalW += frames.at(j)->getWidth() + spacingX;
+                if((unsigned int)frames.at(j)->getHeight() > tallestHeight)
+                    tallestHeight = frames.at(j)->getHeight();
+            }
+            //Calculate positions for before & after this frame
             int startY = offsetY + curY - spacingY / 2.0;
-            int endY = startY + f->getHeight() + spacingY;  //TODO: Handle unbalanced animations
+            int endY = startY + tallestHeight + spacingY;  //TODO: Handle unbalanced animations
             int startX = offsetX + curX - spacingX / 2.0;
             int endX = startX + f->getWidth() + spacingX;
+            QLine before(startX, startY, startX, endY);
+            QLine after(endX, startY, endX, endY);
             //Before current frame
             if(x < curX + f->getWidth() / 2.0)
-                return QLine(startX, startY, startX, endY);
+                return before;
             //After current frame
-            //TODO: Handle anim lines that don't span the whole sheet width
             if(x <= curX + f->getWidth() + spacingX / 2.0)
-                return QLine(endX, startY, endX, endY);
+                return after;
+            if(i < frames.size()-1)
+            {
+                Frame* next = frames.at(i+1);
+                //At end of current line
+                if(curX + f->getWidth() + next->getWidth() + spacingX*2 > width)
+                    return after;
+            }
+            else    //End of animation
+                return after;
         }
 
         curX += spacingX + f->getWidth();

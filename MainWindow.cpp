@@ -1073,6 +1073,7 @@ void MainWindow::keyPressEvent(QKeyEvent* e)
     {
         //TODO Don't bork when deleting while dragging/selecting
         sheet->deleteSelected();
+        curSelectedRect->setVisible(false); //In case we deleted a hovered frame
         genUndoState();
     }
 }

@@ -12,7 +12,6 @@
 #include "Frame.h"
 
 #define ANIM_DRAG_SPACINGY 0.2
-#define ANIM_DRAG_SPACINGX 0.2
 #define ANIM_BEFORE -1
 #define ANIM_AFTER -2
 
