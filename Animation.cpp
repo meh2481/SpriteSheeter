@@ -39,19 +39,19 @@ void Animation::insertImage(QImage* img, unsigned int index)
     heightRecalc();
 }
 
-void Animation::insertImages(QVector<QImage*> imgs)
+void Animation::insertImages(QVector<QImage*>& imgs)
 {
     foreach(QImage* img, imgs)
         insertImage(img);
 }
 
-void Animation::insertImages(QVector<QImage*> imgs, unsigned int index)
+void Animation::insertImages(QVector<QImage*>& imgs, unsigned int index)
 {
     foreach(QImage* img, imgs)
         insertImage(img, index++);
 }
 
-void Animation::addImages(QVector<Frame*> imgs, unsigned int index)
+void Animation::addImages(QVector<Frame*>& imgs, unsigned int index)
 {
     foreach(Frame* f, imgs)
         frames.insert(index++, f);
@@ -154,11 +154,8 @@ void Animation::setYSpacing(unsigned int y)
 void Animation::setFrameBgCol(QColor c)
 {
     frameBgCol = c;
-    if(!frameBgTransparent)
-    {
-        foreach(Frame* f, frames)
-            f->setFrameBgCol(c);
-    }
+    foreach(Frame* f, frames)
+        f->setFrameBgCol(c);
 }
 
 void Animation::setFrameBgTransparent(bool b)

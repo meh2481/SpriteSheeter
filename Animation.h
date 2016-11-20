@@ -46,13 +46,13 @@ public:
     void insertImage(QImage* img, unsigned int index);
 
     //Insert a list of images at the end of the animation and hand over control of the memory
-    void insertImages(QVector<QImage*> imgs);
+    void insertImages(QVector<QImage*>& imgs);
 
     //Insert a list of images at the specified index and hand over control of the memory
-    void insertImages(QVector<QImage*> imgs, unsigned int index);
+    void insertImages(QVector<QImage*>& imgs, unsigned int index);
 
     //Remove the selected images from the given animation and add them to this one
-    void addImages(QVector<Frame*> imgs, unsigned int index);
+    void addImages(QVector<Frame*>& imgs, unsigned int index);
 
     QVector<Frame*> pullSelected(int* pullLoc = NULL); //Remove selected frames from this anim
 

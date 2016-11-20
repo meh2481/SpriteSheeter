@@ -69,6 +69,10 @@ public:
     void dropped(int x, int y);
     void deselectAll();
 
+    bool saveToStream(QDataStream& s);  //Save sheet to data stream
+    bool exportImage(QString sImgFilename); //Export the sheet as an image
+    void clear();   //Clears out this animation
+
 signals:
 
 public slots:

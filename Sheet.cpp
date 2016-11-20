@@ -1,4 +1,5 @@
 #include "Sheet.h"
+#include <QBuffer>
 
 #define SCENE_BOUNDS    300
 
@@ -19,9 +20,8 @@ Sheet::Sheet(QGraphicsScene* s, SheetEditorView* sheetView, QImage* bg, unsigned
 
 Sheet::~Sheet()
 {
-    foreach(Animation* animation, animations)
-        delete animation;
-    scene->clear(); //Handles cleaning up all the memories
+    clear();
+    //scene->clear(); //Handles cleaning up all the memories
 }
 
 void Sheet::addAnimation(Animation* anim, unsigned int index)
@@ -50,18 +50,20 @@ void Sheet::setWidth(unsigned int w)
 
 void Sheet::recalc()
 {
+    unsigned int useW = width;
     if(!animations.size())
-        return; //Nothing to do TODO See if this is needed when removing anims
+        useW = curHeight = 0;
 
     unsigned int curY = 0;
     foreach(Animation* anim, animations)
     {
         anim->setOffset(0, curY);
-        curY += anim->setWidth(width);
+        curY += anim->setWidth(useW);
     }
-    curY += ySpacing;
+    if(curY)
+        curY += ySpacing;
     sceneRect.setBottom(curY);
-    sceneRect.setRight(width);
+    sceneRect.setRight(useW);
 
     if(backgroundRect == NULL)
     {
@@ -161,6 +163,11 @@ void Sheet::updateAnimBg()
 
 void Sheet::updateSceneBounds()
 {
+    if(!width)
+    {
+        scene->setSceneRect(0,0,0,0);
+        return;
+    }
     //Set the new rect of the scene
     //Scale based on minimum scene bounds, and current viewport aspect ratio
     int scene_bounds = SCENE_BOUNDS;
@@ -378,4 +385,58 @@ void Sheet::deselectAll()
 {
     foreach(Animation* anim, animations)
         anim->deselectAll();
+}
+
+bool Sheet::saveToStream(QDataStream& s)
+{
+    //Save sheet frames
+    int curAnim = 0, curFrame = 0;
+
+    s << animations.size();
+    foreach(Animation* anim, animations)
+    {
+        QVector<Frame*> frames = anim->getFrames();
+        s << frames.size();
+        foreach(Frame* f, frames)
+        {
+            QByteArray imgByteArray;
+            QBuffer buffer(&imgByteArray);
+            buffer.open(QIODevice::WriteOnly);
+            f->getImage()->save(&buffer, "TIFF");   //TODO Use PNG instead
+            //TODO Breaks save compat, so check version
+            //s << f->isSelected();
+            s << imgByteArray;
+        }
+    }
+
+    //TODO Save anim names/labels
+    s << animations.size(); //TODO Don't also have to save this
+    for(int i = 0; i < animations.size(); i++)
+        s << QString();
+
+    //Save other stuff
+    s << sheetBgCol;
+    s << frameBgCol;
+    s << QColor(255,255,255);   //TODO Font color
+    s << frameBgTransparent << sheetBgTransparent;
+    s << xSpacing << ySpacing << (int)width;
+    s << QFont().toString();  //TODO Sheet font
+    s << curAnim << curFrame;
+    s << true;//ui->animNameEnabled->isChecked();   //TODO Anim names enabled
+
+    return (s.status() == QDataStream::Ok);
+}
+
+bool Sheet::exportImage(QString sImgFilename)
+{
+    //TODO
+    return true;
+}
+
+void Sheet::clear()
+{
+    foreach(Animation* animation, animations)
+        delete animation;
+    animations.clear();
+    refresh();
 }

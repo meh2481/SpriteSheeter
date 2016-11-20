@@ -7,16 +7,18 @@ UI Design Stories:
 -Rework animation movement/editing:
 	-Clicking animations should outline/select
 	-Can click-drag animations around and between each other
--Rework upper toolbar; delete animations/frames in batches
-	-Add save/cut/copy/paste/etc buttons to upper toolbar
+-Upper toolbar
+	-Cut/copy/delete disabled if nothing selected
+	-Paste disabled if nothing in clipboard
+	-Save disabled if no changes
+	-Save/Save As disabled in main menu also when new file/no changes
 -Add cut/copy/paste
 	-frames will need a deep copy function
 	-Paste deselects everything else
--Save/Save As disabled in main menu and toolbar when new file/not saveable
 -Make Play & Pause buttons the same button
 -Remove stop button?
--Update prev/next frame button icons to better fit with icon style of row
 -Add support to autocrop frames in an animation to remove whitespace (while maintaining balance)
+-Different highlight box around last-selected frame for shift-click
 
 Technical Stories:
 -Rather than specifying image types manually, remove filter entirely or add ALL actual file types we support to filter
@@ -25,7 +27,7 @@ Technical Stories:
 	-Everything that can be undone/redone has instantiation
 	-Two stacks for undo/redo; clear redo stack when pushing onto undo stack
 -Odd visual bugs when resizing sheets sometimes
--Commandline argument support?
+-Commandline argument support - Can associate .sheet with program
 
 User stories:
 -Test balance/resize; reports of crashing

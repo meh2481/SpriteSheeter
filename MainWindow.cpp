@@ -49,6 +49,9 @@ MainWindow::MainWindow(QWidget *parent) :
     QObject::connect(ui->actionImport_WIP_Sheet, SIGNAL(triggered(bool)), this, SLOT(loadSheet()));
     QObject::connect(ui->actionUndo, SIGNAL(triggered(bool)), this, SLOT(undo()));
     QObject::connect(ui->actionRedo, SIGNAL(triggered(bool)), this, SLOT(redo()));
+    QObject::connect(ui->actionCut, SIGNAL(triggered(bool)), this, SLOT(cut()));
+    QObject::connect(ui->actionCopy, SIGNAL(triggered(bool)), this, SLOT(copy()));
+    QObject::connect(ui->actionPaste, SIGNAL(triggered(bool)), this, SLOT(paste()));
     QObject::connect(ui->sheetPreview, SIGNAL(droppedFiles(QStringList)), this, SLOT(addImages(QStringList)));
     QObject::connect(ui->sheetPreview, SIGNAL(droppedFolders(QStringList)), this, SLOT(addFolders(QStringList)));
     QObject::connect(mBalanceWindow, SIGNAL(balance(int,int,BalancePos::Pos,BalancePos::Pos)), this, SLOT(balance(int,int,BalancePos::Pos,BalancePos::Pos)));
@@ -69,9 +72,6 @@ MainWindow::MainWindow(QWidget *parent) :
     m_rLastDragHighlight.setCoords(0,0,0,0);
     m_bLastDragInAnim = false;
     sCurFilename = UNTITLED_IMAGE_STR;
-    //Store initial undo state
-    pushUndo();
-    updateUndoRedoMenu();
 
     animUpdateTimer = new QTimer(this);
     QObject::connect(animUpdateTimer, SIGNAL(timeout()), this, SLOT(animUpdate()));
@@ -117,6 +117,12 @@ MainWindow::MainWindow(QWidget *parent) :
     //Set color icons to proper color
     setColorButtonIcons();
     updateWindowTitle();
+
+    //Store initial undo state
+    pushUndo();
+    updateUndoRedoMenu();
+
+    msheetScene->setSceneRect(0,0,0,0);
 }
 
 MainWindow::~MainWindow()
@@ -166,7 +172,8 @@ void MainWindow::importImageList(QStringList& fileList, QString prepend, QString
         }
         sheet->addAnimation(animation);
 
-        minimizeSheetWidth();
+        if(ui->minWidthCheckbox->isChecked())
+            minimizeSheetWidth();
         drawAnimation();
         genUndoState();
     }
@@ -1005,6 +1012,7 @@ void MainWindow::loadSettings()
         sheet->setFrameBgCol(frameBgCol);
         sheet->setBgTransparent(ui->SheetBgTransparent->isChecked());
         sheet->setFrameBgTransparent(ui->FrameBgTransparent->isChecked());
+        sheet->updateSceneBounds();
     }
 
     bLoadMutex = false;
@@ -1041,16 +1049,11 @@ void MainWindow::newFile()
             return;
     }
 
-    //TODO wipe current sheet
-
-    //    if(mCurSheet)
-    //        delete mCurSheet;
-    //    mCurSheet = NULL;
-
-    //    mSheetFrames.clear();
-    //    mCurAnim = mSheetFrames.begin();
-    //    mAnimNames.clear();
-    //    mCurAnimName = mAnimNames.begin();
+    //Wipe current sheet
+    cleanMemory();
+    sheet->updateSceneBounds();
+    mSheetZoom->reset();
+    msheetScene->setSceneRect(0,0,0,0);
 
     drawAnimation();
 
@@ -1370,6 +1373,11 @@ void MainWindow::loadSheet(QString openFilename)
 
             loadFromStream(s);
 
+            //Reset GUI stuff!
+            sheet->updateSceneBounds();
+            mSheetZoom->reset();
+            mSheetZoom->getView()->centerOn(sheet->getWidth()/2.0, sheet->getHeight()/2.0);
+
             QFileInfo fi(openFilename);
             sCurFilename = fi.fileName();
             bFileModified = false;
@@ -1385,52 +1393,12 @@ void MainWindow::loadSheet(QString openFilename)
 
 void MainWindow::saveToStream(QDataStream& s)
 {
-    //TODO Add stream saving to Sheet class
-
-    //Save sheet frames
-    int curAnim = 0, curFrame = 0;
-    //int cnt = 0;
     int major = MAJOR_VERSION;
     int minor = MINOR_VERSION;
     int rev = REV_VERSION;
     s << major << minor << rev;  //Later we'll care about this if the save format changes again
-    //s << mSheetFrames.size();
-    //    for(QList<QList<QImage> >::iterator i = mSheetFrames.begin(); i != mSheetFrames.end(); i++)
-    //    {
-    //        if(i == mCurAnim)
-    //            curAnim = cnt;
-    //        cnt++;
-
-    //        s << i->size();
-    //        int innercnt = 0;
-    //        for(QList<QImage>::iterator j = i->begin(); j != i->end(); j++)
-    //        {
-    //            if(i == mCurAnim && j == mCurFrame)
-    //                curFrame = innercnt;
-    //            innercnt++;
-
-    //            QByteArray imgByteArray;
-    //            QBuffer buffer(&imgByteArray);
-    //            buffer.open(QIODevice::WriteOnly);
-    //            j->save(&buffer, "TIFF");
-    //            s << imgByteArray;
-    //        }
-    //    }
-
-    //Save anim names
-    //s << mAnimNames.size();
-    //foreach(QString str, mAnimNames)
-    //    s << str;
-
-    //Save other stuff
-    s << sheetBgCol;
-    s << frameBgCol;
-    s << fontColor;
-    s << ui->FrameBgTransparent->isChecked() << ui->SheetBgTransparent->isChecked();
-    s << ui->xSpacingBox->value() << ui->ySpacingBox->value() << ui->sheetWidthBox->value();
-    s << sheetFont.toString();
-    s << curAnim << curFrame;
-    s << ui->animNameEnabled->isChecked();
+    s << ui->minWidthCheckbox->isChecked(); //v1.2
+    sheet->saveToStream(s);
 }
 
 void MainWindow::loadFromStream(QDataStream& s)
@@ -1441,30 +1409,41 @@ void MainWindow::loadFromStream(QDataStream& s)
     int minor = MINOR_VERSION;
     int rev = REV_VERSION;
     s >> major >> minor >> rev;
+    //Error out if file too new
     if(major > MAJOR_VERSION || (major == MAJOR_VERSION && minor > MINOR_VERSION) || (major == MAJOR_VERSION && minor == MINOR_VERSION && rev > REV_VERSION))
     {
-        QMessageBox::warning(this, "File Load", "This sheet file was created with a newer version of Sprite Sheeter than you currently have. Please update your Sprite Sheeter version");
+        QMessageBox::warning(this, "File Load", "This sheet file was created with a newer version of Sprite Sheeter than you currently have. Please update your Sprite Sheeter version.");
         return;
     }
+    //v 1.2: Load sheet width minimized checkbox
+    bool bMinimizeSheet = true;
+    if(major >= 1 && minor >= 2)
+        s >> bMinimizeSheet;
+    ui->minWidthCheckbox->setChecked(bMinimizeSheet);
+
     int numAnims = 0;
     s >> numAnims;
     for(int i = 0; i < numAnims; i++)
     {
-        QList<QImage> imgList;
+        QVector<QImage*> imgList;
         int numFrames = 0;
         s >> numFrames;
         for(int j = 0; j < numFrames; j++)
         {
             //Load from TIFF
-            QImage img;
+            QImage* img = new QImage();
             QByteArray imgByteArray;
             s >> imgByteArray;
             QBuffer buffer(&imgByteArray);
             buffer.open(QIODevice::ReadOnly);
-            img.load(&buffer, "TIFF");
+            img->load(&buffer, "TIFF");
             imgList.push_back(img);
         }
-        //mSheetFrames.push_back(imgList);
+
+        //Create new animation
+        Animation* animation = new Animation(transparentBg, msheetScene, this);
+        animation->insertImages(imgList);
+        sheet->addAnimation(animation);
     }
 
     //Grab anim names
@@ -1474,6 +1453,7 @@ void MainWindow::loadFromStream(QDataStream& s)
     {
         QString str;
         s >> str;
+        //TODO
         //mAnimNames.push_back(str);
     }
 
@@ -1492,11 +1472,16 @@ void MainWindow::loadFromStream(QDataStream& s)
     ui->SheetBgTransparent->setChecked(bSheetBg);
     ui->frameBgColSelect->setEnabled(!bFrameBg);
     ui->sheetBgColSelect->setEnabled(!bSheetBg);
+
     int xSpacing, ySpacing, sheetWidth;
     s >> xSpacing >> ySpacing >> sheetWidth;
     ui->xSpacingBox->setValue(xSpacing);
     ui->ySpacingBox->setValue(ySpacing);
+    //Set sheet spacing now
+    sheet->setXSpacing(ui->xSpacingBox->value());
+    sheet->setYSpacing(ui->ySpacingBox->value());
     ui->sheetWidthBox->setValue(sheetWidth);
+
     QString sFontStr;
     s >> sFontStr;
     if(s.status() == QDataStream::Ok)
@@ -1512,45 +1497,16 @@ void MainWindow::loadFromStream(QDataStream& s)
 
     //Done reading
 
-    //Default to beginning of animation and frame lists...
-    //    mCurAnim = mSheetFrames.begin();
-    //    mCurAnimName = mAnimNames.begin();
-    //    if(mCurAnim != mSheetFrames.end())
-    //        mCurFrame = mCurAnim->begin();
+    //Init sheet values
+    sheet->setBgCol(sheetBgCol);
+    sheet->setFrameBgCol(frameBgCol);
+    sheet->setBgTransparent(ui->SheetBgTransparent->isChecked());
+    sheet->setFrameBgTransparent(ui->FrameBgTransparent->isChecked());
+    sheet->setWidth(sheetWidth);
+    if(bMinimizeSheet)
+        minimizeSheetWidth();
+    sheet->updateSceneBounds();
 
-    //Set to correct anim and frame...
-    int cnt = 0;
-    //    for(QList<QList<QImage> >::iterator i = mSheetFrames.begin(); i != mSheetFrames.end(); i++, cnt++)
-    //    {
-    //        if(cnt == curAnim)
-    //        {
-    //            mCurFrame = i->begin();
-    //            mCurAnim = i;
-    //            int innercnt = 0;
-    //            for(QList<QImage>::iterator j = i->begin(); j != i->end(); j++, innercnt++)
-    //            {
-    //                if(innercnt == curAnimFrame)
-    //                {
-    //                    mCurFrame = j;
-    //                    break;
-    //                }
-    //            }
-    //            break;
-    //        }
-    //    }
-
-    //Set to correct anim name...
-    cnt = 0;
-    //    for(QList<QString>::iterator i = mAnimNames.begin(); i != mAnimNames.end(); i++, cnt++)
-    //    {
-    //        if(cnt == curAnim)
-    //        {
-    //            mCurAnimName = i;
-    //            break;
-    //        }
-    //    }
-
-    //Reset GUI stuff!
     //    if(mCurAnimName != mAnimNames.end())
     //        ui->animationNameEditor->setText(*mCurAnimName);
 
@@ -1560,7 +1516,8 @@ void MainWindow::loadFromStream(QDataStream& s)
 
 void MainWindow::cleanMemory()
 {
-    //TODO Wipe sheet
+    //Wipe sheet
+    sheet->clear();
 
     //    if(mCurSheet)
     //        delete mCurSheet;
@@ -1653,6 +1610,8 @@ void MainWindow::updateUndoRedoMenu()
 {
     ui->actionRedo->setEnabled(redoList.size() > 0);
     ui->actionUndo->setEnabled(undoList.size() > 1);
+    ui->redoButton->setEnabled(redoList.size() > 0);
+    ui->undoButton->setEnabled(undoList.size() > 1);
 }
 
 void MainWindow::on_xSpacingBox_editingFinished()
@@ -2008,6 +1967,7 @@ void MainWindow::on_minWidthCheckbox_toggled(bool checked)
 {
     if(sheet && checked)
         minimizeSheetWidth();
+    sheet->updateSceneBounds();
 }
 
 void MainWindow::minimizeSheetWidth()

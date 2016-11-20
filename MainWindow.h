@@ -58,6 +58,9 @@ public slots:
     void saveFileAs();
     void undo();
     void redo();
+    void cut();
+    void copy();
+    void paste();
     void saveSheet(QString filename = QString());
     void loadSheet(QString openFilename = QString());
     void addImages(QStringList l);
@@ -210,10 +213,6 @@ private:
     void saveFile();
     void minimizeSheetWidth();
 
-    //Helper functions for menu + toolbar
-    void cut();
-    void copy();
-    void paste();
 protected:
     bool eventFilter(QObject* obj, QEvent *event);
 

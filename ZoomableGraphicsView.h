@@ -37,6 +37,7 @@ public:
   ZoomableGraphicsView(QGraphicsView* view);
 
   QGraphicsView* getView() {return _view;}
+  void reset(){_view->resetMatrix();_view->centerOn(0,0);}
 private:
   QGraphicsView* _view;
   Qt::KeyboardModifiers _modifiers;

@@ -55,6 +55,9 @@
         </property>
         <item>
          <layout class="QHBoxLayout" name="horizontalLayout_2">
+          <property name="spacing">
+           <number>1</number>
+          </property>
           <item>
            <widget class="QPushButton" name="newButton">
             <property name="toolTip">
@@ -99,6 +102,15 @@
           </item>
           <item>
            <widget class="Line" name="line">
+            <property name="minimumSize">
+             <size>
+              <width>10</width>
+              <height>0</height>
+             </size>
+            </property>
+            <property name="lineWidth">
+             <number>1</number>
+            </property>
             <property name="orientation">
              <enum>Qt::Vertical</enum>
             </property>
@@ -148,6 +160,12 @@
           </item>
           <item>
            <widget class="Line" name="line_2">
+            <property name="minimumSize">
+             <size>
+              <width>10</width>
+              <height>0</height>
+             </size>
+            </property>
             <property name="orientation">
              <enum>Qt::Vertical</enum>
             </property>
@@ -183,6 +201,12 @@
           </item>
           <item>
            <widget class="Line" name="line_3">
+            <property name="minimumSize">
+             <size>
+              <width>10</width>
+              <height>0</height>
+             </size>
+            </property>
             <property name="orientation">
              <enum>Qt::Vertical</enum>
             </property>
