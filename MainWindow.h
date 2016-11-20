@@ -100,6 +100,14 @@ private slots:
     void on_actionBatch_Processing_triggered();
     void on_fontColSelect_clicked();
     void on_minWidthCheckbox_toggled(bool checked);
+    void on_newButton_clicked();
+    void on_openButton_clicked();
+    void on_saveButton_clicked();
+    void on_cutButton_clicked();
+    void on_copyButton_clicked();
+    void on_pasteButton_clicked();
+    void on_undoButton_clicked();
+    void on_redoButton_clicked();
 
 private:
     Ui::MainWindow*         ui;
@@ -201,6 +209,11 @@ private:
     void saveSettings();
     void saveFile();
     void minimizeSheetWidth();
+
+    //Helper functions for menu + toolbar
+    void cut();
+    void copy();
+    void paste();
 protected:
     bool eventFilter(QObject* obj, QEvent *event);
 

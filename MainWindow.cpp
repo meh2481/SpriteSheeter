@@ -466,14 +466,6 @@ void MainWindow::saveFileAs()
     genericSave(getSaveFilename("Save Sheet As"));
 }
 
-void MainWindow::on_removeAnimButton_clicked()
-{
-    //TODO Wipe current animation from sheet
-
-    drawAnimation();
-    genUndoState();
-}
-
 void MainWindow::on_animationNameEditor_textChanged(const QString& arg1)
 {
     Q_UNUSED(arg1)
@@ -776,7 +768,7 @@ void MainWindow::mouseUp(int x, int y)
         {
             bDraggingSheetW = false;
             sheet->updateSceneBounds();
-            //genUndoState();
+            genUndoState();
         }
         else
         {
@@ -1878,7 +1870,7 @@ void MainWindow::on_removeDuplicateFramesButton_clicked()
         }
 
         //mCurFrame = mCurAnim->begin();
-        //drawAnimation();
+        drawAnimation();
         genUndoState();
     }
 }
@@ -2022,4 +2014,67 @@ void MainWindow::minimizeSheetWidth()
 {
     unsigned int width = sheet->getMinWidth();
     ui->sheetWidthBox->setValue(width); //Updates width of sheet automatically
+}
+
+void MainWindow::on_newButton_clicked()
+{
+    newFile();
+}
+
+void MainWindow::on_openButton_clicked()
+{
+    loadSheet();
+}
+
+void MainWindow::on_saveButton_clicked()
+{
+    saveFile();
+}
+
+void MainWindow::on_cutButton_clicked()
+{
+    cut();
+}
+
+void MainWindow::on_copyButton_clicked()
+{
+    copy();
+}
+
+void MainWindow::on_pasteButton_clicked()
+{
+    paste();
+}
+
+void MainWindow::on_undoButton_clicked()
+{
+    undo();
+}
+
+void MainWindow::on_redoButton_clicked()
+{
+    redo();
+}
+
+void MainWindow::on_removeAnimButton_clicked()  //Delete button
+{
+    //TODO Wipe current animation from sheet
+
+    drawAnimation();
+    genUndoState();
+}
+
+void MainWindow::cut()
+{
+    //TODO
+}
+
+void MainWindow::copy()
+{
+    //TODO
+}
+
+void MainWindow::paste()
+{
+    //TODO
 }
