@@ -212,6 +212,7 @@ private:
     void saveSettings();
     void saveFile();
     void minimizeSheetWidth();
+    void deleteSelected();
 
 protected:
     bool eventFilter(QObject* obj, QEvent *event);

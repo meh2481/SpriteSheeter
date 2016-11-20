@@ -1079,10 +1079,7 @@ void MainWindow::keyPressEvent(QKeyEvent* e)
     //Delete current selected frame(s)
     if(e->key() == Qt::Key_Delete && sheet && sheet->hasSelectedFrames())
     {
-        //TODO Don't bork when deleting while dragging/selecting
-        sheet->deleteSelected();
-        curSelectedRect->setVisible(false); //In case we deleted a hovered frame
-        genUndoState();
+        deleteSelected();
     }
 }
 
@@ -1582,7 +1579,7 @@ void MainWindow::genUndoState()
 void MainWindow::pushUndo()
 {
     QByteArray* baUndoPt = new QByteArray();
-    baUndoPt->reserve(2600000); //Reserve some space here so we aren't reallocating over and over
+    //baUndoPt->reserve(2600000); //Reserve some space here so we aren't reallocating over and over
     QDataStream s(baUndoPt, QIODevice::WriteOnly);
     saveToStream(s);
     undoList.push(baUndoPt);
@@ -1976,6 +1973,15 @@ void MainWindow::minimizeSheetWidth()
     ui->sheetWidthBox->setValue(width); //Updates width of sheet automatically
 }
 
+void MainWindow::deleteSelected()
+{
+    sheet->deleteSelected();
+    curSelectedRect->setVisible(false); //In case we deleted a hovered frame
+    genUndoState();
+    lastSelected = selected = NULL;
+    curDragLine->setVisible(false); //If we're currently dragging, hide dragging line
+}
+
 void MainWindow::on_newButton_clicked()
 {
     newFile();
@@ -2018,10 +2024,7 @@ void MainWindow::on_redoButton_clicked()
 
 void MainWindow::on_removeAnimButton_clicked()  //Delete button
 {
-    //TODO Wipe current animation from sheet
-
-    drawAnimation();
-    genUndoState();
+    deleteSelected();
 }
 
 void MainWindow::cut()
