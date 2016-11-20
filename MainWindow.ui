@@ -19,6 +19,21 @@
   </property>
   <widget class="QWidget" name="centralWidget">
    <layout class="QHBoxLayout" name="horizontalLayout">
+    <property name="spacing">
+     <number>2</number>
+    </property>
+    <property name="leftMargin">
+     <number>2</number>
+    </property>
+    <property name="topMargin">
+     <number>2</number>
+    </property>
+    <property name="rightMargin">
+     <number>2</number>
+    </property>
+    <property name="bottomMargin">
+     <number>2</number>
+    </property>
     <item>
      <widget class="QSplitter" name="splitter">
       <property name="sizePolicy">
@@ -35,12 +50,148 @@
       </property>
       <widget class="QWidget" name="verticalLayoutWidget_2">
        <layout class="QVBoxLayout" name="verticalLayout_2" stretch="0,0,0">
+        <property name="spacing">
+         <number>2</number>
+        </property>
         <item>
          <layout class="QHBoxLayout" name="horizontalLayout_2">
           <item>
+           <widget class="QPushButton" name="newButton">
+            <property name="toolTip">
+             <string>New Sheet</string>
+            </property>
+            <property name="text">
+             <string/>
+            </property>
+            <property name="icon">
+             <iconset resource="spritesheetertest1.qrc">
+              <normaloff>:/images/new.png</normaloff>:/images/new.png</iconset>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QPushButton" name="openButton">
+            <property name="toolTip">
+             <string>Open...</string>
+            </property>
+            <property name="text">
+             <string/>
+            </property>
+            <property name="icon">
+             <iconset resource="spritesheetertest1.qrc">
+              <normaloff>:/images/open.png</normaloff>:/images/open.png</iconset>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QPushButton" name="saveButton">
+            <property name="toolTip">
+             <string>Save</string>
+            </property>
+            <property name="text">
+             <string/>
+            </property>
+            <property name="icon">
+             <iconset resource="spritesheetertest1.qrc">
+              <normaloff>:/images/save.png</normaloff>:/images/save.png</iconset>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="Line" name="line">
+            <property name="orientation">
+             <enum>Qt::Vertical</enum>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QPushButton" name="cutButton">
+            <property name="toolTip">
+             <string>Cut</string>
+            </property>
+            <property name="text">
+             <string/>
+            </property>
+            <property name="icon">
+             <iconset resource="spritesheetertest1.qrc">
+              <normaloff>:/images/cut.png</normaloff>:/images/cut.png</iconset>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QPushButton" name="copyButton">
+            <property name="toolTip">
+             <string>Copy</string>
+            </property>
+            <property name="text">
+             <string/>
+            </property>
+            <property name="icon">
+             <iconset resource="spritesheetertest1.qrc">
+              <normaloff>:/images/copy.png</normaloff>:/images/copy.png</iconset>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QPushButton" name="pasteButton">
+            <property name="toolTip">
+             <string>Paste</string>
+            </property>
+            <property name="text">
+             <string/>
+            </property>
+            <property name="icon">
+             <iconset resource="spritesheetertest1.qrc">
+              <normaloff>:/images/paste.png</normaloff>:/images/paste.png</iconset>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="Line" name="line_2">
+            <property name="orientation">
+             <enum>Qt::Vertical</enum>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QPushButton" name="undoButton">
+            <property name="toolTip">
+             <string>Undo</string>
+            </property>
+            <property name="text">
+             <string/>
+            </property>
+            <property name="icon">
+             <iconset resource="spritesheetertest1.qrc">
+              <normaloff>:/images/undo.png</normaloff>:/images/undo.png</iconset>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QPushButton" name="redoButton">
+            <property name="toolTip">
+             <string>Redo</string>
+            </property>
+            <property name="text">
+             <string/>
+            </property>
+            <property name="icon">
+             <iconset resource="spritesheetertest1.qrc">
+              <normaloff>:/images/redo.png</normaloff>:/images/redo.png</iconset>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="Line" name="line_3">
+            <property name="orientation">
+             <enum>Qt::Vertical</enum>
+            </property>
+           </widget>
+          </item>
+          <item>
            <widget class="QPushButton" name="removeAnimButton">
             <property name="toolTip">
-             <string>Delete selected animation (Delete)</string>
+             <string>Delete selected</string>
             </property>
             <property name="text">
              <string/>
@@ -72,6 +223,10 @@
             <property name="text">
              <string>Add Frame Sequence...</string>
             </property>
+            <property name="icon">
+             <iconset resource="spritesheetertest1.qrc">
+              <normaloff>:/images/plus-icon.png</normaloff>:/images/plus-icon.png</iconset>
+            </property>
            </widget>
           </item>
           <item>
@@ -81,6 +236,10 @@
             </property>
             <property name="text">
              <string>Import Sheet...</string>
+            </property>
+            <property name="icon">
+             <iconset resource="spritesheetertest1.qrc">
+              <normaloff>:/images/open.png</normaloff>:/images/open.png</iconset>
             </property>
            </widget>
           </item>
@@ -101,6 +260,9 @@
         </item>
         <item>
          <layout class="QHBoxLayout" name="horizontalLayout_5">
+          <property name="topMargin">
+           <number>3</number>
+          </property>
           <item>
            <layout class="QHBoxLayout" name="horizontalLayout_8">
             <item>
@@ -247,6 +409,21 @@
         <string>Animation and Options</string>
        </property>
        <layout class="QHBoxLayout" name="horizontalLayout_7">
+        <property name="spacing">
+         <number>9</number>
+        </property>
+        <property name="leftMargin">
+         <number>5</number>
+        </property>
+        <property name="topMargin">
+         <number>5</number>
+        </property>
+        <property name="rightMargin">
+         <number>5</number>
+        </property>
+        <property name="bottomMargin">
+         <number>5</number>
+        </property>
         <item>
          <layout class="QVBoxLayout" name="verticalLayout_3">
           <item>
@@ -726,6 +903,10 @@
     <property name="title">
      <string>Edit</string>
     </property>
+    <addaction name="actionCut"/>
+    <addaction name="actionCopy"/>
+    <addaction name="actionPaste"/>
+    <addaction name="separator"/>
     <addaction name="actionUndo"/>
     <addaction name="actionRedo"/>
     <addaction name="separator"/>
@@ -820,6 +1001,30 @@
    </property>
    <property name="shortcut">
     <string>Ctrl+B</string>
+   </property>
+  </action>
+  <action name="actionCut">
+   <property name="text">
+    <string>Cut</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+X</string>
+   </property>
+  </action>
+  <action name="actionCopy">
+   <property name="text">
+    <string>Copy</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+C</string>
+   </property>
+  </action>
+  <action name="actionPaste">
+   <property name="text">
+    <string>Paste</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+V</string>
    </property>
   </action>
  </widget>

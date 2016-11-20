@@ -12,5 +12,13 @@
         <file alias="bg">images/bg.png</file>
         <file alias="blank">images/blank.png</file>
         <file>images/icon2.png</file>
+        <file>images/copy.png</file>
+        <file>images/cut.png</file>
+        <file>images/new.png</file>
+        <file>images/paste.png</file>
+        <file>images/redo.png</file>
+        <file>images/save.png</file>
+        <file>images/undo.png</file>
+        <file>images/open.png</file>
     </qresource>
 </RCC>

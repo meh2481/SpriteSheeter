@@ -787,7 +787,7 @@ void MainWindow::mouseUp(int x, int y)
                 if(lastSelected && QGuiApplication::keyboardModifiers() & Qt::ShiftModifier)
                 {
                     sheet->selectLine(clicked, lastSelected);
-                    sheet->clicked(x, y, clicked);
+                    sheet->clicked(x, y, clicked);  //Deselect so it can be reselected again (FSMs are hard)
                 }
                 //Ctrl-click to select multiple
                 else if(!(QGuiApplication::keyboardModifiers() & Qt::ControlModifier))

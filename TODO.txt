@@ -3,18 +3,15 @@ Current technical tasks:
 
 UI Design Stories:
 -Rework frame movement/editing:
-	-Only select multiple frames on ctrl-click 
-	-Deselect all frames by clicking on anim/off sheet
-	-Shift-click to select frames in a row
 	-Click-drag in box to select multiple frames
 -Rework animation movement/editing:
 	-Clicking animations should outline/select
 	-Can click-drag animations around and between each other
 -Rework upper toolbar; delete animations/frames in batches
+	-Add save/cut/copy/paste/etc buttons to upper toolbar
 -Add cut/copy/paste
 	-frames will need a deep copy function
 	-Paste deselects everything else
--Add save/cut/copy/paste/etc buttons to upper toolbar
 -Save/Save As disabled in main menu and toolbar when new file/not saveable
 -Make Play & Pause buttons the same button
 -Remove stop button?
