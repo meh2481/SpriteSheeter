@@ -68,7 +68,7 @@ MainWindow::MainWindow(QWidget *parent) :
     bDraggingSheetW = false;
     m_bDraggingSelected = false;
     m_bSetDraggingCursor = false;
-    bFileModified = false;
+    setModified(false);
     m_rLastDragHighlight.setCoords(0,0,0,0);
     m_bLastDragInAnim = false;
     sCurFilename = UNTITLED_IMAGE_STR;
@@ -404,7 +404,7 @@ void MainWindow::genericSave(QString saveFilename)
             saveSheet(saveFilename);
             QFileInfo fi(saveFilename);
             sCurFilename = fi.fileName();
-            bFileModified = false;
+            setModified(false);
             updateWindowTitle();
             //TODO Store file orig state
         }
@@ -1058,7 +1058,7 @@ void MainWindow::newFile()
     drawAnimation();
 
     sCurFilename = UNTITLED_IMAGE_STR;
-    bFileModified = false;
+    setModified(false);
     updateWindowTitle();
 
     //Store file orig state, clear undo/redo
@@ -1271,7 +1271,7 @@ void MainWindow::undo()
 {
     if(undoList.size() > 1)
     {
-        bFileModified = true;
+        setModified(true);
         //Save our redo point
         QByteArray* ba = undoList.pop();
         redoList.push(ba);
@@ -1290,7 +1290,7 @@ void MainWindow::redo()
 {
     if(redoList.size())
     {
-        bFileModified = true;
+        setModified(true);
         //Save this back on our undo list (top of undo list is current state)
         QByteArray* ba = redoList.pop();
         undoList.push(ba);
@@ -1377,7 +1377,7 @@ void MainWindow::loadSheet(QString openFilename)
 
             QFileInfo fi(openFilename);
             sCurFilename = fi.fileName();
-            bFileModified = false;
+            setModified(false);
             updateWindowTitle();
             lastSaveStr = openFilename;
             clearUndo();
@@ -1563,7 +1563,7 @@ void MainWindow::genUndoState()
     //Set the window title if this is the first the file has been modified
     if(!bFileModified)
     {
-        bFileModified = true;
+        setModified(true);
         updateWindowTitle();
     }
 
@@ -1980,6 +1980,14 @@ void MainWindow::deleteSelected()
     genUndoState();
     lastSelected = selected = NULL;
     curDragLine->setVisible(false); //If we're currently dragging, hide dragging line
+}
+
+void MainWindow::setModified(bool b)
+{
+    bFileModified = b;
+    ui->saveButton->setEnabled(b);
+    ui->actionSave->setEnabled(b);
+    ui->actionSaveAs->setEnabled(b);
 }
 
 void MainWindow::on_newButton_clicked()

@@ -118,6 +118,9 @@
           </item>
           <item>
            <widget class="QPushButton" name="cutButton">
+            <property name="enabled">
+             <bool>false</bool>
+            </property>
             <property name="toolTip">
              <string>Cut</string>
             </property>
@@ -132,6 +135,9 @@
           </item>
           <item>
            <widget class="QPushButton" name="copyButton">
+            <property name="enabled">
+             <bool>false</bool>
+            </property>
             <property name="toolTip">
              <string>Copy</string>
             </property>
@@ -146,6 +152,9 @@
           </item>
           <item>
            <widget class="QPushButton" name="pasteButton">
+            <property name="enabled">
+             <bool>false</bool>
+            </property>
             <property name="toolTip">
              <string>Paste</string>
             </property>
@@ -1028,6 +1037,9 @@
    </property>
   </action>
   <action name="actionCut">
+   <property name="enabled">
+    <bool>false</bool>
+   </property>
    <property name="text">
     <string>Cut</string>
    </property>
@@ -1036,6 +1048,9 @@
    </property>
   </action>
   <action name="actionCopy">
+   <property name="enabled">
+    <bool>false</bool>
+   </property>
    <property name="text">
     <string>Copy</string>
    </property>
@@ -1044,6 +1059,9 @@
    </property>
   </action>
   <action name="actionPaste">
+   <property name="enabled">
+    <bool>false</bool>
+   </property>
    <property name="text">
     <string>Paste</string>
    </property>
