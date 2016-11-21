@@ -396,6 +396,11 @@ void MainWindow::genericSave(QString saveFilename)
 {
     if(saveFilename.length())
     {
+        //Set cursor to saving cursor
+        QApplication::setOverrideCursor(Qt::WaitCursor);
+        QApplication::processEvents();
+        statusBar()->showMessage("Saving " + saveFilename + "...");
+
         //Create image and save
         lastSaveStr = saveFilename;
         if(saveFilename.contains(".sheet", Qt::CaseInsensitive))
@@ -422,6 +427,10 @@ void MainWindow::genericSave(QString saveFilename)
                 //TODO Store file orig state
             }
         }
+
+        //Set cursor back
+        QApplication::restoreOverrideCursor();
+        statusBar()->showMessage(saveFilename + " saved!");
     }
 }
 

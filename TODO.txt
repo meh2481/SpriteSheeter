@@ -10,8 +10,6 @@ UI Design Stories:
 -Upper toolbar
 	-Cut/copy/delete disabled if nothing selected
 	-Paste disabled if nothing in clipboard
-	-Save disabled if no changes
-	-Save/Save As disabled in main menu also when new file/no changes
 -Add cut/copy/paste
 	-frames will need a deep copy function
 	-Paste deselects everything else
@@ -23,7 +21,6 @@ UI Design Stories:
 Technical Stories:
 -Memory cap being hit during undo/redo:
 	-Click-dragging sheets in generates more than one undo state; fix
-	-Change back from TIFF to PNG saving for now
 -Rather than specifying image types manually, remove filter entirely or add ALL actual file types we support to filter
 -More robust undo/redo system (current brute force approach is super slow)
 	-Abstract undo/redo class 
@@ -33,7 +30,7 @@ Technical Stories:
 -Commandline argument support - Can associate .sheet with program
 
 User stories:
--Test balance/resize; reports of crashing
+-Test balance/resize; reports of crashing (Possibly related to undo/redo memory cap? Research)
 -Being able to drag labels around
 	-May want to think about labels being individual items rather than an inherent part of an animation
 	-Along that note, custom labels & watermarks are common on TSR sheets
@@ -51,3 +48,4 @@ User stories:
 -Offset frames by a few pixels l/r/u/d; not to be confused with moving frames around in an animation (Current workaround: use the balance animation button)
 -Drag-and-drop should support .sheet file format
 -Create user guide? At the very least, a FAQ may help since e.g. the Balance Animation button isn't well understood
+-Auto-check for updates?
