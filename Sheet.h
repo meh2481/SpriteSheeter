@@ -72,6 +72,7 @@ public:
     bool saveToStream(QDataStream& s);  //Save sheet to data stream
     bool exportImage(QString sImgFilename); //Export the sheet as an image
     void clear();   //Clears out this animation
+    bool render(QString filename);    //Render this out as an image
 
 signals:
 

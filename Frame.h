@@ -4,6 +4,7 @@
 #include <QGraphicsRectItem>
 #include <QImage>
 #include <QColor>
+#include <QPainter>
 #include "BalancePos.h"
 
 #define FRAME_SELECT_THICKNESS 2
@@ -47,6 +48,8 @@ public:
     bool isThis(QGraphicsItem* it) {return it==item;}
 
     bool isSelected() {return selected;}
+
+    void render(QPainter& painter);
 };
 
 #endif // FRAME_H

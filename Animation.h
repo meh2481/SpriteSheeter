@@ -8,6 +8,7 @@
 #include <QGraphicsPixmapItem>
 #include <QGraphicsRectItem>
 #include <QColor>
+#include <QPainter>
 #include "BalancePos.h"
 #include "Frame.h"
 
@@ -117,6 +118,8 @@ public:
     void deselectAll();
 
     QVector<Frame*>& getFrames() {return frames;}
+
+    void render(QPainter& painter);
 
 signals:
 

@@ -396,8 +396,7 @@ void MainWindow::genericSave(QString saveFilename)
 {
     if(saveFilename.length())
     {
-        //drawSheet(false);   //Save a non-highlighted version
-        //TODO Create image and save
+        //Create image and save
         lastSaveStr = saveFilename;
         if(saveFilename.contains(".sheet", Qt::CaseInsensitive))
         {
@@ -410,21 +409,19 @@ void MainWindow::genericSave(QString saveFilename)
         }
         else
         {
-            //if(!mCurSheet->save(saveFilename))
+            if(!sheet->render(saveFilename))
             {
-                //TODO
                 QMessageBox::information(this,"Image Export","Error saving image " + saveFilename);
             }
-            //            else
-            //            {
-            //                QFileInfo fi(saveFilename);
-            //                sCurFilename = fi.fileName();
-            //                bFileModified = false;
-            //                fixWindowTitle();
-            //                //TODO Store file orig state
-            //            }
+            else
+            {
+                QFileInfo fi(saveFilename);
+                sCurFilename = fi.fileName();
+                setModified(false);
+                updateWindowTitle();
+                //TODO Store file orig state
+            }
         }
-        //drawSheet(true);    //Redraw the highlighted version
     }
 }
 

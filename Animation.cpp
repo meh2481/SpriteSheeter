@@ -439,3 +439,11 @@ void Animation::deselectAll()
             f->selectToggle();
     }
 }
+
+void Animation::render(QPainter& painter)
+{
+    //TODO Render anim title
+
+    foreach(Frame* f, frames)
+        f->render(painter);
+}

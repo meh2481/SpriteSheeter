@@ -439,3 +439,25 @@ void Sheet::clear()
     animations.clear();
     refresh();
 }
+
+bool Sheet::render(QString filename)
+{
+    //Create image to render to
+    QImage sheetImage(width, curHeight, QImage::Format_ARGB32);
+    QPainter painter(&sheetImage);
+    //painter.setFont() //TODO
+
+    //Fill sheet background
+    painter.setCompositionMode(QPainter::CompositionMode_Source);
+    if(sheetBgTransparent)
+        sheetImage.fill(QColor(0,0,0,0));
+    else
+        sheetImage.fill(sheetBgCol);
+
+    //Render animations
+    foreach(Animation* anim, animations)
+        anim->render(painter);
+
+    //Save image
+    return sheetImage.save(filename);
+}

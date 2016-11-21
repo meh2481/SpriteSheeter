@@ -99,3 +99,15 @@ void Frame::selectToggle()
     selected = !selected;
     fg->setVisible(selected);
 }
+
+void Frame::render(QPainter& painter)
+{
+    //Fill in bg highlight col if we should
+    if(!bgTransparent)
+    {
+        painter.setCompositionMode(QPainter::CompositionMode_SourceOver);
+        painter.fillRect(x, y, img->width(), img->height(), QBrush(frameBgCol));
+    }
+
+    painter.drawImage(x, y, *img);
+}
