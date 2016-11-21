@@ -402,10 +402,9 @@ bool Sheet::saveToStream(QDataStream& s)
             QByteArray imgByteArray;
             QBuffer buffer(&imgByteArray);
             buffer.open(QIODevice::WriteOnly);
-            f->getImage()->save(&buffer, "TIFF");   //TODO Use PNG instead
-            //TODO Breaks save compat, so check version
-            //s << f->isSelected();
+            f->getImage()->save(&buffer, "PNG");
             s << imgByteArray;
+            s << f->isSelected();
         }
     }
 

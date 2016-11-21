@@ -1422,24 +1422,33 @@ void MainWindow::loadFromStream(QDataStream& s)
     s >> numAnims;
     for(int i = 0; i < numAnims; i++)
     {
-        QVector<QImage*> imgList;
+        QVector<Frame*> imgList;
         int numFrames = 0;
         s >> numFrames;
         for(int j = 0; j < numFrames; j++)
         {
-            //Load from TIFF
+            bool selected = false;
             QImage* img = new QImage();
             QByteArray imgByteArray;
             s >> imgByteArray;
             QBuffer buffer(&imgByteArray);
             buffer.open(QIODevice::ReadOnly);
-            img->load(&buffer, "TIFF");
-            imgList.push_back(img);
+            if(major == 1 && minor < 2) //pre-v1.2 saved as TIFF
+                img->load(&buffer, "TIFF");
+            else
+            {
+                img->load(&buffer, "PNG");
+                s >> selected;
+            }
+            Frame* f = new Frame(msheetScene, img, frameBgCol, transparentBg, false);   //Will set framebgtransparent later
+            if(selected)
+                f->selectToggle();
+            imgList.push_back(f);
         }
 
         //Create new animation
         Animation* animation = new Animation(transparentBg, msheetScene, this);
-        animation->insertImages(imgList);
+        animation->addImages(imgList, 0);
         sheet->addAnimation(animation);
     }
 
@@ -1987,7 +1996,6 @@ void MainWindow::setModified(bool b)
     bFileModified = b;
     ui->saveButton->setEnabled(b);
     ui->actionSave->setEnabled(b);
-    ui->actionSaveAs->setEnabled(b);
 }
 
 void MainWindow::on_newButton_clicked()

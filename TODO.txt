@@ -50,5 +50,4 @@ User stories:
 	-Attempt loading images with FreeImage instead of QImage and see if FreeImage handles them better
 -Offset frames by a few pixels l/r/u/d; not to be confused with moving frames around in an animation (Current workaround: use the balance animation button)
 -Drag-and-drop should support .sheet file format
--Ctrl-Z,Ctrl-Y doesn't work for undo/redo
 -Create user guide? At the very least, a FAQ may help since e.g. the Balance Animation button isn't well understood
