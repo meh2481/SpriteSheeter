@@ -40,7 +40,7 @@ MainWindow::MainWindow(QWidget *parent) :
     //Connect all our signals & slots up
     QObject::connect(mImportWindow, SIGNAL(importOK(int, int, bool, bool)), this, SLOT(importNext(int, int, bool, bool)));
     QObject::connect(mImportWindow, SIGNAL(importAll(int, int, bool, bool)), this, SLOT(importAll(int, int, bool, bool)));
-    QObject::connect(this, SIGNAL(setImportImg(QString)), mImportWindow, SLOT(setPreviewImage(QString)));
+    QObject::connect(this, SIGNAL(setImportImg(QImage*)), mImportWindow, SLOT(setPreviewImage(QImage*)));
     QObject::connect(ui->sheetPreview, SIGNAL(mouseMoved(int,int)), this, SLOT(mouseCursorPos(int, int)));
     QObject::connect(ui->sheetPreview, SIGNAL(mousePressed(int,int)), this, SLOT(mouseDown(int, int)));
     QObject::connect(ui->sheetPreview, SIGNAL(mouseReleased(int,int)), this, SLOT(mouseUp(int, int)));
@@ -164,7 +164,7 @@ void MainWindow::importImageList(QStringList& fileList, QString prepend, QString
         foreach(QString s1, fileList)
         {
             QString imgPath = prepend + s1;
-            QImage* image = new QImage(imgPath);
+            QImage* image = loadImageFI(imgPath);
             if(!image->isNull())
                 animation->insertImage(image);
             else
@@ -281,7 +281,7 @@ void MainWindow::openImportDiag()
     QString windowTitle = "Animation for image " + s;
     mImportWindow->setModal(true);
     mImportWindow->setWindowTitle(windowTitle);
-    if(setImportImg(curImportImage))
+    if(setImportImg(loadImageFI(curImportImage)))
     {
         mImportWindow->show();
         //Center on parent
@@ -305,8 +305,8 @@ void MainWindow::insertAnimHelper(QVector<QImage*> imgList, QString name)
 
 void MainWindow::importImageAsSheet(QString s, int numxframes, int numyframes, bool bVert, bool bSplit)
 {
-    QImage image(s);
-    if(image.isNull())
+    QImage* image = loadImageFI(s);
+    if(!image)
     {
         QMessageBox::information(this, "Image Import", "Error opening image " + s);
         return;
@@ -314,8 +314,8 @@ void MainWindow::importImageAsSheet(QString s, int numxframes, int numyframes, b
     QString fileName = QFileInfo(s).baseName();
 
     //Find image dimensions
-    int iXFrameSize = image.width() / numxframes;
-    int iYFrameSize = image.height() / numyframes;
+    int iXFrameSize = image->width() / numxframes;
+    int iYFrameSize = image->height() / numyframes;
 
     //Grab all the frames out
     QVector<QImage*> imgList;
@@ -325,7 +325,7 @@ void MainWindow::importImageAsSheet(QString s, int numxframes, int numyframes, b
         {
             for(int x = 0; x < numxframes; x++)
             {
-                imgList.push_back(new QImage(image.copy(x*iXFrameSize, y*iYFrameSize, iXFrameSize, iYFrameSize)));
+                imgList.push_back(new QImage(image->copy(x*iXFrameSize, y*iYFrameSize, iXFrameSize, iYFrameSize)));
             }
             if(bSplit)
             {
@@ -340,7 +340,7 @@ void MainWindow::importImageAsSheet(QString s, int numxframes, int numyframes, b
         {
             for(int y = 0; y < numyframes; y++)
             {
-                imgList.push_back(new QImage(image.copy(x*iXFrameSize, y*iYFrameSize, iXFrameSize, iYFrameSize)));
+                imgList.push_back(new QImage(image->copy(x*iXFrameSize, y*iYFrameSize, iXFrameSize, iYFrameSize)));
             }
             if(bSplit)
             {
@@ -352,6 +352,7 @@ void MainWindow::importImageAsSheet(QString s, int numxframes, int numyframes, b
     if(!bSplit)
         insertAnimHelper(imgList, fileName);
 
+    delete image;
     drawAnimation();
     genUndoState();
 }
@@ -702,12 +703,12 @@ void MainWindow::mouseDown(int x, int y)
     selected = NULL;
     if(sheet)
     {
-//        qDebug() << "Mouse click on sheet" << x << y;
+        //        qDebug() << "Mouse click on sheet" << x << y;
 
         //We're starting to drag the sheet size handle
         if(isMouseOverDragArea(x, y))
         {
-//            qDebug() << "Mouse dragging sheet width";
+            //            qDebug() << "Mouse dragging sheet width";
             bDraggingSheetW = true;
             mStartSheetW = sheet->getWidth();
             xStartDragSheetW = x;
@@ -717,10 +718,10 @@ void MainWindow::mouseDown(int x, int y)
             clicked = isItemUnderCursor(x, y);
             if(clicked)
             {
-//                qDebug() << "Mouse clicked on item";
+                //                qDebug() << "Mouse clicked on item";
                 if(sheet->selected(clicked))
                 {
-//                    qDebug() << "Mouse clicked selected item; start drag";
+                    //                    qDebug() << "Mouse clicked selected item; start drag";
                     selected = clicked;
                 }
                 //if(it)
@@ -2002,6 +2003,65 @@ void MainWindow::setModified(bool b)
     bFileModified = b;
     ui->saveButton->setEnabled(b);
     ui->actionSave->setEnabled(b);
+}
+
+QImage* MainWindow::loadImageFI(QString filename)
+{
+    std::string sFilename = filename.toStdString();
+    FREE_IMAGE_FORMAT fif = FIF_UNKNOWN;
+    //pointer to the image, once loaded
+    FIBITMAP *dib = NULL;
+    //pointer to the image data
+    BYTE* bits = NULL;
+    //image width and height
+    unsigned int width = 0, height = 0;
+
+    //check the file signature and deduce its format
+    fif = FreeImage_GetFileType(sFilename.c_str(), 0);
+    //if still unknown, try to guess the file format from the file extension
+    if(fif == FIF_UNKNOWN)
+        fif = FreeImage_GetFIFFromFilename(sFilename.c_str());
+    //if still unkown, return failure
+    if(fif == FIF_UNKNOWN)
+    {
+        qDebug() << "Unknown image type for file " << filename << endl;
+        return NULL;
+    }
+
+    //check that the plugin has reading capabilities and load the file
+    if(FreeImage_FIFSupportsReading(fif))
+        dib = FreeImage_Load(fif, sFilename.c_str());
+    //if the image failed to load, return failure
+    if(!dib)
+    {
+        qDebug() << "Error loading image " << filename << endl;
+        return NULL;
+    }
+    //retrieve the image data
+
+    //get the image width and height
+    width = FreeImage_GetWidth(dib);
+    height = FreeImage_GetHeight(dib);
+
+    //Convert to 32 BPP if we need to
+    if(FreeImage_GetBPP(dib) != 32)
+    {
+        FIBITMAP* frame32bit = FreeImage_ConvertTo32Bits(dib);
+        FreeImage_Unload(dib);
+        dib = frame32bit;
+    }
+
+    bits = FreeImage_GetBits(dib);
+    if((bits == NULL) || (width == 0) || (height == 0))
+    {
+        qDebug() << "Unable to lock bits" << endl;
+        return NULL;
+    }
+
+    QImage imgResult(bits, width, height, FreeImage_GetPitch(dib), QImage::Format_ARGB32);
+    QImage* ret = new QImage(imgResult.mirrored());    //Copy the image cause Qt is dumb with image memory
+    FreeImage_Unload(dib);
+    return ret;
 }
 
 void MainWindow::on_newButton_clicked()

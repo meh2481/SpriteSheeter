@@ -43,7 +43,7 @@ public:
     void keyPressEvent(QKeyEvent* e);
 
 signals:
-    bool setImportImg(QString s);
+    bool setImportImg(QImage* image);
     void setBalanceDefWH(int w, int h);
     void setIconImage(QImage img);
 
@@ -214,6 +214,7 @@ private:
     void minimizeSheetWidth();
     void deleteSelected();
     void setModified(bool b);
+    QImage* loadImageFI(QString filename);
 
 protected:
     bool eventFilter(QObject* obj, QEvent *event);

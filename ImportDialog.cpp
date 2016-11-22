@@ -22,12 +22,12 @@ ImportDialog::~ImportDialog()
     delete ui;
 }
 
-bool ImportDialog::setPreviewImage(QString sImg)
+bool ImportDialog::setPreviewImage(QImage* image)
 {
-    if(!sImg.isEmpty())
+    //if(!sImg.isEmpty())
     {
-        QImage image(sImg);
-        if(!image.isNull())
+        //QImage image(sImg);
+        if(image != NULL && !image->isNull())
         {
             if(scene == NULL)
             {
@@ -36,16 +36,16 @@ bool ImportDialog::setPreviewImage(QString sImg)
             }
             if(item == NULL)
             {
-                item = new QGraphicsPixmapItem(QPixmap::fromImage(image));
+                item = new QGraphicsPixmapItem(QPixmap::fromImage(*image));
                 scene->addItem(item);
             }
             else
-                item->setPixmap(QPixmap::fromImage(image));
+                item->setPixmap(QPixmap::fromImage(*image));
 
-            scene->setSceneRect(0, 0, image.width(), image.height());
+            scene->setSceneRect(0, 0, image->width(), image->height());
 
             ui->imagePreview->show();
-
+            delete image;
             return true;
         }
     }
