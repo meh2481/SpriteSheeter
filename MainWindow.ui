@@ -258,7 +258,7 @@
             </property>
             <property name="icon">
              <iconset resource="spritesheetertest1.qrc">
-              <normaloff>:/images/plus-icon.png</normaloff>:/images/plus-icon.png</iconset>
+              <normaloff>:/images/open.png</normaloff>:/images/open.png</iconset>
             </property>
            </widget>
           </item>
@@ -272,7 +272,7 @@
             </property>
             <property name="icon">
              <iconset resource="spritesheetertest1.qrc">
-              <normaloff>:/images/open.png</normaloff>:/images/open.png</iconset>
+              <normaloff>:/images/icon2.png</normaloff>:/images/icon2.png</iconset>
             </property>
            </widget>
           </item>

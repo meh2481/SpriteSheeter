@@ -133,6 +133,8 @@ private:
     QGraphicsItem* lastSelected;    //Last item that was clicked (persists after clicking stops)
     QGraphicsRectItem* curSelectedRect; //Rect for showing hovered anim frame
     QGraphicsLineItem* curDragLine;
+    QImage* mCurFrame;
+    int mAnimFrame;
 
     //Variables for drawing the current sheet/animation
     QFont   sheetFont;

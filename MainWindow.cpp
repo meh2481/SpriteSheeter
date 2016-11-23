@@ -61,6 +61,8 @@ MainWindow::MainWindow(QWidget *parent) :
 
     animItem = NULL;
     progressBar = NULL;
+    mCurFrame = NULL;
+    mAnimFrame = 0;
     clicked = selected = lastSelected = NULL;
     transparentBg = new QImage("://bg");
     bLoadMutex = false;
@@ -488,57 +490,68 @@ void MainWindow::on_animationNameEditor_textChanged(const QString& arg1)
 
 void MainWindow::drawAnimation()
 {
-    //TODO
+    //TODO Select cur frame from cur animation
+    mCurFrame = NULL;
+    if(sheet->size())
+    {
+        Animation* anim = sheet->getAnimation(0);
+        QVector<Frame*> frames = anim->getFrames();
+        if(frames.size())
+        {
+            if(mAnimFrame > frames.size()-1)
+                mAnimFrame = frames.size()-1;
+            mCurFrame = frames.at(mAnimFrame)->getImage();
+        }
+    }
 
-    //    if(mCurAnim == mSheetFrames.end() || !mCurAnim->size() || mCurFrame == mCurAnim->end())
-    //    {
-    //        if(animItem)
-    //            animItem->hide();
-    //        return;
-    //    }
+    if(!mCurFrame)
+    {
+        if(animItem)
+            animItem->hide();
+        return;
+    }
 
     //Draw image and bg
-    //    QImage animFrame(mCurFrame->width(), mCurFrame->height(), QImage::Format_ARGB32);
-    //    QPainter painter(&animFrame);
-    //    painter.setCompositionMode(QPainter::CompositionMode_SourceOver);
-    //    if(ui->FrameBgTransparent->isChecked())
-    //    {
-    //        QBrush bgTexBrush(*transparentBg);
-    //        painter.fillRect(0, 0, mCurFrame->width(), mCurFrame->height(), bgTexBrush);
-    //    }
-    //    else
-    //        animFrame.fill(frameBgCol);
+    QImage animFrame(mCurFrame->width(), mCurFrame->height(), QImage::Format_ARGB32);
+    QPainter painter(&animFrame);
+    painter.setCompositionMode(QPainter::CompositionMode_SourceOver);
+    if(ui->FrameBgTransparent->isChecked())
+    {
+        QBrush bgTexBrush(*transparentBg);
+        painter.fillRect(0, 0, mCurFrame->width(), mCurFrame->height(), bgTexBrush);
+    }
+    else
+        animFrame.fill(frameBgCol);
 
-    //    painter.drawImage(0, 0, *mCurFrame);
+    painter.drawImage(0, 0, *mCurFrame);
 
 
-    //    if(animItem == NULL)
-    //    {
-    //        animItem = new QGraphicsPixmapItem(QPixmap::fromImage(animFrame));
-    //        animScene->addItem(animItem);
-    //    }
-    //    else
-    //        animItem->setPixmap(QPixmap::fromImage(animFrame));
+    if(animItem == NULL)
+    {
+        animItem = new QGraphicsPixmapItem(QPixmap::fromImage(animFrame));
+        animScene->addItem(animItem);
+    }
+    else
+        animItem->setPixmap(QPixmap::fromImage(animFrame));
 
-    //    animItem->show();
-    //    animScene->setSceneRect(0, 0, animFrame.width(), animFrame.height());
+    animItem->show();
+    animScene->setSceneRect(0, 0, animFrame.width(), animFrame.height());
 }
 
 void MainWindow::animUpdate()
 {
-    //TODO
-
-    //    if(mCurAnim == mSheetFrames.end() || !mCurAnim->size())
-    //        return;
-
-    //    if(mCurFrame == mCurAnim->end())
-    //        mCurFrame = mCurAnim->begin();
-    //    else
-    //    {
-    //        mCurFrame++;
-    //        if(mCurFrame == mCurAnim->end())
-    //            mCurFrame = mCurAnim->begin();
-    //    }
+    //TODO Use cur animation
+    if(sheet->size())
+    {
+        Animation* anim = sheet->getAnimation(0);
+        QVector<Frame*> frames = anim->getFrames();
+        if(frames.size())
+        {
+            mAnimFrame++;
+            if(mAnimFrame > frames.size()-1)
+                mAnimFrame = 0;
+        }
+    }
 
     drawAnimation();
 }
@@ -568,13 +581,7 @@ void MainWindow::on_animPlayButton_clicked()
 void MainWindow::on_animStopButton_clicked()
 {
     animUpdateTimer->stop();
-    //TODO Set current animation frame
-
-    //    if(mCurAnim == mSheetFrames.end() || !mCurAnim->size())
-    //        return;
-
-    //    mCurFrame = mCurAnim->begin();
-
+    mAnimFrame = 0;
     drawAnimation();
 }
 
@@ -582,14 +589,20 @@ void MainWindow::on_animPrevFrameButton_clicked()
 {
     if(animUpdateTimer->isActive())
         animUpdateTimer->stop();
-    //TODO Set current animation frame
-
-    //    if(mCurAnim == mSheetFrames.end() || !mCurAnim->size())
-    //        return;
-
-    //    if(mCurFrame == mCurAnim->begin())
-    //        mCurFrame = mCurAnim->end();
-    //    mCurFrame--;
+    //TODO Use cur animation
+    if(sheet->size())
+    {
+        Animation* anim = sheet->getAnimation(0);
+        QVector<Frame*> frames = anim->getFrames();
+        if(frames.size())
+        {
+            mAnimFrame--;
+            if(mAnimFrame > frames.size()-1)
+                mAnimFrame = frames.size()-1;
+            if(mAnimFrame < 0)
+                mAnimFrame = frames.size()-1;
+        }
+    }
 
     drawAnimation();
 }
@@ -598,14 +611,18 @@ void MainWindow::on_animNextFrameButton_clicked()
 {
     if(animUpdateTimer->isActive())
         animUpdateTimer->stop();
-    //TODO Set current animation frame
-
-    //    if(mCurAnim == mSheetFrames.end() || !mCurAnim->size())
-    //        return;
-
-    //    mCurFrame++;
-    //    if(mCurFrame == mCurAnim->end())
-    //        mCurFrame = mCurAnim->begin();
+    //TODO Use cur animation
+    if(sheet->size())
+    {
+        Animation* anim = sheet->getAnimation(0);
+        QVector<Frame*> frames = anim->getFrames();
+        if(frames.size())
+        {
+            mAnimFrame++;
+            if(mAnimFrame > frames.size()-1)
+                mAnimFrame = 0;
+        }
+    }
 
     drawAnimation();
 }
@@ -1094,10 +1111,10 @@ void MainWindow::on_saveFrameButton_clicked()
 {
     //TODO Set image for saving TSR icon
 
-    if(!sheet || !sheet->size())
+    if(!sheet || !sheet->size() || !mCurFrame)
         return;
 
-    //    setIconImage(*mCurFrame);
+    setIconImage(*mCurFrame);
     mIconExportWindow->show();
 }
 
