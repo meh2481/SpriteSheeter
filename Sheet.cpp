@@ -407,10 +407,9 @@ bool Sheet::saveToStream(QDataStream& s)
         }
     }
 
-    //TODO Save anim names/labels
     s << animations.size(); //TODO Don't also have to save this
-    for(int i = 0; i < animations.size(); i++)
-        s << QString();
+    foreach(Animation* anim, animations)
+        s << anim->getName();
 
     //Save other stuff
     s << sheetBgCol;
@@ -423,12 +422,6 @@ bool Sheet::saveToStream(QDataStream& s)
     s << true;//ui->animNameEnabled->isChecked();   //TODO Anim names enabled
 
     return (s.status() == QDataStream::Ok);
-}
-
-bool Sheet::exportImage(QString sImgFilename)
-{
-    //TODO
-    return true;
 }
 
 void Sheet::clear()

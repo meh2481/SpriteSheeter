@@ -15,7 +15,7 @@ Animation::Animation(QImage* bg, QGraphicsScene* s, QObject *parent) : QObject(p
     curHeight = 0;
     minWidth = 0;
     scene=s;
-    label=scene->addSimpleText(name);
+    label = scene->addSimpleText(name);
     label->setZValue(5);    //Above errything
 }
 
@@ -23,6 +23,7 @@ Animation::~Animation()
 {
     foreach(Frame* f, frames)
         delete f;
+    scene->removeItem(label);
 }
 
 void Animation::insertImage(QImage* img)

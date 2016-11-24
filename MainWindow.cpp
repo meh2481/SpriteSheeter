@@ -168,9 +168,6 @@ void MainWindow::addImages(QStringList l)
 
 void MainWindow::importImageList(QStringList& fileList, QString prepend, QString animName)
 {
-    //TODO set anim name
-    Q_UNUSED(animName)
-
     if(fileList.size())
     {
         Animation* animation = new Animation(transparentBg, msheetScene, this);
@@ -183,6 +180,7 @@ void MainWindow::importImageList(QStringList& fileList, QString prepend, QString
             else
                 qDebug() << "Unable to open image " << imgPath << endl;
         }
+        animation->setName(animName);
         sheet->addAnimation(animation);
         checkMinWidth();
 
@@ -307,14 +305,12 @@ void MainWindow::openImportDiag()
 
 void MainWindow::insertAnimHelper(QVector<QImage*> imgList, QString name)
 {
-    //TODO Create label
-    Q_UNUSED(name)
-
     if(imgList.size())
     {
         //TODO Insert above (below?) current animation
         Animation* animation = new Animation(transparentBg, msheetScene, this);
         animation->insertImages(imgList);
+        animation->setName(name);
         sheet->addAnimation(animation);
     }
 }
@@ -1113,8 +1109,6 @@ void MainWindow::newFile()
 //TODO Combine with eventFilter
 void MainWindow::keyPressEvent(QKeyEvent* e)
 {
-    Q_UNUSED(e)
-
     //TODO allow deleting currently selected animation(s)
 
 
@@ -1301,8 +1295,6 @@ void MainWindow::balance(int w, int h, BalancePos::Pos vert, BalancePos::Pos hor
     anim->balance(QPoint(w,h), vert, horiz);
     sheet->refresh();
 
-    //TODO Update animation frame preview
-    //    mCurFrame = mCurAnim->begin();
     drawAnimation();
     genUndoState();
 }
@@ -1495,12 +1487,13 @@ void MainWindow::loadFromStream(QDataStream& s)
     //Grab anim names
     int numAnimNames = 0;
     s >> numAnimNames;
+    if((unsigned int)numAnimNames > sheet->size())
+        numAnimNames = sheet->size();
     for(int i = 0; i < numAnimNames; i++)
     {
         QString str;
         s >> str;
-        //TODO
-        //mAnimNames.push_back(str);
+        sheet->getAnimation(i)->setName(str);
     }
 
     //Read other stuff
