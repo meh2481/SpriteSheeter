@@ -13,21 +13,19 @@ UI Design Stories:
 -Add cut/copy/paste
 	-frames will need a deep copy function
 	-Paste deselects everything else
--Make Play & Pause buttons the same button
 -Remove stop button?
 -Add support to autocrop frames in an animation to remove whitespace (while maintaining balance)
 -Different highlight box around last-selected frame for shift-click
 
 Technical Stories:
--Memory cap being hit during undo/redo:
-	-Click-dragging sheets in generates more than one undo state; fix
 -Rather than specifying image types manually, remove filter entirely or add ALL actual file types we support to filter
--More robust undo/redo system (current brute force approach is super slow)
+-More robust undo/redo system (current brute force approach is super slow and has the potential to hit a memory cap)
 	-Abstract undo/redo class 
 	-Everything that can be undone/redone has instantiation
 	-Two stacks for undo/redo; clear redo stack when pushing onto undo stack
 -Odd visual bugs when resizing sheets sometimes
 -Commandline argument support - Can associate .sheet with program
+-Installer for ease of use / file association?
 
 User stories:
 -Test balance/resize; reports of crashing (Possibly related to undo/redo memory cap? Research)
@@ -43,8 +41,6 @@ User stories:
 	-Might be a non-issue if moving animations as a whole? Should blank animations be allowed?
 -Perhaps display sheet height?
 	-Revisit workflow of optimal width/height vs. user-specified
--Figure out weird image formats in images Mighty Jetters uploaded, and see if my fault and/or can be fixed or not
-	-Attempt loading images with FreeImage instead of QImage and see if FreeImage handles them better
 -Offset frames by a few pixels l/r/u/d; not to be confused with moving frames around in an animation (Current workaround: use the balance animation button)
 -Drag-and-drop should support .sheet file format
 -Create user guide? At the very least, a FAQ may help since e.g. the Balance Animation button isn't well understood

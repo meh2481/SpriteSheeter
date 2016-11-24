@@ -565,6 +565,7 @@ void MainWindow::on_animationSpeedSpinbox_valueChanged(int arg1)
     int iInterval = 1000/arg1;
     animUpdateTimer->stop();
     animUpdateTimer->start(iInterval);
+    updatePlayIcon();
 }
 
 void MainWindow::on_animPlayButton_clicked()
@@ -579,7 +580,7 @@ void MainWindow::on_animPlayButton_clicked()
     {
         animUpdateTimer->stop();
     }
-
+    updatePlayIcon();
 }
 
 void MainWindow::on_animStopButton_clicked()
@@ -587,6 +588,7 @@ void MainWindow::on_animStopButton_clicked()
     animUpdateTimer->stop();
     mAnimFrame = 0;
     drawAnimation();
+    updatePlayIcon();
 }
 
 void MainWindow::on_animPrevFrameButton_clicked()
@@ -609,6 +611,7 @@ void MainWindow::on_animPrevFrameButton_clicked()
     }
 
     drawAnimation();
+    updatePlayIcon();
 }
 
 void MainWindow::on_animNextFrameButton_clicked()
@@ -629,6 +632,7 @@ void MainWindow::on_animNextFrameButton_clicked()
     }
 
     drawAnimation();
+    updatePlayIcon();
 }
 
 bool MainWindow::isMouseOverDragArea(int x, int y)
@@ -1616,7 +1620,6 @@ void MainWindow::genUndoState()
 void MainWindow::pushUndo()
 {
     QByteArray* baUndoPt = new QByteArray();
-    //baUndoPt->reserve(2600000); //Reserve some space here so we aren't reallocating over and over
     QDataStream s(baUndoPt, QIODevice::WriteOnly);
     saveToStream(s);
     undoList.push(baUndoPt);
@@ -2093,6 +2096,20 @@ void MainWindow::checkMinWidth()
     {
         ui->sheetWidthBox->setValue(minW);
         sheet->updateSceneBounds();
+    }
+}
+
+void MainWindow::updatePlayIcon()
+{
+    if(animUpdateTimer->isActive())
+    {
+        ui->animPlayButton->setIcon(QIcon("://images/pause"));
+        ui->animPlayButton->setToolTip("Pause animation");
+    }
+    else
+    {
+        ui->animPlayButton->setIcon(QIcon("://images/media-play"));
+        ui->animPlayButton->setToolTip("Play animation");
     }
 }
 

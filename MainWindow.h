@@ -213,11 +213,12 @@ private:
     QString getSaveFilename(const char* title);
     void saveSettings();
     void saveFile();
-    void minimizeSheetWidth();
+    void minimizeSheetWidth();  //Minimize the sheet's width against the anim lines currently on it
     void deleteSelected();
     void setModified(bool b);
-    QImage* loadImageFI(QString filename);
-    void checkMinWidth();
+    QImage* loadImageFI(QString filename);  //Load a QImage using FreeImage, which generally loads images better
+    void checkMinWidth();   //Check the sheet's current width against the min possible width & update as needed
+    void updatePlayIcon();  //Update the icon for the anim play/pause button
 
 protected:
     bool eventFilter(QObject* obj, QEvent *event);
