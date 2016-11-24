@@ -15,6 +15,8 @@ Animation::Animation(QImage* bg, QGraphicsScene* s, QObject *parent) : QObject(p
     curHeight = 0;
     minWidth = 0;
     scene=s;
+    label=scene->addSimpleText(name);
+    label->setZValue(5);    //Above errything
 }
 
 Animation::~Animation()
@@ -90,6 +92,8 @@ unsigned int Animation::heightRecalc()
 {
     int curX = spacingX;
     int curY = spacingY;
+    if(!name.isEmpty())
+        curY += label->boundingRect().height() + spacingY;
     unsigned int tallestHeight = 0;
     minWidth = widthOfImages();
     if(minWidth > (unsigned int)width)
@@ -110,6 +114,11 @@ unsigned int Animation::heightRecalc()
             minWidth = curX;
     }
     curHeight = curY + tallestHeight;
+    if(!name.isEmpty())
+    {
+        //curHeight += label->boundingRect().height() + spacingY;
+        label->setPos(spacingX, offsetY + spacingY);
+    }
     return curHeight;
 }
 
@@ -319,6 +328,8 @@ QLine Animation::getDragPos(int x, int y)
     //Position inside animation
     int curX = spacingX;
     int curY = spacingY;
+    if(!name.isEmpty())
+        curY += label->boundingRect().height() + spacingY;
     unsigned int tallestHeight = 0;
     for(int i = 0; i < frames.size(); i++)
     {
@@ -391,6 +402,8 @@ int Animation::getDropPos(int x, int y)
     //Position inside animation
     int curX = spacingX;
     int curY = spacingY;
+    if(!name.isEmpty())
+        curY += label->boundingRect().height() + spacingY;
     unsigned int tallestHeight = 0;
     for(int i = 0; i < frames.size(); i++)
     {
@@ -451,5 +464,6 @@ void Animation::render(QPainter& painter)
 void Animation::setName(QString s)
 {
     name = s;
-
+    label->setText(name);
+    heightRecalc();
 }

@@ -501,6 +501,13 @@ void MainWindow::on_animationNameEditor_textChanged(const QString& arg1)
 {
     Q_UNUSED(arg1)
     //TODO Update current label
+    if(sheet->size())
+    {
+        Animation* anim = sheet->getAnimation(0);
+        anim->setName(arg1);
+        sheet->refresh();
+        sheet->updateSceneBounds();
+    }
 }
 
 void MainWindow::drawAnimation()

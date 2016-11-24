@@ -9,6 +9,7 @@
 #include <QGraphicsRectItem>
 #include <QColor>
 #include <QPainter>
+#include <QGraphicsSimpleTextItem>
 #include "BalancePos.h"
 #include "Frame.h"
 
@@ -34,6 +35,7 @@ class Animation : public QObject
     QImage* transparentBg;
     unsigned int minWidth;  //Minimum width for this animation at the current width
     QString name;
+    QGraphicsSimpleTextItem* label;
 
     unsigned int heightRecalc();    //Recalculate where each image is on in the sheet
     unsigned int widthOfImages();
