@@ -173,11 +173,11 @@ void MainWindow::importImageList(QStringList& fileList, QString prepend, QString
                 qDebug() << "Unable to open image " << imgPath << endl;
         }
         sheet->addAnimation(animation);
+        checkMinWidth();
 
         if(ui->minWidthCheckbox->isChecked())
             minimizeSheetWidth();
         drawAnimation();
-        genUndoState();
     }
 }
 
@@ -213,6 +213,8 @@ void MainWindow::addFolders(QStringList l)
 
         importImageList(files, s + '/', folder.dirName());
     }
+    if(l.size())
+        genUndoState();
 }
 
 void MainWindow::on_openImagesButton_clicked()
@@ -235,8 +237,9 @@ void MainWindow::on_openStripButton_clicked()
         QString s = (*mOpenFiles.begin());
         QFileInfo inf(s);
         lastOpenDir = inf.absoluteDir().absolutePath();
+        importImageList(mOpenFiles);
+        genUndoState();
     }
-    importImageList(mOpenFiles);
 }
 
 void MainWindow::importNext(int numx, int numy, bool bVert, bool bSplit)
@@ -355,6 +358,7 @@ void MainWindow::importImageAsSheet(QString s, int numxframes, int numyframes, b
         insertAnimHelper(imgList, fileName);
 
     delete image;
+    checkMinWidth();
     drawAnimation();
     genUndoState();
 }
@@ -1823,7 +1827,7 @@ bool MainWindow::loadAnimatedGIF(QString sFilename)
 
     QString fileName = QFileInfo(sFilename).baseName();
     insertAnimHelper(frameList, fileName);
-
+    checkMinWidth();
     drawAnimation();
     genUndoState();
 
@@ -2079,6 +2083,17 @@ QImage* MainWindow::loadImageFI(QString filename)
     QImage* ret = new QImage(imgResult.mirrored());    //Copy the image cause Qt is dumb with image memory
     FreeImage_Unload(dib);
     return ret;
+}
+
+void MainWindow::checkMinWidth()
+{
+    unsigned int curW = ui->sheetWidthBox->value();
+    unsigned int minW = sheet->getSmallestPossibleWidth();
+    if(curW < minW)
+    {
+        ui->sheetWidthBox->setValue(minW);
+        sheet->updateSceneBounds();
+    }
 }
 
 void MainWindow::on_newButton_clicked()

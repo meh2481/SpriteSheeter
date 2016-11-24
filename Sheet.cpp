@@ -21,7 +21,6 @@ Sheet::Sheet(QGraphicsScene* s, SheetEditorView* sheetView, QImage* bg, unsigned
 Sheet::~Sheet()
 {
     clear();
-    //scene->clear(); //Handles cleaning up all the memories
 }
 
 void Sheet::addAnimation(Animation* anim, unsigned int index)

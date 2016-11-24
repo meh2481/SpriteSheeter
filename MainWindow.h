@@ -217,6 +217,7 @@ private:
     void deleteSelected();
     void setModified(bool b);
     QImage* loadImageFI(QString filename);
+    void checkMinWidth();
 
 protected:
     bool eventFilter(QObject* obj, QEvent *event);
