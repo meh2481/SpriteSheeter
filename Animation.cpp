@@ -447,3 +447,9 @@ void Animation::render(QPainter& painter)
     foreach(Frame* f, frames)
         f->render(painter);
 }
+
+void Animation::setName(QString s)
+{
+    name = s;
+
+}

@@ -37,6 +37,8 @@ MainWindow::MainWindow(QWidget *parent) :
     mRecentDocuments = new RecentDocuments(this);
     mRecentDocuments->init(ui->menuFile, ui->actionQuit);
 
+    ui->animStopButton->setVisible(false);
+
     //TODO Implement cut/copy/paste
     ui->cutCopyPasteSeparator->setVisible(false);
     ui->cutButton->setVisible(false);
@@ -521,6 +523,7 @@ void MainWindow::drawAnimation()
     {
         if(animItem)
             animItem->hide();
+        ui->curFrameLabel->setText("Current Frame: 0");
         return;
     }
 
@@ -549,6 +552,8 @@ void MainWindow::drawAnimation()
 
     animItem->show();
     animScene->setSceneRect(0, 0, animFrame.width(), animFrame.height());
+
+    ui->curFrameLabel->setText("Current Frame: " + QString::number(mAnimFrame+1));
 }
 
 void MainWindow::animUpdate()
@@ -2011,6 +2016,8 @@ void MainWindow::minimizeSheetWidth()
 
 void MainWindow::deleteSelected()
 {
+    if(!sheet->size()) return;
+
     sheet->deleteSelected();
     curSelectedRect->setVisible(false); //In case we deleted a hovered frame
     genUndoState();

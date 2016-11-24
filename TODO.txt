@@ -3,6 +3,7 @@ Feature GraphicsScene:
 -Re-add anim names
 -Determine FreeImage open formats we support
 -Support selecting current animation
+-Pull out functionality from sheet width & other slots; pull out into other functions that can be called elsewhere
 
 UI Design Stories:
 -Rework frame movement/editing:

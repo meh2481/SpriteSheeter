@@ -33,6 +33,7 @@ class Animation : public QObject
     bool frameBgTransparent;
     QImage* transparentBg;
     unsigned int minWidth;  //Minimum width for this animation at the current width
+    QString name;
 
     unsigned int heightRecalc();    //Recalculate where each image is on in the sheet
     unsigned int widthOfImages();
@@ -120,6 +121,9 @@ public:
     QVector<Frame*>& getFrames() {return frames;}
 
     void render(QPainter& painter);
+
+    QString getName() {return name;}
+    void setName(QString s);
 
 signals:
 

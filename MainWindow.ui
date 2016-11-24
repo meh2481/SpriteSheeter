@@ -70,6 +70,9 @@
              <iconset resource="spritesheetertest1.qrc">
               <normaloff>:/images/new.png</normaloff>:/images/new.png</iconset>
             </property>
+            <property name="flat">
+             <bool>true</bool>
+            </property>
            </widget>
           </item>
           <item>
@@ -84,6 +87,9 @@
              <iconset resource="spritesheetertest1.qrc">
               <normaloff>:/images/open.png</normaloff>:/images/open.png</iconset>
             </property>
+            <property name="flat">
+             <bool>true</bool>
+            </property>
            </widget>
           </item>
           <item>
@@ -97,6 +103,9 @@
             <property name="icon">
              <iconset resource="spritesheetertest1.qrc">
               <normaloff>:/images/save.png</normaloff>:/images/save.png</iconset>
+            </property>
+            <property name="flat">
+             <bool>true</bool>
             </property>
            </widget>
           </item>
@@ -131,6 +140,9 @@
              <iconset resource="spritesheetertest1.qrc">
               <normaloff>:/images/cut.png</normaloff>:/images/cut.png</iconset>
             </property>
+            <property name="flat">
+             <bool>true</bool>
+            </property>
            </widget>
           </item>
           <item>
@@ -148,6 +160,9 @@
              <iconset resource="spritesheetertest1.qrc">
               <normaloff>:/images/copy.png</normaloff>:/images/copy.png</iconset>
             </property>
+            <property name="flat">
+             <bool>true</bool>
+            </property>
            </widget>
           </item>
           <item>
@@ -164,6 +179,9 @@
             <property name="icon">
              <iconset resource="spritesheetertest1.qrc">
               <normaloff>:/images/paste.png</normaloff>:/images/paste.png</iconset>
+            </property>
+            <property name="flat">
+             <bool>true</bool>
             </property>
            </widget>
           </item>
@@ -192,6 +210,9 @@
              <iconset resource="spritesheetertest1.qrc">
               <normaloff>:/images/undo.png</normaloff>:/images/undo.png</iconset>
             </property>
+            <property name="flat">
+             <bool>true</bool>
+            </property>
            </widget>
           </item>
           <item>
@@ -205,6 +226,9 @@
             <property name="icon">
              <iconset resource="spritesheetertest1.qrc">
               <normaloff>:/images/redo.png</normaloff>:/images/redo.png</iconset>
+            </property>
+            <property name="flat">
+             <bool>true</bool>
             </property>
            </widget>
           </item>
@@ -232,6 +256,12 @@
             <property name="icon">
              <iconset resource="spritesheetertest1.qrc">
               <normaloff>:/images/minus-2-256.png</normaloff>:/images/minus-2-256.png</iconset>
+            </property>
+            <property name="default">
+             <bool>true</bool>
+            </property>
+            <property name="flat">
+             <bool>true</bool>
             </property>
            </widget>
           </item>
@@ -564,6 +594,16 @@
              </spacer>
             </item>
            </layout>
+          </item>
+          <item>
+           <widget class="QLabel" name="curFrameLabel">
+            <property name="toolTip">
+             <string>The current frame of animation</string>
+            </property>
+            <property name="text">
+             <string>Current Frame: 0</string>
+            </property>
+           </widget>
           </item>
           <item>
            <layout class="QHBoxLayout" name="horizontalLayout_6">
