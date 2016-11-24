@@ -107,7 +107,6 @@ MainWindow::MainWindow(QWidget *parent) :
     sheetBgCol = QColor(0, 128, 128, 255);
     frameBgCol = QColor(0, 255, 0, 255);
     animHighlightCol = QColor(128, 0, 0, 255);
-    fontColor = QColor(255, 255, 255);
 
     //Create animation sheet
     sheet = new Sheet(msheetScene, ui->sheetPreview, transparentBg, DRAG_HANDLE_SIZE);
@@ -495,8 +494,7 @@ void MainWindow::saveFileAs()
 
 void MainWindow::on_animationNameEditor_textChanged(const QString& arg1)
 {
-    Q_UNUSED(arg1)
-    //TODO Update current label
+    //TODO Use current selected anim
     if(sheet->size())
     {
         Animation* anim = sheet->getAnimation(0);
@@ -976,6 +974,7 @@ void MainWindow::saveSettings()
     settings.setValue("frameBgColr", frameBgCol.red());
     settings.setValue("frameBgColg", frameBgCol.green());
     settings.setValue("frameBgColb", frameBgCol.blue());
+    QColor fontColor = sheet->getFontColor();
     settings.setValue("fontColr", fontColor.red());
     settings.setValue("fontColg", fontColor.green());
     settings.setValue("fontColb", fontColor.blue());
@@ -983,7 +982,7 @@ void MainWindow::saveSettings()
     settings.setValue("lastIconStr", lastIconStr);
     settings.setValue("lastOpenDir", lastOpenDir);
     settings.setValue("lastImportExportStr", lastImportExportStr);
-    settings.setValue("sheetFont", sheetFont.toString());
+    settings.setValue("sheetFont", sheet->getFont().toString());
     settings.setValue("animNames", ui->animNameEnabled->isChecked());
     settings.setValue("lastGIFStr", lastGIFStr);
     settings.setValue("minimizeSheetWidth", ui->minWidthCheckbox->isChecked());
@@ -1011,6 +1010,7 @@ void MainWindow::loadSettings()
     frameBgCol.setRed(settings.value("frameBgColr").toInt());
     frameBgCol.setGreen(settings.value("frameBgColg").toInt());
     frameBgCol.setBlue(settings.value("frameBgColb").toInt());
+    QColor fontColor;
     if(settings.value("fontColr", -1).toInt() != -1)
     {
         fontColor.setRed(settings.value("fontColr").toInt());
@@ -1023,6 +1023,7 @@ void MainWindow::loadSettings()
     lastOpenDir = settings.value("lastOpenDir").toString();
     lastImportExportStr = settings.value("lastImportExportStr").toString();
     QString sFontVal = settings.value("sheetFont").toString();
+    QFont sheetFont;
     if(!sFontVal.size())
         sheetFont = QFont("MS Shell Dlg 2", 8);
     else
@@ -1050,6 +1051,8 @@ void MainWindow::loadSettings()
         sheet->setFrameBgCol(frameBgCol);
         sheet->setBgTransparent(ui->SheetBgTransparent->isChecked());
         sheet->setFrameBgTransparent(ui->FrameBgTransparent->isChecked());
+        sheet->setFont(sheetFont);
+        sheet->setFontColor(fontColor);
         sheet->updateSceneBounds();
     }
 
@@ -1104,6 +1107,7 @@ void MainWindow::newFile()
     clearRedo();
     pushUndo();
     updateUndoRedoMenu();
+    ui->animationNameEditor->setText("");
 }
 
 //TODO Combine with eventFilter
@@ -1198,6 +1202,7 @@ bool MainWindow::eventFilter(QObject* obj, QEvent *event)
 
 void MainWindow::on_fontColSelect_clicked()
 {
+    QColor fontColor = sheet->getFontColor();
     QColor selected = colorSelect.getColor(fontColor, this, "Select Font Color");
     if(selected.isValid())
     {
@@ -1206,7 +1211,7 @@ void MainWindow::on_fontColSelect_clicked()
         colIcon.fill(fontColor);
         QIcon ic(colIcon);
         ui->fontColSelect->setIcon(ic);
-        //TODO Update font color of labels
+        sheet->setFontColor(selected);
         drawAnimation();
         genUndoState();
     }
@@ -1499,11 +1504,9 @@ void MainWindow::loadFromStream(QDataStream& s)
     //Read other stuff
     s >> sheetBgCol;
     s >> frameBgCol;
+    QColor fontColor;
     if(major > 1 || (major == 1 && minor > 1))  //Version 1.2 introduced font color
         s >> fontColor;
-
-    //Fill in frame/sheet colors
-    setColorButtonIcons();
 
     bool bSheetBg, bFrameBg;
     s >> bFrameBg >> bSheetBg;
@@ -1522,6 +1525,7 @@ void MainWindow::loadFromStream(QDataStream& s)
     ui->sheetWidthBox->setValue(sheetWidth);
 
     QString sFontStr;
+    QFont sheetFont;
     s >> sFontStr;
     if(s.status() == QDataStream::Ok)
         sheetFont.fromString(sFontStr);
@@ -1541,13 +1545,18 @@ void MainWindow::loadFromStream(QDataStream& s)
     sheet->setFrameBgCol(frameBgCol);
     sheet->setBgTransparent(ui->SheetBgTransparent->isChecked());
     sheet->setFrameBgTransparent(ui->FrameBgTransparent->isChecked());
+    sheet->setFont(sheetFont);
+    sheet->setFontColor(fontColor);
     sheet->setWidth(sheetWidth);
     if(bMinimizeSheet)
         minimizeSheetWidth();
     sheet->updateSceneBounds();
 
-    //    if(mCurAnimName != mAnimNames.end())
-    //        ui->animationNameEditor->setText(*mCurAnimName);
+    //Fill in frame/sheet colors
+    setColorButtonIcons();
+
+    if(sheet->size())   //TODO Current anim
+        ui->animationNameEditor->setText(sheet->getAnimation(0)->getName());
 
     drawAnimation();
     bLoadMutex = false;
@@ -1571,11 +1580,10 @@ void MainWindow::cleanMemory()
 void MainWindow::on_fontButton_clicked()
 {
     bool ok;
-    QFont font = QFontDialog::getFont(&ok, sheetFont, this);
+    QFont font = QFontDialog::getFont(&ok, sheet->getFont(), this);
     if(ok)
     {
-        sheetFont = font;
-        //TODO Update font in labels
+        sheet->setFont(font);
         genUndoState();
     }
 }
@@ -1937,7 +1945,7 @@ void MainWindow::on_actionBatch_Processing_triggered()
     {
         BatchRenderer* batchRenderer = new BatchRenderer();
         batchRenderer->folder = folder;
-        batchRenderer->sheetFont = sheetFont;
+        batchRenderer->sheetFont = sheet->getFont();
         batchRenderer->maxSheetWidth = ui->sheetWidthBox->value();
         batchRenderer->offsetX = ui->xSpacingBox->value();
         batchRenderer->offsetY = ui->ySpacingBox->value();
@@ -1947,7 +1955,7 @@ void MainWindow::on_actionBatch_Processing_triggered()
         batchRenderer->animHighlightCol = animHighlightCol;
         batchRenderer->frameBgTransparent = ui->FrameBgTransparent->isChecked();
         batchRenderer->frameBgCol = frameBgCol;
-        batchRenderer->fontColor = fontColor;
+        batchRenderer->fontColor = sheet->getFontColor();
 
         QObject::connect(batchRenderer, SIGNAL(renderingStart(QString)), this, SLOT(startedBatchRender(QString)));
         QObject::connect(batchRenderer, SIGNAL(renderingDone()), this, SLOT(finishedBatchRender()));
@@ -1997,7 +2005,7 @@ void MainWindow::setColorButtonIcons()
     colIcon.fill(frameBgCol);
     ui->frameBgColSelect->setIcon(QIcon(colIcon));
 
-    colIcon.fill(fontColor);
+    colIcon.fill(sheet->getFontColor());
     ui->fontColSelect->setIcon(QIcon(colIcon));
 }
 

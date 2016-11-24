@@ -16,6 +16,7 @@ Sheet::Sheet(QGraphicsScene* s, SheetEditorView* sheetView, QImage* bg, unsigned
     xSpacing = ySpacing = 0;
     dragRectWidth = dragW;
     sheetPreview = sheetView;
+    fontColor = QColor(255, 255, 255);
 }
 
 Sheet::~Sheet()
@@ -32,6 +33,8 @@ void Sheet::addAnimation(Animation* anim, unsigned int index)
     anim->setFrameBgCol(frameBgCol);
     anim->setFrameBgTransparent(frameBgTransparent);
     anim->setFrameBgVisible(!frameBgTransparent || !sheetBgTransparent);
+    anim->setFont(font);
+    anim->setFontColor(fontColor);
     recalc();
     updateSceneBounds();
 }
@@ -234,7 +237,7 @@ void Sheet::deleteSelected()
     for(int i = animations.size()-1; i >= 0; i--)
     {
         if(animations.at(i)->deleteSelected())
-            animations.remove(i);   //TODO Figure out if blank anims make sense
+            animations.remove(i);
     }
     recalc();
     updateSceneBounds();
@@ -414,10 +417,10 @@ bool Sheet::saveToStream(QDataStream& s)
     //Save other stuff
     s << sheetBgCol;
     s << frameBgCol;
-    s << QColor(255,255,255);   //TODO Font color
+    s << fontColor;
     s << frameBgTransparent << sheetBgTransparent;
     s << xSpacing << ySpacing << (int)width;
-    s << QFont().toString();  //TODO Sheet font
+    s << font.toString();
     s << curAnim << curFrame;
     s << true;//ui->animNameEnabled->isChecked();   //TODO Anim names enabled
 
@@ -437,7 +440,7 @@ bool Sheet::render(QString filename)
     //Create image to render to
     QImage sheetImage(width, curHeight, QImage::Format_ARGB32);
     QPainter painter(&sheetImage);
-    //painter.setFont() //TODO
+    painter.setFont(font);
 
     //Fill sheet background
     painter.setCompositionMode(QPainter::CompositionMode_Source);
@@ -452,4 +455,18 @@ bool Sheet::render(QString filename)
 
     //Save image
     return sheetImage.save(filename);
+}
+
+void Sheet::setFont(QFont& f)
+{
+    font = f;
+    foreach(Animation* anim, animations)
+        anim->setFont(f);
+}
+
+void Sheet::setFontColor(QColor col)
+{
+    fontColor = col;
+    foreach(Animation* anim, animations)
+        anim->setFontColor(col);
 }

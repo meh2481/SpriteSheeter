@@ -10,6 +10,7 @@
 #include <QColor>
 #include <QPainter>
 #include <QGraphicsSimpleTextItem>
+#include <QFont>
 #include "BalancePos.h"
 #include "Frame.h"
 
@@ -126,6 +127,9 @@ public:
 
     QString getName() {return name;}
     void setName(QString s);
+
+    void setFont(QFont& f);
+    void setFontColor(QColor c);
 
 signals:
 

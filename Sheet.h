@@ -7,6 +7,7 @@
 #include <QRectF>
 #include <QColor>
 #include <QImage>
+#include <QFont>
 #include "Animation.h"
 #include "SheetEditorView.h"
 
@@ -33,6 +34,8 @@ class Sheet : public QObject
     QImage* transparentBg;
     unsigned int xSpacing, ySpacing, dragRectWidth;
     SheetEditorView* sheetPreview;
+    QFont font;
+    QColor fontColor;
 
     void updateAnimBg();
     void deleteEmpty(); //Delete empty animations
@@ -72,6 +75,10 @@ public:
     bool saveToStream(QDataStream& s);  //Save sheet to data stream
     void clear();   //Clears out this animation
     bool render(QString filename);    //Render this out as an image
+    QFont getFont() {return font;}
+    void setFont(QFont& f);
+    void setFontColor(QColor col);
+    QColor getFontColor() {return fontColor;}
 
 signals:
 

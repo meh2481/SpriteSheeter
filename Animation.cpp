@@ -14,7 +14,7 @@ Animation::Animation(QImage* bg, QGraphicsScene* s, QObject *parent) : QObject(p
     transparentBg = bg;
     curHeight = 0;
     minWidth = 0;
-    scene=s;
+    scene = s;
     label = scene->addSimpleText(name);
     label->setZValue(5);    //Above errything
 }
@@ -467,4 +467,14 @@ void Animation::setName(QString s)
     name = s;
     label->setText(name);
     heightRecalc();
+}
+
+void Animation::setFont(QFont& f)
+{
+    label->setFont(f);
+}
+
+void Animation::setFontColor(QColor c)
+{
+    label->setBrush(QBrush(c));
 }

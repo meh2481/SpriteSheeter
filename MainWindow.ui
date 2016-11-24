@@ -680,6 +680,20 @@
               </property>
              </widget>
             </item>
+            <item>
+             <widget class="QPushButton" name="fontColSelect">
+              <property name="toolTip">
+               <string>Set font color for animation labels</string>
+              </property>
+              <property name="text">
+               <string/>
+              </property>
+              <property name="icon">
+               <iconset resource="spritesheetertest1.qrc">
+                <normaloff>:/images/icon2.png</normaloff>:/images/icon2.png</iconset>
+              </property>
+             </widget>
+            </item>
            </layout>
           </item>
           <item>
@@ -777,53 +791,6 @@
             <property name="topMargin">
              <number>0</number>
             </property>
-            <item>
-             <layout class="QHBoxLayout" name="horizontalLayout_14">
-              <property name="topMargin">
-               <number>0</number>
-              </property>
-              <item>
-               <widget class="QLabel" name="label_9">
-                <property name="minimumSize">
-                 <size>
-                  <width>80</width>
-                  <height>0</height>
-                 </size>
-                </property>
-                <property name="text">
-                 <string>Font Color:</string>
-                </property>
-               </widget>
-              </item>
-              <item>
-               <widget class="QPushButton" name="fontColSelect">
-                <property name="toolTip">
-                 <string>Color for animation name labels</string>
-                </property>
-                <property name="text">
-                 <string/>
-                </property>
-                <property name="icon">
-                 <iconset resource="spritesheetertest1.qrc">
-                  <normaloff>:/images/icon2.png</normaloff>:/images/icon2.png</iconset>
-                </property>
-               </widget>
-              </item>
-              <item>
-               <spacer name="horizontalSpacer_8">
-                <property name="orientation">
-                 <enum>Qt::Horizontal</enum>
-                </property>
-                <property name="sizeHint" stdset="0">
-                 <size>
-                  <width>40</width>
-                  <height>20</height>
-                 </size>
-                </property>
-               </spacer>
-              </item>
-             </layout>
-            </item>
             <item>
              <layout class="QHBoxLayout" name="horizontalLayout_13">
               <item>

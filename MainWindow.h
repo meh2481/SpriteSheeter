@@ -137,7 +137,6 @@ private:
     int mAnimFrame;
 
     //Variables for drawing the current sheet/animation
-    QFont   sheetFont;
     bool m_bDraggingSelected;
     bool m_bSetDraggingCursor;
     QRect m_rLastDragHighlight;
@@ -146,7 +145,6 @@ private:
     QColor sheetBgCol;
     QColor frameBgCol;
     QColor animHighlightCol;
-    QColor fontColor;
 
     //TODO Replace with undo/redo classes
     QStack<QByteArray*> undoList;
