@@ -37,6 +37,15 @@ MainWindow::MainWindow(QWidget *parent) :
     mRecentDocuments = new RecentDocuments(this);
     mRecentDocuments->init(ui->menuFile, ui->actionQuit);
 
+    //TODO Implement cut/copy/paste
+    ui->cutCopyPasteSeparator->setVisible(false);
+    ui->cutButton->setVisible(false);
+    ui->copyButton->setVisible(false);
+    ui->pasteButton->setVisible(false);
+    ui->actionCut->setVisible(false);
+    ui->actionCopy->setVisible(false);
+    ui->actionPaste->setVisible(false);
+
     //Connect all our signals & slots up
     QObject::connect(mImportWindow, SIGNAL(importOK(int, int, bool, bool)), this, SLOT(importNext(int, int, bool, bool)));
     QObject::connect(mImportWindow, SIGNAL(importAll(int, int, bool, bool)), this, SLOT(importAll(int, int, bool, bool)));
@@ -184,7 +193,7 @@ void MainWindow::importImageList(QStringList& fileList, QString prepend, QString
 QStringList MainWindow::supportedFileFormats()
 {
     QStringList fileFilters;
-    //TODO: Rather than specifying manually, remove filter entirely or add ALL actual file types we support
+    //TODO: Use FreeImage supported file formats
     fileFilters << "*.png"
                 << "*.dds"
                 << "*.bmp"
@@ -494,7 +503,7 @@ void MainWindow::on_animationNameEditor_textChanged(const QString& arg1)
 
 void MainWindow::drawAnimation()
 {
-    //TODO Select cur frame from cur animation
+    //TODO Select cur animation
     mCurFrame = NULL;
     if(sheet->size())
     {
@@ -570,7 +579,6 @@ void MainWindow::on_animationSpeedSpinbox_valueChanged(int arg1)
 
 void MainWindow::on_animPlayButton_clicked()
 {
-    //TODO Update icon
     if(!animUpdateTimer->isActive())
     {
         int iInterval = 1000/ui->animationSpeedSpinbox->value();
@@ -743,22 +751,12 @@ void MainWindow::mouseDown(int x, int y)
             clicked = isItemUnderCursor(x, y);
             if(clicked)
             {
-                //                qDebug() << "Mouse clicked on item";
                 if(sheet->selected(clicked))
-                {
-                    //                    qDebug() << "Mouse clicked selected item; start drag";
                     selected = clicked;
-                }
-                //if(it)
-                //    sheet->clicked(x,y,it);
             }
         }
 
-        //TODO
-
-        //        else
-        //        {
-        //            //Figure out what anim we're clicking on
+        //TODO Figure out what anim we're clicking on
         //            if(!mAnimRects.empty() && !mSheetFrames.empty())
         //            {
         //                QList<QList<QImage> >::iterator i = mSheetFrames.begin();
@@ -1105,7 +1103,7 @@ void MainWindow::keyPressEvent(QKeyEvent* e)
 {
     Q_UNUSED(e)
 
-    //TODO allow deleting currently selected animations
+    //TODO allow deleting currently selected animation(s)
 
 
     //Delete current selected frame(s)
@@ -1117,8 +1115,6 @@ void MainWindow::keyPressEvent(QKeyEvent* e)
 
 void MainWindow::on_saveFrameButton_clicked()
 {
-    //TODO Set image for saving TSR icon
-
     if(!sheet || !sheet->size() || !mCurFrame)
         return;
 

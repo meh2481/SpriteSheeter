@@ -1,5 +1,8 @@
-Current technical tasks:
--Re-add functionality while removing code
+Feature GraphicsScene:
+-Re-add GIF export
+-Re-add anim names
+-Determine FreeImage open formats we support
+-Support selecting current animation
 
 UI Design Stories:
 -Rework frame movement/editing:

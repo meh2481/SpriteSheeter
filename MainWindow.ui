@@ -168,7 +168,7 @@
            </widget>
           </item>
           <item>
-           <widget class="Line" name="line_2">
+           <widget class="Line" name="cutCopyPasteSeparator">
             <property name="minimumSize">
              <size>
               <width>10</width>
