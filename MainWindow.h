@@ -45,6 +45,7 @@ public:
     void keyPressEvent(QKeyEvent* e);
     Ui::MainWindow* getUI() {return ui;}
     Sheet* getSheet() {return sheet;}
+    void drawAnimation();
 
 signals:
     bool setImportImg(QImage* image);
@@ -147,8 +148,6 @@ private:
     QRect m_rLastDragHighlight;
     bool m_bLastDragInAnim;
     QImage* transparentBg;
-    QColor sheetBgCol;
-    QColor frameBgCol;
     QColor animHighlightCol;
 
     //Undo/redo classes
@@ -188,8 +187,6 @@ private:
     void importImageList(QStringList& fileList, QString prepend = QString(""), QString animName = QString(""));
     void centerParent(QWidget* parent, QWidget* child);
 
-    void drawAnimation();
-
     void closeEvent(QCloseEvent *event);
     void loadSettings();
     void cleanMemory();
@@ -198,7 +195,6 @@ private:
 
     void updateWindowTitle();
     void addUndoStep(UndoStep* step);
-    //void pushUndo();
     void clearUndo();
     void clearRedo();
     void updateUndoRedoMenu();  //Update the menu icons to active/inactive as needed

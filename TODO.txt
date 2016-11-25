@@ -1,6 +1,5 @@
 Feature undoRedo:
 -More robust undo/redo system (current brute force approach is super slow and has the potential to hit a memory cap)
-	-Abstract undo/redo class 
 	-Everything that can be undone/redone has instantiation
 	-Two stacks for undo/redo; clear redo stack when pushing onto undo stack
 -Flag per undo step for if file saved?

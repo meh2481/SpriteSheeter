@@ -49,7 +49,9 @@ public:
 
     void setWidth(unsigned int w);
     void setBgCol(QColor c);
+    QColor getBgCol() {return sheetBgCol;}
     void setFrameBgCol(QColor c);
+    QColor getFrameBgCol() {return frameBgCol;}
     void setBgTransparent(bool b);
     void setFrameBgTransparent(bool b);
 

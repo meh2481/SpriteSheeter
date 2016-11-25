@@ -18,6 +18,8 @@
 #include "BatchRenderer.h"
 #include <QThreadPool>
 #include "undo/FontColorStep.h"
+#include "undo/FrameBgColorStep.h"
+#include "undo/SheetBgColorStep.h"
 
 #define SELECT_RECT_THICKNESS 5
 
@@ -105,8 +107,6 @@ MainWindow::MainWindow(QWidget *parent) :
     mSheetZoom = new ZoomableGraphicsView(ui->sheetPreview);
     mAnimationZoom = new ZoomableGraphicsView(ui->animationPreview);
 
-    sheetBgCol = QColor(0, 128, 128, 255);
-    frameBgCol = QColor(0, 255, 0, 255);
     animHighlightCol = QColor(128, 0, 0, 255);
 
     //Create animation sheet
@@ -546,7 +546,7 @@ void MainWindow::drawAnimation()
         painter.fillRect(0, 0, mCurFrame->width(), mCurFrame->height(), bgTexBrush);
     }
     else
-        animFrame.fill(frameBgCol);
+        animFrame.fill(sheet->getFrameBgCol());
 
     painter.drawImage(0, 0, *mCurFrame);
 
@@ -856,12 +856,12 @@ void MainWindow::saveSettings()
     settings.setValue("animationSpeed", ui->animationSpeedSpinbox->value());
     settings.setValue("FrameBgTransparent", ui->FrameBgTransparent->isChecked());
     settings.setValue("SheetBgTransparent", ui->SheetBgTransparent->isChecked());
-    settings.setValue("sheetBgColr", sheetBgCol.red());
-    settings.setValue("sheetBgColg", sheetBgCol.green());
-    settings.setValue("sheetBgColb", sheetBgCol.blue());
-    settings.setValue("frameBgColr", frameBgCol.red());
-    settings.setValue("frameBgColg", frameBgCol.green());
-    settings.setValue("frameBgColb", frameBgCol.blue());
+    settings.setValue("sheetBgColr", sheet->getBgCol().red());
+    settings.setValue("sheetBgColg", sheet->getBgCol().green());
+    settings.setValue("sheetBgColb", sheet->getBgCol().blue());
+    settings.setValue("frameBgColr", sheet->getFrameBgCol().red());
+    settings.setValue("frameBgColg", sheet->getFrameBgCol().green());
+    settings.setValue("frameBgColb", sheet->getFrameBgCol().blue());
     QColor fontColor = sheet->getFontColor();
     settings.setValue("fontColr", fontColor.red());
     settings.setValue("fontColg", fontColor.green());
@@ -892,9 +892,11 @@ void MainWindow::loadSettings()
     ui->animationSpeedSpinbox->setValue(settings.value("animationSpeed").toInt());
     ui->FrameBgTransparent->setChecked(settings.value("FrameBgTransparent").toBool());
     ui->SheetBgTransparent->setChecked(settings.value("SheetBgTransparent").toBool());
+    QColor sheetBgCol;
     sheetBgCol.setRed(settings.value("sheetBgColr").toInt());
     sheetBgCol.setGreen(settings.value("sheetBgColg").toInt());
     sheetBgCol.setBlue(settings.value("sheetBgColb").toInt());
+    QColor frameBgCol;
     frameBgCol.setRed(settings.value("frameBgColr").toInt());
     frameBgCol.setGreen(settings.value("frameBgColg").toInt());
     frameBgCol.setBlue(settings.value("frameBgColb").toInt());
@@ -1024,46 +1026,23 @@ void MainWindow::on_saveFrameButton_clicked()
 
 void MainWindow::on_fontColSelect_clicked()
 {
-    QColor fontColor = sheet->getFontColor();
-    QColor selected = colorSelect.getColor(fontColor, this, "Select Font Color");
+    QColor selected = colorSelect.getColor(sheet->getFontColor(), this, "Select Font Color");
     if(selected.isValid())
-    {
-        FontColorStep* undoStep = new FontColorStep(this, fontColor, selected);
-        addUndoStep(undoStep);
-    }
+        addUndoStep(new FontColorStep(this, sheet->getFontColor(), selected));
 }
 
 void MainWindow::on_frameBgColSelect_clicked()
 {
-    QColor selected = colorSelect.getColor(frameBgCol, this, "Select Frame Background Color");
+    QColor selected = colorSelect.getColor(sheet->getFrameBgCol(), this, "Select Frame Background Color");
     if(selected.isValid())
-    {
-        frameBgCol = selected;
-        QPixmap colIcon(32, 32);
-        colIcon.fill(frameBgCol);
-        QIcon ic(colIcon);
-        ui->frameBgColSelect->setIcon(ic);
-        if(sheet)
-            sheet->setFrameBgCol(selected);
-        drawAnimation();
-        //genUndoState();
-    }
+        addUndoStep(new FrameBgColorStep(this, sheet->getFrameBgCol(), selected));
 }
 
 void MainWindow::on_sheetBgColSelect_clicked()
 {
-    QColor selected = colorSelect.getColor(sheetBgCol, this, "Select Sheet Background Color");
+    QColor selected = colorSelect.getColor(sheet->getBgCol(), this, "Select Sheet Background Color");
     if(selected.isValid())
-    {
-        sheetBgCol = selected;
-        QPixmap colIcon(32, 32);
-        colIcon.fill(sheetBgCol);
-        QIcon ic(colIcon);
-        ui->sheetBgColSelect->setIcon(ic);
-        //genUndoState();
-        if(sheet)
-            sheet->setBgCol(selected);
-    }
+        addUndoStep(new SheetBgColorStep(this, sheet->getBgCol(), selected));
 }
 
 void MainWindow::on_FrameBgTransparent_toggled(bool checked)
@@ -1293,7 +1272,7 @@ void MainWindow::loadFromStream(QDataStream& s)
                 img->load(&buffer, "PNG");
                 s >> selected;
             }
-            Frame* f = new Frame(msheetScene, img, frameBgCol, transparentBg, false);   //Will set framebgtransparent later
+            Frame* f = new Frame(msheetScene, img, sheet->getFrameBgCol(), transparentBg, false);   //Will set framebgtransparent later
             if(selected)
                 f->selectToggle();
             imgList.push_back(f);
@@ -1319,6 +1298,8 @@ void MainWindow::loadFromStream(QDataStream& s)
     }
 
     //Read other stuff
+    QColor frameBgCol;
+    QColor sheetBgCol;
     s >> sheetBgCol;
     s >> frameBgCol;
     QColor fontColor;
@@ -1670,10 +1651,10 @@ void MainWindow::on_actionBatch_Processing_triggered()
         batchRenderer->offsetY = ui->ySpacingBox->value();
         batchRenderer->animNameEnabled = ui->animNameEnabled->isChecked();
         batchRenderer->sheetBgTransparent = ui->SheetBgTransparent->isChecked();
-        batchRenderer->sheetBgCol = sheetBgCol;
+        batchRenderer->sheetBgCol = sheet->getBgCol();
         batchRenderer->animHighlightCol = animHighlightCol;
         batchRenderer->frameBgTransparent = ui->FrameBgTransparent->isChecked();
-        batchRenderer->frameBgCol = frameBgCol;
+        batchRenderer->frameBgCol = sheet->getFrameBgCol();
         batchRenderer->fontColor = sheet->getFontColor();
 
         QObject::connect(batchRenderer, SIGNAL(renderingStart(QString)), this, SLOT(startedBatchRender(QString)));
@@ -1718,10 +1699,10 @@ void MainWindow::setColorButtonIcons()
 {
     QPixmap colIcon(32, 32);
 
-    colIcon.fill(sheetBgCol);
+    colIcon.fill(sheet->getBgCol());
     ui->sheetBgColSelect->setIcon(QIcon(colIcon));
 
-    colIcon.fill(frameBgCol);
+    colIcon.fill(sheet->getFrameBgCol());
     ui->frameBgColSelect->setIcon(QIcon(colIcon));
 
     colIcon.fill(sheet->getFontColor());
