@@ -20,6 +20,7 @@
 #include "undo/FontColorStep.h"
 #include "undo/FrameBgColorStep.h"
 #include "undo/SheetBgColorStep.h"
+#include "undo/SheetBgTransparentStep.h"
 
 #define SELECT_RECT_THICKNESS 5
 
@@ -1062,9 +1063,10 @@ void MainWindow::on_SheetBgTransparent_toggled(bool checked)
     if(bLoadMutex)
         return;
 
-    ui->sheetBgColSelect->setEnabled(!checked);
-    if(sheet)
-        sheet->setBgTransparent(checked);
+    //Don't infinitely recurse here...
+    bLoadMutex = true;
+    addUndoStep(new SheetBgTransparentStep(this, !checked, checked));
+    bLoadMutex = false;
 }
 
 void MainWindow::on_balanceAnimButton_clicked()
@@ -1113,7 +1115,9 @@ void MainWindow::undo()
         redoStack.push(step);
 
         //Undo
+        bLoadMutex = true;  //Don't bork cause UI is stupid
         step->undo();
+        bLoadMutex = false;
 
         updateUndoRedoMenu();
     }
@@ -1132,7 +1136,9 @@ void MainWindow::redo()
         undoStack.push(step);
 
         //Load this state
+        bLoadMutex = true;
         step->redo();
+        bLoadMutex = false;
 
         updateUndoRedoMenu();
     }
