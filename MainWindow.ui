@@ -824,7 +824,7 @@
                </widget>
               </item>
               <item>
-               <widget class="QCheckBox" name="FrameBgTransparent">
+               <widget class="QCheckBox" name="frameBgTransparent">
                 <property name="toolTip">
                  <string>Toggle animation frame transparency</string>
                 </property>
@@ -881,7 +881,7 @@
                </widget>
               </item>
               <item>
-               <widget class="QCheckBox" name="SheetBgTransparent">
+               <widget class="QCheckBox" name="sheetBgTransparent">
                 <property name="toolTip">
                  <string>Toggle sheet background transparency</string>
                 </property>

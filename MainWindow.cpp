@@ -21,6 +21,7 @@
 #include "undo/FrameBgColorStep.h"
 #include "undo/SheetBgColorStep.h"
 #include "undo/SheetBgTransparentStep.h"
+#include "undo/FrameBgTransparentStep.h"
 
 #define SELECT_RECT_THICKNESS 5
 
@@ -80,7 +81,7 @@ MainWindow::MainWindow(QWidget *parent) :
     mAnimFrame = 0;
     clicked = selected = lastSelected = NULL;
     transparentBg = new QImage("://bg");
-    bLoadMutex = false;
+    bUIMutex = false;
 
     bDraggingSheetW = false;
     m_bDraggingSelected = false;
@@ -541,7 +542,7 @@ void MainWindow::drawAnimation()
     QImage animFrame(mCurFrame->width(), mCurFrame->height(), QImage::Format_ARGB32);
     QPainter painter(&animFrame);
     painter.setCompositionMode(QPainter::CompositionMode_SourceOver);
-    if(ui->FrameBgTransparent->isChecked())
+    if(ui->frameBgTransparent->isChecked())
     {
         QBrush bgTexBrush(*transparentBg);
         painter.fillRect(0, 0, mCurFrame->width(), mCurFrame->height(), bgTexBrush);
@@ -855,8 +856,8 @@ void MainWindow::saveSettings()
     settings.setValue("ySpacing", ui->ySpacingBox->value());
     settings.setValue("sheetWidth", ui->sheetWidthBox->value());
     settings.setValue("animationSpeed", ui->animationSpeedSpinbox->value());
-    settings.setValue("FrameBgTransparent", ui->FrameBgTransparent->isChecked());
-    settings.setValue("SheetBgTransparent", ui->SheetBgTransparent->isChecked());
+    settings.setValue("FrameBgTransparent", ui->frameBgTransparent->isChecked());
+    settings.setValue("SheetBgTransparent", ui->sheetBgTransparent->isChecked());
     settings.setValue("sheetBgColr", sheet->getBgCol().red());
     settings.setValue("sheetBgColg", sheet->getBgCol().green());
     settings.setValue("sheetBgColb", sheet->getBgCol().blue());
@@ -881,7 +882,7 @@ void MainWindow::saveSettings()
 void MainWindow::loadSettings()
 {
     //Read in settings from config (registry or wherever it is)
-    bLoadMutex = true;
+    bUIMutex = true;
     QSettings settings("DaxarDev", "SpriteSheeter");
     if(settings.value("xSpacing", -1).toInt() == -1)    //No settings are here
         return;
@@ -891,8 +892,8 @@ void MainWindow::loadSettings()
     ui->ySpacingBox->setValue(settings.value("ySpacing").toInt());
     ui->sheetWidthBox->setValue(settings.value("sheetWidth").toInt());
     ui->animationSpeedSpinbox->setValue(settings.value("animationSpeed").toInt());
-    ui->FrameBgTransparent->setChecked(settings.value("FrameBgTransparent").toBool());
-    ui->SheetBgTransparent->setChecked(settings.value("SheetBgTransparent").toBool());
+    ui->frameBgTransparent->setChecked(settings.value("FrameBgTransparent").toBool());
+    ui->sheetBgTransparent->setChecked(settings.value("SheetBgTransparent").toBool());
     QColor sheetBgCol;
     sheetBgCol.setRed(settings.value("sheetBgColr").toInt());
     sheetBgCol.setGreen(settings.value("sheetBgColg").toInt());
@@ -929,8 +930,8 @@ void MainWindow::loadSettings()
     //Fill in frame/sheet colors
     setColorButtonIcons();
 
-    ui->frameBgColSelect->setEnabled(!ui->FrameBgTransparent->isChecked());
-    ui->sheetBgColSelect->setEnabled(!ui->SheetBgTransparent->isChecked());
+    ui->frameBgColSelect->setEnabled(!ui->frameBgTransparent->isChecked());
+    ui->sheetBgColSelect->setEnabled(!ui->sheetBgTransparent->isChecked());
 
     //Init sheet values
     if(sheet)
@@ -940,14 +941,14 @@ void MainWindow::loadSettings()
         sheet->setWidth(ui->sheetWidthBox->value());
         sheet->setBgCol(sheetBgCol);
         sheet->setFrameBgCol(frameBgCol);
-        sheet->setBgTransparent(ui->SheetBgTransparent->isChecked());
-        sheet->setFrameBgTransparent(ui->FrameBgTransparent->isChecked());
+        sheet->setBgTransparent(ui->sheetBgTransparent->isChecked());
+        sheet->setFrameBgTransparent(ui->frameBgTransparent->isChecked());
         sheet->setFont(sheetFont);
         sheet->setFontColor(fontColor);
         sheet->updateSceneBounds();
     }
 
-    bLoadMutex = false;
+    bUIMutex = false;
 }
 
 void MainWindow::on_sheetWidthBox_valueChanged(int arg1)
@@ -1046,27 +1047,24 @@ void MainWindow::on_sheetBgColSelect_clicked()
         addUndoStep(new SheetBgColorStep(this, sheet->getBgCol(), selected));
 }
 
-void MainWindow::on_FrameBgTransparent_toggled(bool checked)
+void MainWindow::on_frameBgTransparent_toggled(bool checked)
 {
-    if(bLoadMutex)
+    if(bUIMutex)
         return;
 
-    ui->frameBgColSelect->setEnabled(!checked);
-    drawAnimation();
-    //genUndoState();
-    if(sheet)
-        sheet->setFrameBgTransparent(checked);
+    bUIMutex = true;    //Don't infinitely recurse here...
+    addUndoStep(new FrameBgTransparentStep(this, !checked, checked));
+    bUIMutex = false;
 }
 
-void MainWindow::on_SheetBgTransparent_toggled(bool checked)
+void MainWindow::on_sheetBgTransparent_toggled(bool checked)
 {
-    if(bLoadMutex)
+    if(bUIMutex)
         return;
 
-    //Don't infinitely recurse here...
-    bLoadMutex = true;
+    bUIMutex = true;    //Don't infinitely recurse here...
     addUndoStep(new SheetBgTransparentStep(this, !checked, checked));
-    bLoadMutex = false;
+    bUIMutex = false;
 }
 
 void MainWindow::on_balanceAnimButton_clicked()
@@ -1115,9 +1113,9 @@ void MainWindow::undo()
         redoStack.push(step);
 
         //Undo
-        bLoadMutex = true;  //Don't bork cause UI is stupid
+        bUIMutex = true;  //Don't bork cause UI is stupid
         step->undo();
-        bLoadMutex = false;
+        bUIMutex = false;
 
         updateUndoRedoMenu();
     }
@@ -1136,9 +1134,9 @@ void MainWindow::redo()
         undoStack.push(step);
 
         //Load this state
-        bLoadMutex = true;
+        bUIMutex = true;
         step->redo();
-        bLoadMutex = false;
+        bUIMutex = false;
 
         updateUndoRedoMenu();
     }
@@ -1238,7 +1236,7 @@ void MainWindow::saveToStream(QDataStream& s)
 
 void MainWindow::loadFromStream(QDataStream& s)
 {
-    bLoadMutex = true;
+    bUIMutex = true;
     //Grab sheet frames
     int major = MAJOR_VERSION;
     int minor = MINOR_VERSION;
@@ -1314,8 +1312,8 @@ void MainWindow::loadFromStream(QDataStream& s)
 
     bool bSheetBg, bFrameBg;
     s >> bFrameBg >> bSheetBg;
-    ui->FrameBgTransparent->setChecked(bFrameBg);
-    ui->SheetBgTransparent->setChecked(bSheetBg);
+    ui->frameBgTransparent->setChecked(bFrameBg);
+    ui->sheetBgTransparent->setChecked(bSheetBg);
     ui->frameBgColSelect->setEnabled(!bFrameBg);
     ui->sheetBgColSelect->setEnabled(!bSheetBg);
 
@@ -1347,8 +1345,8 @@ void MainWindow::loadFromStream(QDataStream& s)
     //Init sheet values
     sheet->setBgCol(sheetBgCol);
     sheet->setFrameBgCol(frameBgCol);
-    sheet->setBgTransparent(ui->SheetBgTransparent->isChecked());
-    sheet->setFrameBgTransparent(ui->FrameBgTransparent->isChecked());
+    sheet->setBgTransparent(ui->sheetBgTransparent->isChecked());
+    sheet->setFrameBgTransparent(ui->frameBgTransparent->isChecked());
     sheet->setFont(sheetFont);
     sheet->setFontColor(fontColor);
     sheet->setWidth(sheetWidth);
@@ -1361,7 +1359,7 @@ void MainWindow::loadFromStream(QDataStream& s)
 
     drawAnimation();
     updateSelectedAnim();
-    bLoadMutex = false;
+    bUIMutex = false;
 }
 
 void MainWindow::cleanMemory()
@@ -1656,10 +1654,10 @@ void MainWindow::on_actionBatch_Processing_triggered()
         batchRenderer->offsetX = ui->xSpacingBox->value();
         batchRenderer->offsetY = ui->ySpacingBox->value();
         batchRenderer->animNameEnabled = ui->animNameEnabled->isChecked();
-        batchRenderer->sheetBgTransparent = ui->SheetBgTransparent->isChecked();
+        batchRenderer->sheetBgTransparent = ui->sheetBgTransparent->isChecked();
         batchRenderer->sheetBgCol = sheet->getBgCol();
         batchRenderer->animHighlightCol = animHighlightCol;
-        batchRenderer->frameBgTransparent = ui->FrameBgTransparent->isChecked();
+        batchRenderer->frameBgTransparent = ui->frameBgTransparent->isChecked();
         batchRenderer->frameBgCol = sheet->getFrameBgCol();
         batchRenderer->fontColor = sheet->getFontColor();
 

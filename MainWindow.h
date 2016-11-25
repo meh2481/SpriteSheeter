@@ -92,8 +92,8 @@ private slots:
     void on_saveFrameButton_clicked();
     void on_frameBgColSelect_clicked();
     void on_sheetBgColSelect_clicked();
-    void on_FrameBgTransparent_toggled(bool checked);
-    void on_SheetBgTransparent_toggled(bool checked);
+    void on_frameBgTransparent_toggled(bool checked);
+    void on_sheetBgTransparent_toggled(bool checked);
     void on_balanceAnimButton_clicked();
     void on_fontButton_clicked();
     void on_xSpacingBox_editingFinished();
@@ -178,7 +178,7 @@ private:
     int mStartSheetW;
     int xStartDragSheetW;
     bool bDraggingSheetW;
-    bool bLoadMutex;
+    bool bUIMutex;
 
     QProgressDialog* progressBar;
 

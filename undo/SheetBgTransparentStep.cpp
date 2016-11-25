@@ -12,12 +12,12 @@ void SheetBgTransparentStep::undo()
 {
     mainWindow->getUI()->sheetBgColSelect->setEnabled(!previousTransparent);
     mainWindow->getSheet()->setBgTransparent(previousTransparent);
-    mainWindow->getUI()->SheetBgTransparent->setChecked(previousTransparent);
+    mainWindow->getUI()->sheetBgTransparent->setChecked(previousTransparent);
 }
 
 void SheetBgTransparentStep::redo()
 {
     mainWindow->getUI()->sheetBgColSelect->setEnabled(!newTransparent);
     mainWindow->getSheet()->setBgTransparent(newTransparent);
-    mainWindow->getUI()->SheetBgTransparent->setChecked(newTransparent);
+    mainWindow->getUI()->sheetBgTransparent->setChecked(newTransparent);
 }
