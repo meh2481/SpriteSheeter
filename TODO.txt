@@ -5,9 +5,6 @@ Feature undoRedo:
 	-Balancing animation
 	-Reversing frame order
 	-Removing duplicate frames
-	-Changing sheet width manually
-	-Changing sheet width via drag bar
-	-Toggling minimize width box
 	-Toggling showing animation names
 	-Changing anim label
 	-Adding frame sequences
@@ -15,7 +12,7 @@ Feature undoRedo:
 	-Drag/drop files in
 -Flag per undo step for if file saved?
 -Only gen undo states if sheet isn't empty
--Only gen undo states for non-equal fonts and colors & such
+-Only gen undo states for non-equal fonts & colors & box values & such
 
 Release 1.2:
 -Determine FreeImage open formats we support

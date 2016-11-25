@@ -27,6 +27,7 @@
 #include "undo/XSpacingStep.h"
 #include "undo/MinimizeWidthCheckboxStep.h"
 #include "undo/SheetWidthStep.h"
+#include "undo/ReverseAnimStep.h"
 
 #define SELECT_RECT_THICKNESS 5
 
@@ -1555,19 +1556,7 @@ bool MainWindow::loadAnimatedGIF(QString sFilename)
 void MainWindow::on_reverseAnimButton_clicked()
 {
     if(sheet->size())
-    {
-        Animation* anim = sheet->getAnimation(sheet->getCurSelected());
-        if(anim)
-        {
-            anim->reverse();
-            sheet->refresh();   //Tell sheet to recalculate positions
-
-            drawAnimation();
-            updateSelectedAnim();
-            //genUndoState();
-        }
-    }
-
+        addUndoStep(new ReverseAnimStep(this, sheet->getCurSelected()));
 }
 
 void MainWindow::on_removeDuplicateFramesButton_clicked()
