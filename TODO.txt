@@ -1,4 +1,4 @@
-Feature UndoRedo:
+Feature undoRedo:
 -More robust undo/redo system (current brute force approach is super slow and has the potential to hit a memory cap)
 	-Abstract undo/redo class 
 	-Everything that can be undone/redone has instantiation
