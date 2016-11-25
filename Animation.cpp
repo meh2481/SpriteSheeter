@@ -3,6 +3,7 @@
 #include <QPixmap>
 #include <QBrush>
 #include <QPainter>
+#include "FreeImage.h"
 
 Animation::Animation(QImage* bg, QGraphicsScene* s, QObject *parent) : QObject(parent)
 {
@@ -477,4 +478,95 @@ void Animation::setFont(QFont& f)
 void Animation::setFontColor(QColor c)
 {
     label->setBrush(QBrush(c));
+}
+
+FIBITMAP* imageFromPixels(uint8_t* imgData, uint32_t width, uint32_t height)
+{
+    FIBITMAP* curImg = FreeImage_Allocate(width, height, 32);
+    FREE_IMAGE_TYPE image_type = FreeImage_GetImageType(curImg);
+    if(image_type == FIT_BITMAP)
+    {
+        int curPos = 0;
+        unsigned pitch = FreeImage_GetPitch(curImg);
+        BYTE* bits = (BYTE*)FreeImage_GetBits(curImg);
+        bits += pitch * height - pitch;
+        for(int y = height-1; y >= 0; y--)
+        {
+            BYTE* pixel = (BYTE*)bits;
+            for(uint32_t x = 0; x < width; x++)
+            {
+                pixel[FI_RGBA_BLUE] = imgData[curPos++];
+                pixel[FI_RGBA_GREEN] = imgData[curPos++];
+                pixel[FI_RGBA_RED] = imgData[curPos++];
+                pixel[FI_RGBA_ALPHA] = imgData[curPos++];
+                //HACK Quantize low-alpha to magenta by hand...
+                if(pixel[FI_RGBA_ALPHA] <= 128)
+                {
+                    pixel[FI_RGBA_RED] = 255;
+                    pixel[FI_RGBA_GREEN] = 0;
+                    pixel[FI_RGBA_BLUE] = 255;
+                    pixel[FI_RGBA_ALPHA] = 255;
+                }
+                pixel += 4;
+            }
+            bits -= pitch;
+        }
+    }
+    return curImg;
+}
+
+void Animation::saveGIF(QString saveFilename, int animFPS)
+{
+    //Open GIF image for writing
+    FIMULTIBITMAP* bmp = FreeImage_OpenMultiBitmap(FIF_GIF, saveFilename.toStdString().c_str(), true, false);
+
+    DWORD dwFrameTime = (DWORD)((1000.0f / (float)animFPS) + 0.5f); //Framerate of gif image
+
+    foreach(Frame* f, frames)
+    {
+        //Create image and 256-color image
+        QImage imgTemp(*(f->getImage()));
+        //Gotta get Qt image in proper format first
+        imgTemp = imgTemp.convertToFormat(QImage::Format_ARGB32);
+        QByteArray bytes((char*)imgTemp.bits(), imgTemp.byteCount());
+        //HACK Make 32-bit image with magenta instead of transparency first...
+        FIBITMAP* page = imageFromPixels((uint8_t*)bytes.data(), imgTemp.width(), imgTemp.height());
+        //Turn this into an 8-bit image next
+        FIBITMAP* page8bit = FreeImage_ColorQuantize(page, FIQ_WUQUANT);
+
+        //Set transparency table from magenta. *Hopefully this was preserved during quantization!*
+        RGBQUAD *Palette = FreeImage_GetPalette(page8bit);
+        BYTE Transparency[256];
+        for (unsigned i = 0; i < 256; i++)
+        {
+            Transparency[i] = 0xFF;
+            if(Palette[i].rgbGreen == 0x00 &&
+                    Palette[i].rgbBlue == 0xFF &&
+                    Palette[i].rgbRed == 0xFF)
+            {
+                Transparency[i] = 0x00;
+            }
+        }
+        FreeImage_SetTransparencyTable(page8bit, Transparency, 256);
+
+        //Append metadata - frame speed based on current playback speed
+        FreeImage_SetMetadata(FIMD_ANIMATION, page8bit, NULL, NULL);
+        FITAG *tag = FreeImage_CreateTag();
+        if(tag)
+        {
+            FreeImage_SetTagKey(tag, "FrameTime");
+            FreeImage_SetTagType(tag, FIDT_LONG);
+            FreeImage_SetTagCount(tag, 1);
+            FreeImage_SetTagLength(tag, 4);
+            FreeImage_SetTagValue(tag, &dwFrameTime);
+            FreeImage_SetMetadata(FIMD_ANIMATION, page8bit, FreeImage_GetTagKey(tag), tag);
+            FreeImage_DeleteTag(tag);
+        }
+        FreeImage_AppendPage(bmp, page8bit);
+        FreeImage_Unload(page);
+        FreeImage_Unload(page8bit);
+    }
+
+    //Save final GIF
+    FreeImage_CloseMultiBitmap(bmp, GIF_DEFAULT);
 }

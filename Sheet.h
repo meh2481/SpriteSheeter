@@ -36,6 +36,7 @@ class Sheet : public QObject
     SheetEditorView* sheetPreview;
     QFont font;
     QColor fontColor;
+    int curSelectedAnim;
 
     void updateAnimBg();
     void deleteEmpty(); //Delete empty animations
@@ -79,6 +80,9 @@ public:
     void setFont(QFont& f);
     void setFontColor(QColor col);
     QColor getFontColor() {return fontColor;}
+    int getSelected(int x, int y);
+    void selectAnimation(int selected);
+    int getCurSelected() {return curSelectedAnim;}
 
 signals:
 

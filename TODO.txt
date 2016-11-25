@@ -1,8 +1,8 @@
 Feature GraphicsScene:
--Re-add GIF export
--Re-add anim names
--Determine FreeImage open formats we support
 -Support selecting current animation
+-Render anim names on export
+
+-Determine FreeImage open formats we support
 -Pull out functionality from sheet width & other slots; pull out into other functions that can be called elsewhere
 
 UI Design Stories:

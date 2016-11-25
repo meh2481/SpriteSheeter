@@ -135,6 +135,7 @@ private:
     QGraphicsLineItem* curDragLine;
     QImage* mCurFrame;
     int mAnimFrame;
+    QGraphicsRectItem* curSelectedAnimRect;
 
     //Variables for drawing the current sheet/animation
     bool m_bDraggingSelected;
@@ -217,9 +218,7 @@ private:
     QImage* loadImageFI(QString filename);  //Load a QImage using FreeImage, which generally loads images better
     void checkMinWidth();   //Check the sheet's current width against the min possible width & update as needed
     void updatePlayIcon();  //Update the icon for the anim play/pause button
-
-protected:
-    bool eventFilter(QObject* obj, QEvent *event);
+    void updateSelectedAnim();
 
 };
 

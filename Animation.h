@@ -131,6 +131,11 @@ public:
     void setFont(QFont& f);
     void setFontColor(QColor c);
 
+    void saveGIF(QString saveFilename, int animFPS);
+
+    int getPosX() {return offsetX;}
+    int getPosY() {return offsetY;}
+
 signals:
 
 public slots:

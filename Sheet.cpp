@@ -17,6 +17,7 @@ Sheet::Sheet(QGraphicsScene* s, SheetEditorView* sheetView, QImage* bg, unsigned
     dragRectWidth = dragW;
     sheetPreview = sheetView;
     fontColor = QColor(255, 255, 255);
+    curSelectedAnim = 0;
 }
 
 Sheet::~Sheet()
@@ -35,6 +36,7 @@ void Sheet::addAnimation(Animation* anim, unsigned int index)
     anim->setFrameBgVisible(!frameBgTransparent || !sheetBgTransparent);
     anim->setFont(font);
     anim->setFontColor(fontColor);
+    selectAnimation(index);
     recalc();
     updateSceneBounds();
 }
@@ -73,7 +75,7 @@ void Sheet::recalc()
         if(sheetBgTransparent)
             bgTexBrush = QBrush(*transparentBg);
         backgroundRect = scene->addRect(sceneRect, QPen(Qt::NoPen), bgTexBrush);
-        backgroundRect->setZValue(-3);  //Always behind images and outline
+        backgroundRect->setZValue(-4);  //Always behind images and outline
     }
     else
         backgroundRect->setRect(sceneRect);
@@ -185,6 +187,8 @@ Animation* Sheet::getAnimation(unsigned int index)
 {
     if(index < (unsigned int)animations.size())
         return animations.at(index);
+    if(animations.size())
+        return animations.at(animations.size()-1);
     return NULL;
 }
 
@@ -234,10 +238,14 @@ bool Sheet::clicked(int x, int y, QGraphicsItem* it)
 
 void Sheet::deleteSelected()
 {
-    for(int i = animations.size()-1; i >= 0; i--)
+    for(int i = animations.size() - 1; i >= 0; i--)
     {
         if(animations.at(i)->deleteSelected())
+        {
+            delete animations.at(i);
             animations.remove(i);
+            selectAnimation(curSelectedAnim);
+        }
     }
     recalc();
     updateSceneBounds();
@@ -348,18 +356,21 @@ void Sheet::dropped(int x, int y)
         if(location >= 0)                   //Add to this anim
         {
             over->addImages(pulledFrames, location);
+            curSelectedAnim = overIndex;
         }
         else if(location == ANIM_BEFORE)    //Add before this anim
         {
             Animation* anim = new Animation(transparentBg, scene);
             anim->addImages(pulledFrames, 0);
             addAnimation(anim, overIndex);
+            curSelectedAnim = overIndex;
         }
         else if(location == ANIM_AFTER)     //Add after this anim
         {
             Animation* anim = new Animation(transparentBg, scene);
             anim->addImages(pulledFrames, 0);
             addAnimation(anim, overIndex + 1);
+            curSelectedAnim = overIndex+1;
         }
 
         //Delete animations that are empty as a result of this
@@ -367,6 +378,7 @@ void Sheet::dropped(int x, int y)
 
         //Recalculate sheet positions
         refresh();
+
     }
 }
 
@@ -376,6 +388,8 @@ void Sheet::deleteEmpty()
     {
         if(animations.at(i)->isEmpty())
         {
+            if(i < curSelectedAnim)
+                curSelectedAnim--;
             delete animations.at(i);
             animations.remove(i);
             i--;
@@ -433,6 +447,7 @@ void Sheet::clear()
         delete animation;
     animations.clear();
     refresh();
+    curSelectedAnim = 0;
 }
 
 bool Sheet::render(QString filename)
@@ -469,4 +484,30 @@ void Sheet::setFontColor(QColor col)
     fontColor = col;
     foreach(Animation* anim, animations)
         anim->setFontColor(col);
+}
+
+int Sheet::getSelected(int x, int y)
+{
+    Q_UNUSED(x)
+
+    curSelectedAnim = 0;
+    int curY = 0;
+    foreach(Animation* anim, animations)
+    {
+        curY += anim->getCurHeight();
+        if(curY > y)
+            break;
+        curSelectedAnim++;
+    }
+
+    return curSelectedAnim;
+}
+
+void Sheet::selectAnimation(int selected)
+{
+    if(selected < 0)
+        selected = 0;
+    if(selected >= animations.size())
+        selected = animations.size() - 1;
+    curSelectedAnim = selected;
 }
