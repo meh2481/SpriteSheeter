@@ -1,42 +1,38 @@
-Feature GraphicsScene:
--Support selecting current animation
--Render anim names on export
+Feature UndoRedo:
+-More robust undo/redo system (current brute force approach is super slow and has the potential to hit a memory cap)
+	-Abstract undo/redo class 
+	-Everything that can be undone/redone has instantiation
+	-Two stacks for undo/redo; clear redo stack when pushing onto undo stack
 
+Release 1.2:
 -Determine FreeImage open formats we support
--Pull out functionality from sheet width & other slots; pull out into other functions that can be called elsewhere
+-Odd visual bugs when resizing sheets sometimes
 
 UI Design Stories:
 -Rework frame movement/editing:
 	-Click-drag in box to select multiple frames
 -Rework animation movement/editing:
-	-Clicking animations should outline/select
 	-Can click-drag animations around and between each other
--Upper toolbar
-	-Cut/copy/delete disabled if nothing selected
-	-Paste disabled if nothing in clipboard
 -Add cut/copy/paste
 	-frames will need a deep copy function
 	-Paste deselects everything else
--Remove stop button?
+	-Cut/copy/delete disabled if nothing selected
+	-Paste disabled if nothing in clipboard
 -Add support to autocrop frames in an animation to remove whitespace (while maintaining balance)
 -Different highlight box around last-selected frame for shift-click
 
 Technical Stories:
 -Rather than specifying image types manually, remove filter entirely or add ALL actual file types we support to filter
--More robust undo/redo system (current brute force approach is super slow and has the potential to hit a memory cap)
-	-Abstract undo/redo class 
-	-Everything that can be undone/redone has instantiation
-	-Two stacks for undo/redo; clear redo stack when pushing onto undo stack
--Odd visual bugs when resizing sheets sometimes
 -Commandline argument support - Can associate .sheet with program
 -Installer for ease of use / file association?
+-Pull out functionality from sheet width & other slots; pull out into other functions that can be called elsewhere
 
 User stories:
 -Test balance/resize; reports of crashing (Possibly related to undo/redo memory cap? Research)
 -Being able to drag labels around
 	-May want to think about labels being individual items rather than an inherent part of an animation
 	-Along that note, custom labels & watermarks are common on TSR sheets
--Scroll sheet view when clicking and dragging frames around, particularly when zoomed in. For sheets that are long enough to where you have to zoom out a lot, this becomes necessary. (Current workaround: Shift-mousewheel or RMB)
+-Scroll sheet view when clicking and dragging frames around, particularly when zoomed in. For sheets that are long enough to where you have to zoom out a lot, this becomes necessary. (Current workaround: Shift-mousewheel or RMB-drag)
 -Being able to "anchor" frames by their bottoms instead of them all floating top-most within a strip where it's possible. This would make for a cleaner and frankly more accurate arrangement of animation frames in some instances. (Current workaround: balance animation)
 -When I load lots of images (mainly that amount to a large sheet) it works fine but other times, loading... not the whole set at once, but in parts, causes it to freeze and crash.
 	-See if image loading logic can be threaded or otherwise optimized to prevent all image loading on the main thread, causing UI hangs

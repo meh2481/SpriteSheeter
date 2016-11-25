@@ -403,9 +403,7 @@ void MainWindow::on_xSpacingBox_valueChanged(int arg1)
     sheet->setXSpacing(arg1);
     int minW = sheet->getSmallestPossibleWidth();
     if(minW > ui->sheetWidthBox->value())
-    {
         ui->sheetWidthBox->setValue(minW);
-    }
     updateSelectedAnim();
 }
 

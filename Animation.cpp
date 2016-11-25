@@ -119,7 +119,7 @@ unsigned int Animation::heightRecalc()
     if(!name.isEmpty())
     {
         //curHeight += label->boundingRect().height() + spacingY;
-        label->setPos(spacingX, offsetY + spacingY);
+        label->setPos(offsetX + spacingX, offsetY + spacingY);
     }
     return curHeight;
 }
@@ -457,7 +457,15 @@ void Animation::deselectAll()
 
 void Animation::render(QPainter& painter)
 {
-    //TODO Render anim title
+    //Render anim title
+    if(name.length())
+    {
+        QPen orig = painter.pen();
+        painter.setPen(QPen(label->brush().color()));
+        painter.setFont(label->font());
+        painter.drawText(QRectF(offsetX + spacingX, offsetY + spacingY, width, label->boundingRect().height() + spacingY), Qt::AlignLeft|Qt::AlignTop, name);
+        painter.setPen(orig);
+    }
 
     foreach(Frame* f, frames)
         f->render(painter);
