@@ -25,6 +25,7 @@
 #include "undo/SheetFontStep.h"
 #include "undo/YSpacingStep.h"
 #include "undo/XSpacingStep.h"
+#include "undo/MinimizeWidthCheckboxStep.h"
 
 #define SELECT_RECT_THICKNESS 5
 
@@ -1723,9 +1724,10 @@ void MainWindow::setColorButtonIcons()
 
 void MainWindow::on_minWidthCheckbox_toggled(bool checked)
 {
-    if(sheet && checked)
-        minimizeSheetWidth();
-    sheet->updateSceneBounds();
+    if(bUIMutex)
+        return;
+
+    addUndoStep(new MinimizeWidthCheckboxStep(this, !checked, checked, lastSheetW));
 }
 
 void MainWindow::minimizeSheetWidth()

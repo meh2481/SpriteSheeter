@@ -5,7 +5,6 @@ Feature undoRedo:
 	-Balancing animation
 	-Reversing frame order
 	-Removing duplicate frames
-	-Changing x/y spacing
 	-Changing sheet width manually
 	-Changing sheet width via drag bar
 	-Toggling minimize width box
@@ -23,9 +22,9 @@ Release 1.2:
 -Odd visual bugs when resizing sheets sometimes
 -Loading .sheet files should use loading mouse cursor (noticable when large files)
 -Bug: Animation doesn't reset when selecting new anim in sheet view
--Togle animation name checkbox does nothing
+-Toggle animation name checkbox does nothing
 -Delete disabled if nothing selected
--Have to be able to manually edit sheet width box
+-Unble to manually edit sheet width box due to min width constraints
 
 UI Design Stories:
 -Rework frame movement/editing:

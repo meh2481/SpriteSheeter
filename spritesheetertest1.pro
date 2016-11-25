@@ -33,7 +33,8 @@ SOURCES += main.cpp\
     undo/FrameBgTransparentStep.cpp \
     undo/SheetFontStep.cpp \
     undo/YSpacingStep.cpp \
-    undo/XSpacingStep.cpp
+    undo/XSpacingStep.cpp \
+    undo/MinimizeWidthCheckboxStep.cpp
 
 HEADERS  += \
 		FreeImage.h \
@@ -58,7 +59,8 @@ HEADERS  += \
     undo/FrameBgTransparentStep.h \
     undo/SheetFontStep.h \
     undo/YSpacingStep.h \
-    undo/XSpacingStep.h
+    undo/XSpacingStep.h \
+    undo/MinimizeWidthCheckboxStep.h
 
 FORMS    += \
     BalanceSheetDialog.ui \
