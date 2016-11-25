@@ -26,6 +26,7 @@
 #include "undo/YSpacingStep.h"
 #include "undo/XSpacingStep.h"
 #include "undo/MinimizeWidthCheckboxStep.h"
+#include "undo/SheetWidthStep.h"
 
 #define SELECT_RECT_THICKNESS 5
 
@@ -781,7 +782,7 @@ void MainWindow::mouseUp(int x, int y)
         {
             bDraggingSheetW = false;
             sheet->updateSceneBounds();
-            //genUndoState();
+            addUndoStep(new SheetWidthStep(this, lastSheetW, ui->sheetWidthBox->value()));
             lastSheetW = ui->sheetWidthBox->value();
         }
         else
@@ -962,17 +963,14 @@ void MainWindow::loadSettings()
 
 void MainWindow::on_sheetWidthBox_valueChanged(int arg1)
 {
-    if(sheet)
+    unsigned int smallestPossible = sheet->getSmallestPossibleWidth();
+    if((unsigned int) arg1 < smallestPossible)
     {
-        unsigned int smallestPossible = sheet->getSmallestPossibleWidth();
-        if((unsigned int) arg1 < smallestPossible)
-        {
-            arg1 = smallestPossible;
-            ui->sheetWidthBox->setValue(arg1);  //yaaay recursion
-        }
-        sheet->setWidth(arg1);
-        updateSelectedAnim();
+        arg1 = smallestPossible;
+        ui->sheetWidthBox->setValue(arg1);  //yaaay recursion
     }
+    sheet->setWidth(arg1);
+    updateSelectedAnim();
 }
 
 void MainWindow::newFile()
@@ -1469,10 +1467,8 @@ void MainWindow::on_sheetWidthBox_editingFinished()
     if(bUIMutex)
         return;
 
-    if(ui->minWidthCheckbox->isChecked())
-        minimizeSheetWidth();
-    sheet->updateSceneBounds();
-    //genUndoState();
+    addUndoStep(new SheetWidthStep(this, lastSheetW, ui->sheetWidthBox->value()));
+
     lastSheetW = ui->sheetWidthBox->value();
 }
 
