@@ -46,6 +46,7 @@ public:
     Sheet* getSheet() {return sheet;}
     void drawAnimation();
     void updateSelectedAnim();
+    void minimizeSheetWidth();  //Minimize the sheet's width against the anim lines currently on it
 
 signals:
     bool setImportImg(QImage* image);
@@ -213,7 +214,6 @@ private:
     QString getSaveFilename(const char* title);
     void saveSettings();
     void saveFile();
-    void minimizeSheetWidth();  //Minimize the sheet's width against the anim lines currently on it
     void deleteSelected();
     void setModified(bool b);
     QImage* loadImageFI(QString filename);  //Load a QImage using FreeImage, which generally loads images better

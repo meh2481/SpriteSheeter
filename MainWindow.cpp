@@ -24,6 +24,7 @@
 #include "undo/FrameBgTransparentStep.h"
 #include "undo/SheetFontStep.h"
 #include "undo/YSpacingStep.h"
+#include "undo/XSpacingStep.h"
 
 #define SELECT_RECT_THICKNESS 5
 
@@ -1448,11 +1449,9 @@ void MainWindow::on_xSpacingBox_editingFinished()
     if(bUIMutex)
         return;
 
-    if(ui->minWidthCheckbox->isChecked())
-        minimizeSheetWidth();
-    //genUndoState();
+    addUndoStep(new XSpacingStep(this, lastXSpacing, ui->xSpacingBox->value(), ui->sheetWidthBox->value()));
+
     lastXSpacing = ui->xSpacingBox->value();
-    lastSheetW = ui->sheetWidthBox->value();
 }
 
 void MainWindow::on_ySpacingBox_editingFinished()
@@ -1733,6 +1732,7 @@ void MainWindow::minimizeSheetWidth()
 {
     unsigned int width = sheet->getMinWidth();
     ui->sheetWidthBox->setValue(width); //Updates width of sheet automatically
+    lastSheetW = width;
 }
 
 void MainWindow::deleteSelected()
@@ -1825,6 +1825,7 @@ void MainWindow::checkMinWidth()
     {
         ui->sheetWidthBox->setValue(minW);
         sheet->updateSceneBounds();
+        lastSheetW = ui->sheetWidthBox->value();
     }
 }
 
