@@ -36,7 +36,6 @@ namespace Ui {
 class MainWindow : public QMainWindow
 {
     Q_OBJECT
-    friend class UndoStep;
 
 public:
     explicit MainWindow(QWidget *parent = 0);
@@ -151,9 +150,10 @@ private:
     QImage* transparentBg;
     QColor animHighlightCol;
 
-    //Undo/redo classes
+    //Undo/redo variables
     QStack<UndoStep*> undoStack;
     QStack<UndoStep*> redoStack;
+    int lastXSpacing, lastYSpacing, lastSheetW;
 
     QString lastIconStr;
     QString lastOpenDir;

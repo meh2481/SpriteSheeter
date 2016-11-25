@@ -23,6 +23,7 @@
 #include "undo/SheetBgTransparentStep.h"
 #include "undo/FrameBgTransparentStep.h"
 #include "undo/SheetFontStep.h"
+#include "undo/YSpacingStep.h"
 
 #define SELECT_RECT_THICKNESS 5
 
@@ -779,6 +780,7 @@ void MainWindow::mouseUp(int x, int y)
             bDraggingSheetW = false;
             sheet->updateSceneBounds();
             //genUndoState();
+            lastSheetW = ui->sheetWidthBox->value();
         }
         else
         {
@@ -948,6 +950,10 @@ void MainWindow::loadSettings()
         sheet->setFontColor(fontColor);
         sheet->updateSceneBounds();
     }
+
+    lastYSpacing = ui->ySpacingBox->value();
+    lastXSpacing = ui->xSpacingBox->value();
+    lastSheetW = ui->sheetWidthBox->value();
 
     bUIMutex = false;
 }
@@ -1318,10 +1324,13 @@ void MainWindow::loadFromStream(QDataStream& s)
     s >> xSpacing >> ySpacing >> sheetWidth;
     ui->xSpacingBox->setValue(xSpacing);
     ui->ySpacingBox->setValue(ySpacing);
+    lastXSpacing = ui->xSpacingBox->value();
+    lastYSpacing = ui->ySpacingBox->value();
     //Set sheet spacing now
     sheet->setXSpacing(ui->xSpacingBox->value());
     sheet->setYSpacing(ui->ySpacingBox->value());
     ui->sheetWidthBox->setValue(sheetWidth);
+    lastSheetW = ui->sheetWidthBox->value();
 
     QString sFontStr;
     QFont sheetFont;
@@ -1436,22 +1445,35 @@ void MainWindow::updateUndoRedoMenu()
 
 void MainWindow::on_xSpacingBox_editingFinished()
 {
+    if(bUIMutex)
+        return;
+
     if(ui->minWidthCheckbox->isChecked())
         minimizeSheetWidth();
     //genUndoState();
+    lastXSpacing = ui->xSpacingBox->value();
+    lastSheetW = ui->sheetWidthBox->value();
 }
 
 void MainWindow::on_ySpacingBox_editingFinished()
 {
-    //genUndoState();
+    if(bUIMutex)
+        return;
+
+    addUndoStep(new YSpacingStep(this, lastYSpacing, ui->ySpacingBox->value()));
+    lastYSpacing = ui->ySpacingBox->value();
 }
 
 void MainWindow::on_sheetWidthBox_editingFinished()
 {
+    if(bUIMutex)
+        return;
+
     if(ui->minWidthCheckbox->isChecked())
         minimizeSheetWidth();
     sheet->updateSceneBounds();
     //genUndoState();
+    lastSheetW = ui->sheetWidthBox->value();
 }
 
 void MainWindow::on_animationNameEditor_editingFinished()

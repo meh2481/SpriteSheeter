@@ -16,6 +16,7 @@ Feature undoRedo:
 	-Drag/drop files in
 -Flag per undo step for if file saved?
 -Only gen undo states if sheet isn't empty
+-Only gen undo states for non-equal fonts and colors & such
 
 Release 1.2:
 -Determine FreeImage open formats we support
@@ -24,6 +25,7 @@ Release 1.2:
 -Bug: Animation doesn't reset when selecting new anim in sheet view
 -Togle animation name checkbox does nothing
 -Delete disabled if nothing selected
+-Have to be able to manually edit sheet width box
 
 UI Design Stories:
 -Rework frame movement/editing:
