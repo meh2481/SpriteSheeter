@@ -1,14 +1,29 @@
 Feature undoRedo:
--More robust undo/redo system (current brute force approach is super slow and has the potential to hit a memory cap)
-	-Everything that can be undone/redone has instantiation
-	-Two stacks for undo/redo; clear redo stack when pushing onto undo stack
+-Everything that can be undone/redone has instantiation
+	-Dragging frames around
+	-Deleting frames
+	-Balancing animation
+	-Reversing frame order
+	-Removing duplicate frames
+	-Changing x/y spacing
+	-Changing sheet width manually
+	-Changing sheet width via drag bar
+	-Toggling minimize width box
+	-Toggling showing animation names
+	-Changing anim label
+	-Adding frame sequences
+	-Importing sheet
+	-Drag/drop files in
 -Flag per undo step for if file saved?
+-Only gen undo states if sheet isn't empty
 
 Release 1.2:
 -Determine FreeImage open formats we support
 -Odd visual bugs when resizing sheets sometimes
 -Loading .sheet files should use loading mouse cursor (noticable when large files)
 -Bug: Animation doesn't reset when selecting new anim in sheet view
+-Togle animation name checkbox does nothing
+-Delete disabled if nothing selected
 
 UI Design Stories:
 -Rework frame movement/editing:
@@ -18,7 +33,7 @@ UI Design Stories:
 -Add cut/copy/paste
 	-frames will need a deep copy function
 	-Paste deselects everything else
-	-Cut/copy/delete disabled if nothing selected
+	-Cut/copy disabled if nothing selected
 	-Paste disabled if nothing in clipboard
 -Add support to autocrop frames in an animation to remove whitespace (while maintaining balance)
 -Different highlight box around last-selected frame for shift-click

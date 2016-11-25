@@ -22,6 +22,7 @@
 #include "undo/SheetBgColorStep.h"
 #include "undo/SheetBgTransparentStep.h"
 #include "undo/FrameBgTransparentStep.h"
+#include "undo/SheetFontStep.h"
 
 #define SELECT_RECT_THICKNESS 5
 
@@ -1052,9 +1053,7 @@ void MainWindow::on_frameBgTransparent_toggled(bool checked)
     if(bUIMutex)
         return;
 
-    bUIMutex = true;    //Don't infinitely recurse here...
     addUndoStep(new FrameBgTransparentStep(this, !checked, checked));
-    bUIMutex = false;
 }
 
 void MainWindow::on_sheetBgTransparent_toggled(bool checked)
@@ -1062,9 +1061,7 @@ void MainWindow::on_sheetBgTransparent_toggled(bool checked)
     if(bUIMutex)
         return;
 
-    bUIMutex = true;    //Don't infinitely recurse here...
     addUndoStep(new SheetBgTransparentStep(this, !checked, checked));
-    bUIMutex = false;
 }
 
 void MainWindow::on_balanceAnimButton_clicked()
@@ -1113,7 +1110,7 @@ void MainWindow::undo()
         redoStack.push(step);
 
         //Undo
-        bUIMutex = true;  //Don't bork cause UI is stupid
+        bUIMutex = true;  //Don't bork on UI changes
         step->undo();
         bUIMutex = false;
 
@@ -1134,7 +1131,7 @@ void MainWindow::redo()
         undoStack.push(step);
 
         //Load this state
-        bUIMutex = true;
+        bUIMutex = true;  //Don't bork on UI changes
         step->redo();
         bUIMutex = false;
 
@@ -1366,15 +1363,6 @@ void MainWindow::cleanMemory()
 {
     //Wipe sheet
     sheet->clear();
-
-    //    if(mCurSheet)
-    //        delete mCurSheet;
-    //    mCurSheet = NULL;
-
-    //    mSheetFrames.clear();
-    //    mCurAnim = mSheetFrames.begin();
-    //    mAnimNames.clear();
-    //    mCurAnimName = mAnimNames.begin();
 }
 
 void MainWindow::on_fontButton_clicked()
@@ -1382,10 +1370,7 @@ void MainWindow::on_fontButton_clicked()
     bool ok;
     QFont font = QFontDialog::getFont(&ok, sheet->getFont(), this);
     if(ok)
-    {
-        sheet->setFont(font);
-        //genUndoState();
-    }
+        addUndoStep(new SheetFontStep(this, sheet->getFont(), font));
 }
 
 void MainWindow::updateWindowTitle()
@@ -1403,7 +1388,9 @@ void MainWindow::updateWindowTitle()
 
 void MainWindow::addUndoStep(UndoStep* step)
 {
+    bUIMutex = true;    //Don't infinitely recurse if this step causes UI changes
     step->redo();   //Apply the step first
+    bUIMutex = false;
     undoStack.push(step);
 
     //Clear redo list
@@ -1490,7 +1477,7 @@ void MainWindow::on_animNameEnabled_toggled(bool checked)
 }
 
 //See http://sourceforge.net/p/freeimage/discussion/36111/thread/ea987d97/ for discussion of FreeImage gif saving...
-void MainWindow::on_ExportAnimButton_clicked()
+void MainWindow::on_exportAnimButton_clicked()
 {
     if(!sheet || !sheet->size())
         return;

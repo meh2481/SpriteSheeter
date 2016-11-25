@@ -30,7 +30,8 @@ SOURCES += main.cpp\
     undo/FrameBgColorStep.cpp \
     undo/SheetBgColorStep.cpp \
     undo/SheetBgTransparentStep.cpp \
-    undo/FrameBgTransparentStep.cpp
+    undo/FrameBgTransparentStep.cpp \
+    undo/SheetFontStep.cpp
 
 HEADERS  += \
 		FreeImage.h \
@@ -52,7 +53,8 @@ HEADERS  += \
     undo/FrameBgColorStep.h \
     undo/SheetBgColorStep.h \
     undo/SheetBgTransparentStep.h \
-    undo/FrameBgTransparentStep.h
+    undo/FrameBgTransparentStep.h \
+    undo/SheetFontStep.h
 
 FORMS    += \
     BalanceSheetDialog.ui \

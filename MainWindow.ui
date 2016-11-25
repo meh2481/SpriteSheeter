@@ -735,7 +735,7 @@
              </widget>
             </item>
             <item>
-             <widget class="QPushButton" name="ExportAnimButton">
+             <widget class="QPushButton" name="exportAnimButton">
               <property name="toolTip">
                <string>Export the currently selected animation as a GIF image (Note: May degrade quality)</string>
               </property>

@@ -46,6 +46,7 @@ public:
     Ui::MainWindow* getUI() {return ui;}
     Sheet* getSheet() {return sheet;}
     void drawAnimation();
+    void updateSelectedAnim();
 
 signals:
     bool setImportImg(QImage* image);
@@ -101,7 +102,7 @@ private slots:
     void on_sheetWidthBox_editingFinished();
     void on_animationNameEditor_editingFinished();
     void on_animNameEnabled_toggled(bool checked);
-    void on_ExportAnimButton_clicked();
+    void on_exportAnimButton_clicked();
     void on_reverseAnimButton_clicked();
     void on_removeDuplicateFramesButton_clicked();
     void on_actionAbout_triggered();
@@ -218,8 +219,6 @@ private:
     QImage* loadImageFI(QString filename);  //Load a QImage using FreeImage, which generally loads images better
     void checkMinWidth();   //Check the sheet's current width against the min possible width & update as needed
     void updatePlayIcon();  //Update the icon for the anim play/pause button
-    void updateSelectedAnim();
-
 };
 
 #endif // MAINWINDOW_H
