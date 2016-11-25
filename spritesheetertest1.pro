@@ -24,7 +24,9 @@ SOURCES += main.cpp\
     AnimPreview.cpp \
     Animation.cpp \
     Sheet.cpp \
-    Frame.cpp
+    Frame.cpp \
+    undo/UndoStep.cpp \
+    undo/FontColorStep.cpp
 
 HEADERS  += \
 		FreeImage.h \
@@ -40,7 +42,9 @@ HEADERS  += \
     Animation.h \
     Sheet.h \
     BalancePos.h \
-    Frame.h
+    Frame.h \
+    undo/UndoStep.h \
+    undo/FontColorStep.h
 
 FORMS    += \
     BalanceSheetDialog.ui \

@@ -17,6 +17,7 @@
 #include <QTreeView>
 #include "BatchRenderer.h"
 #include <QThreadPool>
+#include "undo/FontColorStep.h"
 
 #define SELECT_RECT_THICKNESS 5
 
@@ -135,7 +136,7 @@ MainWindow::MainWindow(QWidget *parent) :
     updateWindowTitle();
 
     //Store initial undo state
-    pushUndo();
+    //pushUndo();
     updateUndoRedoMenu();
 
     msheetScene->setSceneRect(0,0,0,0);
@@ -433,7 +434,6 @@ void MainWindow::genericSave(QString saveFilename)
             sCurFilename = fi.fileName();
             setModified(false);
             updateWindowTitle();
-            //TODO Store file orig state
         }
         else
         {
@@ -447,7 +447,6 @@ void MainWindow::genericSave(QString saveFilename)
                 sCurFilename = fi.fileName();
                 setModified(false);
                 updateWindowTitle();
-                //TODO Store file orig state
             }
         }
 
@@ -995,11 +994,9 @@ void MainWindow::newFile()
     setModified(false);
     updateWindowTitle();
 
-    //Store file orig state, clear undo/redo
+    //Clear undo/redo
     clearUndo();
     clearRedo();
-    pushUndo();
-    updateUndoRedoMenu();
     updateSelectedAnim();
     mAnimFrame = 0;
 }
@@ -1031,14 +1028,8 @@ void MainWindow::on_fontColSelect_clicked()
     QColor selected = colorSelect.getColor(fontColor, this, "Select Font Color");
     if(selected.isValid())
     {
-        fontColor = selected;
-        QPixmap colIcon(32, 32);
-        colIcon.fill(fontColor);
-        QIcon ic(colIcon);
-        ui->fontColSelect->setIcon(ic);
-        sheet->setFontColor(selected);
-        //drawAnimation();
-        //genUndoState();
+        FontColorStep* undoStep = new FontColorStep(this, fontColor, selected);
+        addUndoStep(undoStep);
     }
 }
 
@@ -1132,18 +1123,18 @@ void MainWindow::balance(int w, int h, BalancePos::Pos vert, BalancePos::Pos hor
 
 void MainWindow::undo()
 {
-    if(undoList.size() > 1)
+    if(undoStack.size())
     {
-        setModified(true);
+        //Undo undoes a save state
+        if(!bFileModified)
+            setModified(true);
+
         //Save our redo point
-        QByteArray* ba = undoList.pop();
-        redoList.push(ba);
+        UndoStep* step = undoStack.pop();
+        redoStack.push(step);
 
         //Undo
-        cleanMemory();
-        ba = undoList.top();
-        QDataStream s(ba, QIODevice::ReadOnly);
-        loadFromStream(s);
+        step->undo();
 
         updateUndoRedoMenu();
     }
@@ -1151,17 +1142,18 @@ void MainWindow::undo()
 
 void MainWindow::redo()
 {
-    if(redoList.size())
+    if(redoStack.size())
     {
-        setModified(true);
-        //Save this back on our undo list (top of undo list is current state)
-        QByteArray* ba = redoList.pop();
-        undoList.push(ba);
+        //Rndo undoes a save state
+        if(!bFileModified)
+            setModified(true);
+
+        //Save this back on our undo list
+        UndoStep* step = redoStack.pop();
+        undoStack.push(step);
 
         //Load this state
-        cleanMemory();
-        QDataStream s(ba, QIODevice::ReadOnly);
-        loadFromStream(s);
+        step->redo();
 
         updateUndoRedoMenu();
     }
@@ -1245,8 +1237,6 @@ void MainWindow::loadSheet(QString openFilename)
             lastSaveStr = openFilename;
             clearUndo();
             clearRedo();
-            pushUndo();
-            updateUndoRedoMenu();
         }
     }
 }
@@ -1426,63 +1416,50 @@ void MainWindow::updateWindowTitle()
     setWindowTitle(sWindowStr);
 }
 
-//void MainWindow::genUndoState()
-//{
-//    if((!sheet || !sheet->size()) && sCurFilename == UNTITLED_IMAGE_STR && undoList.size() < 2)
-//    {
-//        clearUndo();
-//        pushUndo(); //Save this as our starting state
-//        return;   //Don't generate undo states on empty sheet
-//    }
-
-//    //Set the window title if this is the first the file has been modified
-//    if(!bFileModified)
-//    {
-//        setModified(true);
-//        updateWindowTitle();
-//    }
-
-//    //Gen undo point
-//    pushUndo();
-
-//    //Clear redo list
-//    clearRedo();
-
-//    updateUndoRedoMenu();
-//}
-
-void MainWindow::pushUndo()
+void MainWindow::addUndoStep(UndoStep* step)
 {
-    QByteArray* baUndoPt = new QByteArray();
-    QDataStream s(baUndoPt, QIODevice::WriteOnly);
-    saveToStream(s);
-    undoList.push(baUndoPt);
+    step->redo();   //Apply the step first
+    undoStack.push(step);
+
+    //Clear redo list
+    clearRedo();
+
+    //Set the window title if this is the first the file has been modified
+    if(!bFileModified)
+    {
+        setModified(true);
+        updateWindowTitle();
+    }
+
+    updateUndoRedoMenu();
 }
 
 void MainWindow::clearUndo()
 {
-    while(undoList.size())
+    while(undoStack.size())
     {
-        QByteArray* ba = undoList.pop();
-        delete ba;
+        UndoStep* st = undoStack.pop();
+        delete st;
     }
+    updateUndoRedoMenu();
 }
 
 void MainWindow::clearRedo()
 {
-    while(redoList.size())
+    while(redoStack.size())
     {
-        QByteArray* ba = redoList.pop();
-        delete ba;
+        UndoStep* st = redoStack.pop();
+        delete st;
     }
+    updateUndoRedoMenu();
 }
 
 void MainWindow::updateUndoRedoMenu()
 {
-    ui->actionRedo->setEnabled(redoList.size() > 0);
-    ui->actionUndo->setEnabled(undoList.size() > 1);
-    ui->redoButton->setEnabled(redoList.size() > 0);
-    ui->undoButton->setEnabled(undoList.size() > 1);
+    ui->actionRedo->setEnabled(redoStack.size() > 0);
+    ui->actionUndo->setEnabled(undoStack.size() > 0);
+    ui->redoButton->setEnabled(redoStack.size() > 0);
+    ui->undoButton->setEnabled(undoStack.size() > 0);
 }
 
 void MainWindow::on_xSpacingBox_editingFinished()

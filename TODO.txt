@@ -3,11 +3,13 @@ Feature undoRedo:
 	-Abstract undo/redo class 
 	-Everything that can be undone/redone has instantiation
 	-Two stacks for undo/redo; clear redo stack when pushing onto undo stack
+-Flag per undo step for if file saved?
 
 Release 1.2:
 -Determine FreeImage open formats we support
 -Odd visual bugs when resizing sheets sometimes
 -Loading .sheet files should use loading mouse cursor (noticable when large files)
+-Bug: Animation doesn't reset when selecting new anim in sheet view
 
 UI Design Stories:
 -Rework frame movement/editing:

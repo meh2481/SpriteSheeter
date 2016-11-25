@@ -12,6 +12,7 @@
 #include "Animation.h"
 #include "Sheet.h"
 #include "BalancePos.h"
+#include "undo/UndoStep.h"
 #include <QStack>
 #include <QTextStream>
 #include <QProgressDialog>
@@ -35,12 +36,15 @@ namespace Ui {
 class MainWindow : public QMainWindow
 {
     Q_OBJECT
+    friend class UndoStep;
 
 public:
     explicit MainWindow(QWidget *parent = 0);
     ~MainWindow();
 
     void keyPressEvent(QKeyEvent* e);
+    Ui::MainWindow* getUI() {return ui;}
+    Sheet* getSheet() {return sheet;}
 
 signals:
     bool setImportImg(QImage* image);
@@ -147,9 +151,9 @@ private:
     QColor frameBgCol;
     QColor animHighlightCol;
 
-    //TODO Replace with undo/redo classes
-    QStack<QByteArray*> undoList;
-    QStack<QByteArray*> redoList;
+    //Undo/redo classes
+    QStack<UndoStep*> undoStack;
+    QStack<UndoStep*> redoStack;
 
     QString lastIconStr;
     QString lastOpenDir;
@@ -193,8 +197,8 @@ private:
     void insertAnimHelper(QVector<QImage*> imgList, QString name);  //TODO Remove
 
     void updateWindowTitle();
-    //void genUndoState();
-    void pushUndo();
+    void addUndoStep(UndoStep* step);
+    //void pushUndo();
     void clearUndo();
     void clearRedo();
     void updateUndoRedoMenu();  //Update the menu icons to active/inactive as needed
