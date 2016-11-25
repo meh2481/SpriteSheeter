@@ -7,6 +7,7 @@ Feature undoRedo:
 Release 1.2:
 -Determine FreeImage open formats we support
 -Odd visual bugs when resizing sheets sometimes
+-Loading .sheet files should use loading mouse cursor (noticable when large files)
 
 UI Design Stories:
 -Rework frame movement/editing:

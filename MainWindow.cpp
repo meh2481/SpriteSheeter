@@ -226,8 +226,8 @@ void MainWindow::addFolders(QStringList l)
 
         importImageList(files, s + '/', folder.dirName());
     }
-    if(l.size())
-        genUndoState();
+    //if(l.size())
+        //genUndoState();
 }
 
 void MainWindow::on_openImagesButton_clicked()
@@ -251,7 +251,7 @@ void MainWindow::on_openStripButton_clicked()
         QFileInfo inf(s);
         lastOpenDir = inf.absoluteDir().absolutePath();
         importImageList(mOpenFiles);
-        genUndoState();
+        //genUndoState();
     }
 }
 
@@ -371,7 +371,7 @@ void MainWindow::importImageAsSheet(QString s, int numxframes, int numyframes, b
     delete image;
     checkMinWidth();
     drawAnimation();
-    genUndoState();
+    //genUndoState();
 }
 
 //Example from http://www.qtforum.org/article/28852/center-any-child-window-center-parent.html
@@ -776,7 +776,7 @@ void MainWindow::mouseUp(int x, int y)
         {
             bDraggingSheetW = false;
             sheet->updateSceneBounds();
-            genUndoState();
+            //genUndoState();
         }
         else
         {
@@ -1037,8 +1037,8 @@ void MainWindow::on_fontColSelect_clicked()
         QIcon ic(colIcon);
         ui->fontColSelect->setIcon(ic);
         sheet->setFontColor(selected);
-        drawAnimation();
-        genUndoState();
+        //drawAnimation();
+        //genUndoState();
     }
 }
 
@@ -1055,7 +1055,7 @@ void MainWindow::on_frameBgColSelect_clicked()
         if(sheet)
             sheet->setFrameBgCol(selected);
         drawAnimation();
-        genUndoState();
+        //genUndoState();
     }
 }
 
@@ -1069,7 +1069,7 @@ void MainWindow::on_sheetBgColSelect_clicked()
         colIcon.fill(sheetBgCol);
         QIcon ic(colIcon);
         ui->sheetBgColSelect->setIcon(ic);
-        genUndoState();
+        //genUndoState();
         if(sheet)
             sheet->setBgCol(selected);
     }
@@ -1082,7 +1082,7 @@ void MainWindow::on_FrameBgTransparent_toggled(bool checked)
 
     ui->frameBgColSelect->setEnabled(!checked);
     drawAnimation();
-    genUndoState();
+    //genUndoState();
     if(sheet)
         sheet->setFrameBgTransparent(checked);
 }
@@ -1126,7 +1126,8 @@ void MainWindow::balance(int w, int h, BalancePos::Pos vert, BalancePos::Pos hor
     sheet->refresh();
 
     drawAnimation();
-    genUndoState();
+    updateSelectedAnim();
+    //genUndoState();
 }
 
 void MainWindow::undo()
@@ -1408,7 +1409,7 @@ void MainWindow::on_fontButton_clicked()
     if(ok)
     {
         sheet->setFont(font);
-        genUndoState();
+        //genUndoState();
     }
 }
 
@@ -1425,30 +1426,30 @@ void MainWindow::updateWindowTitle()
     setWindowTitle(sWindowStr);
 }
 
-void MainWindow::genUndoState()
-{
-    if((!sheet || !sheet->size()) && sCurFilename == UNTITLED_IMAGE_STR && undoList.size() < 2)
-    {
-        clearUndo();
-        pushUndo(); //Save this as our starting state
-        return;   //Don't generate undo states on empty sheet
-    }
+//void MainWindow::genUndoState()
+//{
+//    if((!sheet || !sheet->size()) && sCurFilename == UNTITLED_IMAGE_STR && undoList.size() < 2)
+//    {
+//        clearUndo();
+//        pushUndo(); //Save this as our starting state
+//        return;   //Don't generate undo states on empty sheet
+//    }
 
-    //Set the window title if this is the first the file has been modified
-    if(!bFileModified)
-    {
-        setModified(true);
-        updateWindowTitle();
-    }
+//    //Set the window title if this is the first the file has been modified
+//    if(!bFileModified)
+//    {
+//        setModified(true);
+//        updateWindowTitle();
+//    }
 
-    //Gen undo point
-    pushUndo();
+//    //Gen undo point
+//    pushUndo();
 
-    //Clear redo list
-    clearRedo();
+//    //Clear redo list
+//    clearRedo();
 
-    updateUndoRedoMenu();
-}
+//    updateUndoRedoMenu();
+//}
 
 void MainWindow::pushUndo()
 {
@@ -1488,12 +1489,12 @@ void MainWindow::on_xSpacingBox_editingFinished()
 {
     if(ui->minWidthCheckbox->isChecked())
         minimizeSheetWidth();
-    genUndoState();
+    //genUndoState();
 }
 
 void MainWindow::on_ySpacingBox_editingFinished()
 {
-    genUndoState();
+    //genUndoState();
 }
 
 void MainWindow::on_sheetWidthBox_editingFinished()
@@ -1501,12 +1502,12 @@ void MainWindow::on_sheetWidthBox_editingFinished()
     if(ui->minWidthCheckbox->isChecked())
         minimizeSheetWidth();
     sheet->updateSceneBounds();
-    genUndoState();
+    //genUndoState();
 }
 
 void MainWindow::on_animationNameEditor_editingFinished()
 {
-    genUndoState();
+    //genUndoState();
 }
 
 void MainWindow::on_animNameEnabled_toggled(bool checked)
@@ -1523,7 +1524,7 @@ void MainWindow::on_animNameEnabled_toggled(bool checked)
         ui->fontButton->setEnabled(false);
         ui->fontColSelect->setEnabled(false);
     }
-    genUndoState();
+    //genUndoState();
 }
 
 //See http://sourceforge.net/p/freeimage/discussion/36111/thread/ea987d97/ for discussion of FreeImage gif saving...
@@ -1578,7 +1579,7 @@ bool MainWindow::loadAnimatedGIF(QString sFilename)
     insertAnimHelper(frameList, fileName);
     checkMinWidth();
     drawAnimation();
-    genUndoState();
+    //genUndoState();
 
     FreeImage_CloseMultiBitmap(bmp);
     return true;
@@ -1595,7 +1596,8 @@ void MainWindow::on_reverseAnimButton_clicked()
             sheet->refresh();   //Tell sheet to recalculate positions
 
             drawAnimation();
-            genUndoState();
+            updateSelectedAnim();
+            //genUndoState();
         }
     }
 
@@ -1613,7 +1615,9 @@ void MainWindow::on_removeDuplicateFramesButton_clicked()
 
             mAnimFrame = 0;
             drawAnimation();
-            genUndoState();
+            updateSelectedAnim();
+
+            //genUndoState();
         }
     }
 }
@@ -1766,8 +1770,10 @@ void MainWindow::deleteSelected()
         return;
 
     sheet->deleteSelected();
+    if(ui->minWidthCheckbox->isChecked())
+        minimizeSheetWidth();
     curSelectedRect->setVisible(false); //In case we deleted a hovered frame
-    genUndoState();
+    //genUndoState();
     lastSelected = selected = NULL;
     curDragLine->setVisible(false); //If we're currently dragging, hide dragging line
     drawAnimation();

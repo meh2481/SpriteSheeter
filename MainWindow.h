@@ -193,7 +193,7 @@ private:
     void insertAnimHelper(QVector<QImage*> imgList, QString name);  //TODO Remove
 
     void updateWindowTitle();
-    void genUndoState();
+    //void genUndoState();
     void pushUndo();
     void clearUndo();
     void clearRedo();
