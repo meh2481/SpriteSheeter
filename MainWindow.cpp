@@ -29,6 +29,7 @@
 #include "undo/SheetWidthStep.h"
 #include "undo/ReverseAnimStep.h"
 #include "undo/AnimNameStep.h"
+#include "undo/NameVisibleStep.h"
 
 #define SELECT_RECT_THICKNESS 5
 
@@ -1487,21 +1488,10 @@ void MainWindow::on_animationNameEditor_editingFinished()
 
 void MainWindow::on_animNameEnabled_toggled(bool checked)
 {
-    if(checked)
-    {
-        ui->animationNameEditor->setEnabled(true);
-        ui->fontButton->setEnabled(true);
-        ui->fontColSelect->setEnabled(true);
-    }
-    else
-    {
-        ui->animationNameEditor->setEnabled(false);
-        ui->fontButton->setEnabled(false);
-        ui->fontColSelect->setEnabled(false);
-    }
-    sheet->setNamesVisible(checked);
-    sheet->refresh();
-    updateSelectedAnim();
+    if(bUIMutex)
+        return;
+
+    addUndoStep(new NameVisibleStep(this, checked));
 }
 
 //See http://sourceforge.net/p/freeimage/discussion/36111/thread/ea987d97/ for discussion of FreeImage gif saving...
