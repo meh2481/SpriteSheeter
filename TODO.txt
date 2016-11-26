@@ -10,6 +10,8 @@ Feature undoRedo:
 -Only gen undo states for non-equal fonts & colors & box values & such
 -IMPORTANT: Any pointers undo classes hold have to be their own memory. Animations should be referenced by index, etc
 -Minimize width for drag/drop, delete frames, remove duplicates, balance
+-Debug memory leaks with sheet balance/moving frames
+-Use implicit sharing for QImage as intended
 
 
 Release 1.2:

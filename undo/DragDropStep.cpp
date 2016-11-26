@@ -1,7 +1,6 @@
 #include "DragDropStep.h"
 #include "MainWindow.h"
 #include "ui_MainWindow.h"
-#include "QDebug"
 
 DragDropStep::DragDropStep(MainWindow* w, int x, int y) : UndoStep(w)
 {
@@ -41,7 +40,6 @@ void DragDropStep::undo()
     //Loop through reverse, adding back in deleted frames
     for(int j = movedFrames.size() - 1; j >= 0; j--)
     {
-        qDebug() << j << movedFrames.size() << endl;
         FrameLoc fl = movedFrames.at(j);
         Animation* a = sheet->getAnimation(fl.anim);
         a->insertImage(new QImage(fl.img->copy()), fl.frame);
