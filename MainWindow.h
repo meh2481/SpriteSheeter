@@ -47,6 +47,7 @@ public:
     void drawAnimation();
     void updateSelectedAnim(bool updateName = true);
     void minimizeSheetWidth();  //Minimize the sheet's width against the anim lines currently on it
+    int mAnimFrame;
 
 signals:
     bool setImportImg(QImage* image);
@@ -140,7 +141,6 @@ private:
     QGraphicsRectItem* curSelectedRect; //Rect for showing hovered anim frame
     QGraphicsLineItem* curDragLine;
     QImage* mCurFrame;
-    int mAnimFrame;
     QGraphicsRectItem* curSelectedAnimRect;
 
     //Variables for drawing the current sheet/animation

@@ -107,6 +107,8 @@ public:
 
     bool toggleSelect(QGraphicsItem* it); //Select the given item as a frame (return selected)
 
+    bool toggleSelect(int pos);
+
     bool deleteSelected();  //Return true if now empty after deletion
 
     bool hasSelected(); //Return true if any frames in this animation are selected
@@ -124,6 +126,7 @@ public:
     void deselectAll();
 
     QVector<Frame*>& getFrames() {return frames;}
+    QVector<Frame*>* getFramePtr() {return &frames;}
 
     void render(QPainter& painter);
 

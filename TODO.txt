@@ -2,7 +2,6 @@ Feature undoRedo:
 -Everything that can be undone/redone has instantiation
 	-Dragging frames around
 	-Deleting frames
-	-Balancing animation
 	-Removing duplicate frames
 	-Adding frame sequences
 	-Importing sheet
@@ -10,15 +9,17 @@ Feature undoRedo:
 -Flag per undo step for if file saved?
 -Only gen undo states if sheet isn't empty
 -Only gen undo states for non-equal fonts & colors & box values & such
+-IMPORTANT: Any pointers undo classes hold have to be their own memory. Animations should be referenced by index, etc
+
 
 Release 1.2:
 -Determine FreeImage open formats we support
--Odd visual bugs when resizing sheets sometimes
 -Loading .sheet files should use loading mouse cursor (noticable when large files)
--Bug: Animation doesn't reset when selecting new anim in sheet view
--Delete disabled if nothing selected
+-Bug: Animation preview doesn't reset when selecting new anim in sheet view
+-Disable delete button if nothing selected
 -Unble to manually edit sheet width box due to min width constraints
 -File->Save not working?
+-Remove red bg from selected anim; use outline or such
 
 UI Design Stories:
 -Rework frame movement/editing:
@@ -26,7 +27,6 @@ UI Design Stories:
 -Rework animation movement/editing:
 	-Can click-drag animations around and between each other
 -Add cut/copy/paste
-	-frames will need a deep copy function
 	-Paste deselects everything else
 	-Cut/copy disabled if nothing selected
 	-Paste disabled if nothing in clipboard
@@ -38,6 +38,7 @@ Technical Stories:
 -Commandline argument support - Can associate .sheet with program
 -Installer for ease of use / file association?
 -Pull out functionality from sheet width & other slots; pull out into other functions that can be called elsewhere
+-Odd visual bugs when resizing sheets sometimes
 
 User stories:
 -Test balance/resize; reports of crashing (Possibly related to undo/redo memory cap? Research)

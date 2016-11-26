@@ -31,6 +31,7 @@
 #include "undo/AnimNameStep.h"
 #include "undo/NameVisibleStep.h"
 #include "undo/BalanceAnimStep.h"
+#include "undo/RemoveDuplicateStep.h"
 
 #define SELECT_RECT_THICKNESS 5
 
@@ -1558,18 +1559,10 @@ void MainWindow::on_removeDuplicateFramesButton_clicked()
 {
     if(sheet && sheet->size())
     {
-        Animation* anim = sheet->getAnimation(sheet->getCurSelected());
+        int curSelected = sheet->getCurSelected();
+        Animation* anim = sheet->getAnimation(curSelected);
         if(anim)
-        {
-            if(anim->removeDuplicateFrames())
-                sheet->refresh();
-
-            mAnimFrame = 0;
-            drawAnimation();
-            updateSelectedAnim();
-
-            //genUndoState();
-        }
+            addUndoStep(new RemoveDuplicateStep(this, curSelected));
     }
 }
 

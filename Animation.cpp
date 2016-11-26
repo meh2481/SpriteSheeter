@@ -283,6 +283,13 @@ bool Animation::toggleSelect(QGraphicsItem* it)
     return false;
 }
 
+bool Animation::toggleSelect(int pos)
+{
+    Frame* f = frames.at(pos);
+    f->selectToggle();
+    return f->isSelected();
+}
+
 bool Animation::deleteSelected()
 {
     for(int i = frames.size()-1; i >= 0; i--)
