@@ -1,6 +1,5 @@
 Feature undoRedo:
 -Everything that can be undone/redone has instantiation
-	-Deleting frames
 	-Adding frame sequences
 	-Importing sheet
 	-Drag/drop files in

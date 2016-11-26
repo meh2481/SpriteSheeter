@@ -4,7 +4,20 @@
 
 DeleteStep::DeleteStep(MainWindow* w) : UndoStep(w)
 {
-
+    //Read all the frames we should delete now, cause selections can change later
+    Sheet* sheet = mainWindow->getSheet();
+    QVector<Animation*>* anims = sheet->getAnimationPtr();
+    for(int i = 0; i < anims->size(); i++)
+    {
+        QSet<int> animSelected;
+        QVector<Frame*>* frames = anims->at(i)->getFramePtr();
+        for(int j = 0; j < frames->size(); j++)
+        {
+            if(frames->at(j)->isSelected())
+                animSelected.insert(j);
+        }
+        framesToDelete.insert(i, animSelected);
+    }
 }
 
 DeleteStep::~DeleteStep()
@@ -71,12 +84,9 @@ void DeleteStep::deleteSelected()
     QVector<Animation*>* animations = sheet->getAnimationPtr();
     for(int i = animations->size() - 1; i >= 0; i--)
     {
-        QVector<DeleteLoc> deleted = deleteSelectedFrames(animations->at(i));
+        QVector<DeleteLoc> deleted = deleteSelectedFrames(animations->at(i), i);
         foreach(DeleteLoc dl, deleted)
-        {
-            dl.anim = i;
             deletedFrames.prepend(dl);
-        }
 
         if(animations->at(i)->isEmpty())
         {
@@ -87,18 +97,19 @@ void DeleteStep::deleteSelected()
     }
 }
 
-QVector<DeleteStep::DeleteLoc> DeleteStep::deleteSelectedFrames(Animation* anim)
+QVector<DeleteStep::DeleteLoc> DeleteStep::deleteSelectedFrames(Animation* anim, int animIdx)
 {
     QVector<DeleteLoc> deleted;
     QVector<Frame*>* frames = anim->getFramePtr();
+    QSet<int> framesSelected = framesToDelete.value(animIdx);
     for(int i = frames->size() - 1; i >= 0; i--)
     {
-        if(frames->at(i)->isSelected())
+        if(framesSelected.contains(i))
         {
             Frame* f = frames->at(i);
             frames->remove(i);
             DeleteLoc dl;
-            dl.anim = 0;
+            dl.anim = animIdx;
             dl.frame = i;
             dl.img = new QImage(f->getImage()->copy());
             deleted.prepend(dl);    //prepend cause reverse order
