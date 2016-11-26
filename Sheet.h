@@ -40,7 +40,6 @@ class Sheet : public QObject
     bool animNamesVisible;
 
     void updateAnimBg();
-    void deleteEmpty(); //Delete empty animations
 public:
     explicit Sheet(QGraphicsScene* s, SheetEditorView* sheetView, QImage* bg, unsigned int dragW, QObject *parent = 0);
     ~Sheet();
@@ -59,11 +58,16 @@ public:
     void setXSpacing(unsigned int x);
     void setYSpacing(unsigned int y);
 
+    QGraphicsScene* getScene() {return scene;}
+    QImage* getTransparentBg() {return transparentBg;}
+
     unsigned int getWidth() {return width;}
     unsigned int getHeight() {return curHeight;}
     void updateSceneBounds();
     unsigned int size() {return animations.size();}
     Animation* getAnimation(unsigned int index);   //Return NULL or the current animation
+    QVector<Animation*>* getAnimationPtr() {return &animations;}
+    int getOver(int x, int y);  //Get animation this xy position is over
     void refresh(){setWidth(width);updateSceneBounds();} //Recalculate sheet
     unsigned int getMinWidth(); //Get the minimum width for the current width
     unsigned int getSmallestPossibleWidth();    //Get the smallest possible width for this sheet (width of largest animation frame image)
@@ -87,6 +91,7 @@ public:
     void selectAnimation(int selected);
     int getCurSelected() {return curSelectedAnim;}
     void setNamesVisible(bool b);
+    void deleteEmpty(); //Delete empty animations
 
 signals:
 

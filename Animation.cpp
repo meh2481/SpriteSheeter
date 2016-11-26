@@ -199,42 +199,6 @@ void Animation::reverse()
     heightRecalc();
 }
 
-bool Animation::removeDuplicateFrames()
-{
-    if(frames.size() < 2)
-        return false;
-
-    bool bFoundDuplicates = false;
-
-    for(int tester = 0; tester < frames.size(); tester++)
-    {
-        for(int testee = tester+1; testee < frames.size(); testee++)
-        {
-            Frame* testerItem = frames[tester];
-            Frame* testeeItem = frames[testee];
-            QImage* testerImg = testerItem->getImage();
-            QImage* testeeImg = testeeItem->getImage();
-
-            //Images of different size
-            if(testeeImg->width() != testerImg->width() || testeeImg->height() != testerImg->height())
-                continue;
-
-            //Images of different byte counts
-            if(testeeImg->byteCount() != testerImg->byteCount())
-                continue;
-
-            if(std::memcmp(testeeImg->bits(), testerImg->bits(), testeeImg->byteCount()) == 0)
-            {
-                bFoundDuplicates = true;
-                frames.removeAt(testee);
-                testee--;
-                delete testeeItem;   //Free image
-            }
-        }
-    }
-    return bFoundDuplicates;
-}
-
 QPoint Animation::getMaxFrameSize()
 {
     int w = 0, h = 0;

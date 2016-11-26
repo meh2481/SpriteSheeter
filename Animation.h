@@ -89,9 +89,6 @@ public:
     //Reverse the animation
     void reverse();
 
-    //Remove duplicate frames from the current animation (return true if duplicates found/removed)
-    bool removeDuplicateFrames();
-
     //Get the largest width/height out of all animation frames
     QPoint getMaxFrameSize();
 
@@ -103,6 +100,7 @@ public:
     bool isInside(int x, int y);
 
     unsigned int getMinWidth() {return minWidth;}   //Get the minimum width for the current width
+
     unsigned int getSmallestImageWidth();           //Get the smallest possible width for this animation
 
     bool toggleSelect(QGraphicsItem* it); //Select the given item as a frame (return selected)
@@ -126,19 +124,23 @@ public:
     void deselectAll();
 
     QVector<Frame*>& getFrames() {return frames;}
+
     QVector<Frame*>* getFramePtr() {return &frames;}
 
     void render(QPainter& painter);
 
     QString getName() {return name;}
+
     void setName(QString s);
 
     void setFont(QFont& f);
+
     void setFontColor(QColor c);
 
     void saveGIF(QString saveFilename, int animFPS);
 
     int getPosX() {return offsetX;}
+
     int getPosY() {return offsetY;}
 
     void setNameVisible(bool b);

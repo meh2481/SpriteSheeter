@@ -32,6 +32,7 @@
 #include "undo/NameVisibleStep.h"
 #include "undo/BalanceAnimStep.h"
 #include "undo/RemoveDuplicateStep.h"
+#include "undo/DragDropStep.h"
 
 #define SELECT_RECT_THICKNESS 5
 
@@ -813,7 +814,7 @@ void MainWindow::mouseUp(int x, int y)
             else if(selected)
             {
                 sheet->selectAnimation(sheet->getSelected(x, y));
-                sheet->dropped(x, y);
+                addUndoStep(new DragDropStep(this, x, y));
             }
             else if(!itemUnder)
             {

@@ -218,23 +218,9 @@ unsigned int Sheet::getSmallestPossibleWidth()
 
 bool Sheet::clicked(int x, int y, QGraphicsItem* it)
 {
-    Q_UNUSED(x)
-
-    int curY = 0;
-    Animation* over = NULL;
-    foreach(Animation* anim, animations)
-    {
-        curY += anim->getCurHeight();
-        if(curY > y)
-        {
-            over = anim;
-            break;
-        }
-    }
-
-    if(over)
-        return over->toggleSelect(it);
-    return false;
+    int overIndex = getOver(x, y);
+    Animation* over = animations.at(overIndex);
+    return over->toggleSelect(it);
 }
 
 void Sheet::deleteSelected()
@@ -300,87 +286,76 @@ void Sheet::selectLine(QGraphicsItem* from, QGraphicsItem* to)
 
 QLine Sheet::getDragPos(int x, int y)
 {
-    int curY = 0;
-    Animation* over = NULL;
-    for(int i = 0; i < animations.size(); i++)
-    {
-        Animation* anim = animations.at(i);
-        curY += anim->getCurHeight();
-        if(curY > y || i >= animations.size()-1)
-        {
-            over = anim;
-            break;
-        }
-    }
-
-    if(over)
-        return over->getDragPos(x,y);
-
-    return QLine(-1,-1,-1,-1);
+    int overIndex = getOver(x, y);
+    Animation* over = animations.at(overIndex);
+    return over->getDragPos(x,y);
 }
 
-void Sheet::dropped(int x, int y)
+int Sheet::getOver(int x, int y)
 {
+    Q_UNUSED(x)
+
     int curY = 0;
-    Animation* over = NULL;
     int overIndex = 0;
     foreach(Animation* anim, animations)
     {
         curY += anim->getCurHeight();
-        if(curY > y || overIndex >= animations.size()-1)
-        {
-            over = anim;
+        if(curY > y || overIndex == animations.size() - 1)
             break;
-        }
         overIndex++;
     }
 
-    if(over)
+    return overIndex;
+}
+
+void Sheet::dropped(int x, int y)
+{
+    int overIndex = getOver(x, y);
+
+    Animation* over = animations.at(overIndex);
+
+    //Get the position to drop
+    int location = over->getDropPos(x, y);
+
+    //Break out if there's no drop position
+    if(location == ANIM_NONE)
+        return;
+
+    //Pull frames from animations
+    QVector<Frame*> pulledFrames;
+    foreach(Animation* anim, animations)
     {
-        //Get the position to drop
-        int location = over->getDropPos(x, y);
-
-        //Break out if there's no drop position
-        if(location == ANIM_NONE)
-            return;
-
-        //Pull frames from animations
-        QVector<Frame*> pulledFrames;
-        foreach(Animation* anim, animations)
-        {
-            QVector<Frame*> frames = anim->pullSelected((anim == over)?(&location):(NULL));
-            foreach(Frame* f, frames)
-                pulledFrames.append(f);
-        }
-
-        //Figure out what to do with them
-        if(location >= 0)                   //Add to this anim
-        {
-            over->addImages(pulledFrames, location);
-            curSelectedAnim = overIndex;
-        }
-        else if(location == ANIM_BEFORE)    //Add before this anim
-        {
-            Animation* anim = new Animation(transparentBg, scene);
-            anim->addImages(pulledFrames, 0);
-            addAnimation(anim, overIndex);
-            curSelectedAnim = overIndex;
-        }
-        else if(location == ANIM_AFTER)     //Add after this anim
-        {
-            Animation* anim = new Animation(transparentBg, scene);
-            anim->addImages(pulledFrames, 0);
-            addAnimation(anim, overIndex + 1);
-            curSelectedAnim = overIndex+1;
-        }
-
-        //Delete animations that are empty as a result of this
-        deleteEmpty();
-
-        //Recalculate sheet positions
-        refresh();
-
+        QVector<Frame*> frames = anim->pullSelected((anim == over)?(&location):(NULL));
+        foreach(Frame* f, frames)
+            pulledFrames.append(f);
     }
+
+    //Figure out what to do with them
+    if(location >= 0)                   //Add to this anim
+    {
+        over->addImages(pulledFrames, location);
+        curSelectedAnim = overIndex;
+    }
+    else if(location == ANIM_BEFORE)    //Add before this anim
+    {
+        Animation* anim = new Animation(transparentBg, scene);
+        anim->addImages(pulledFrames, 0);
+        addAnimation(anim, overIndex);
+        curSelectedAnim = overIndex;
+    }
+    else if(location == ANIM_AFTER)     //Add after this anim
+    {
+        Animation* anim = new Animation(transparentBg, scene);
+        anim->addImages(pulledFrames, 0);
+        addAnimation(anim, overIndex + 1);
+        curSelectedAnim = overIndex+1;
+    }
+
+    //Delete animations that are empty as a result of this
+    deleteEmpty();
+
+    //Recalculate sheet positions
+    refresh();
 }
 
 void Sheet::deleteEmpty()
@@ -489,18 +464,7 @@ void Sheet::setFontColor(QColor col)
 
 int Sheet::getSelected(int x, int y)
 {
-    Q_UNUSED(x)
-
-    curSelectedAnim = 0;
-    int curY = 0;
-    foreach(Animation* anim, animations)
-    {
-        curY += anim->getCurHeight();
-        if(curY > y)
-            break;
-        curSelectedAnim++;
-    }
-
+    curSelectedAnim = getOver(x, y);
     return curSelectedAnim;
 }
 

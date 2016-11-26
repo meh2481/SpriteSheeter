@@ -9,6 +9,7 @@ Feature undoRedo:
 -Only gen undo states if sheet isn't empty
 -Only gen undo states for non-equal fonts & colors & box values & such
 -IMPORTANT: Any pointers undo classes hold have to be their own memory. Animations should be referenced by index, etc
+-Minimize width for drag/drop, delete frames, remove duplicates, balance
 
 
 Release 1.2:
