@@ -5,7 +5,6 @@ Feature undoRedo:
 	-Balancing animation
 	-Removing duplicate frames
 	-Toggling showing animation names
-	-Changing anim label
 	-Adding frame sequences
 	-Importing sheet
 	-Drag/drop files in
@@ -18,9 +17,9 @@ Release 1.2:
 -Odd visual bugs when resizing sheets sometimes
 -Loading .sheet files should use loading mouse cursor (noticable when large files)
 -Bug: Animation doesn't reset when selecting new anim in sheet view
--Toggle animation name checkbox does nothing
 -Delete disabled if nothing selected
 -Unble to manually edit sheet width box due to min width constraints
+-File->Save not working?
 
 UI Design Stories:
 -Rework frame movement/editing:

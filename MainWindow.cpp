@@ -954,6 +954,7 @@ void MainWindow::loadSettings()
         sheet->setFont(sheetFont);
         sheet->setFontColor(fontColor);
         sheet->updateSceneBounds();
+        sheet->setNamesVisible(ui->animNameEnabled->isChecked());
     }
 
     lastYSpacing = ui->ySpacingBox->value();
@@ -1351,6 +1352,7 @@ void MainWindow::loadFromStream(QDataStream& s)
     //Done reading
 
     //Init sheet values
+    sheet->setNamesVisible(bNamesEnabled);
     sheet->setBgCol(sheetBgCol);
     sheet->setFrameBgCol(frameBgCol);
     sheet->setBgTransparent(ui->sheetBgTransparent->isChecked());
@@ -1497,7 +1499,9 @@ void MainWindow::on_animNameEnabled_toggled(bool checked)
         ui->fontButton->setEnabled(false);
         ui->fontColSelect->setEnabled(false);
     }
-    //genUndoState();
+    sheet->setNamesVisible(checked);
+    sheet->refresh();
+    updateSelectedAnim();
 }
 
 //See http://sourceforge.net/p/freeimage/discussion/36111/thread/ea987d97/ for discussion of FreeImage gif saving...

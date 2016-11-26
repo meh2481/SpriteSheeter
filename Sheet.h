@@ -37,6 +37,7 @@ class Sheet : public QObject
     QFont font;
     QColor fontColor;
     int curSelectedAnim;
+    bool animNamesVisible;
 
     void updateAnimBg();
     void deleteEmpty(); //Delete empty animations
@@ -85,6 +86,7 @@ public:
     int getSelected(int x, int y);
     void selectAnimation(int selected);
     int getCurSelected() {return curSelectedAnim;}
+    void setNamesVisible(bool b);
 
 signals:
 

@@ -37,6 +37,7 @@ class Animation : public QObject
     unsigned int minWidth;  //Minimum width for this animation at the current width
     QString name;
     QGraphicsSimpleTextItem* label;
+    bool drawLabel;
 
     unsigned int heightRecalc();    //Recalculate where each image is on in the sheet
     unsigned int widthOfImages();
@@ -135,6 +136,8 @@ public:
 
     int getPosX() {return offsetX;}
     int getPosY() {return offsetY;}
+
+    void setNameVisible(bool b);
 
 signals:
 

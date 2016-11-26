@@ -18,6 +18,7 @@ Animation::Animation(QImage* bg, QGraphicsScene* s, QObject *parent) : QObject(p
     scene = s;
     label = scene->addSimpleText(name);
     label->setZValue(5);    //Above errything
+    drawLabel = true;
 }
 
 Animation::~Animation()
@@ -94,7 +95,7 @@ unsigned int Animation::heightRecalc()
 {
     int curX = spacingX;
     int curY = spacingY;
-    if(!name.isEmpty())
+    if(!name.isEmpty() && drawLabel)
         curY += label->boundingRect().height() + spacingY;
     unsigned int tallestHeight = 0;
     minWidth = widthOfImages();
@@ -116,11 +117,8 @@ unsigned int Animation::heightRecalc()
             minWidth = curX;
     }
     curHeight = curY + tallestHeight;
-    if(!name.isEmpty())
-    {
-        //curHeight += label->boundingRect().height() + spacingY;
+    if(!name.isEmpty() && drawLabel)
         label->setPos(offsetX + spacingX, offsetY + spacingY);
-    }
     return curHeight;
 }
 
@@ -330,7 +328,7 @@ QLine Animation::getDragPos(int x, int y)
     //Position inside animation
     int curX = spacingX;
     int curY = spacingY;
-    if(!name.isEmpty())
+    if(!name.isEmpty() && drawLabel)
         curY += label->boundingRect().height() + spacingY;
     unsigned int tallestHeight = 0;
     for(int i = 0; i < frames.size(); i++)
@@ -404,7 +402,7 @@ int Animation::getDropPos(int x, int y)
     //Position inside animation
     int curX = spacingX;
     int curY = spacingY;
-    if(!name.isEmpty())
+    if(!name.isEmpty() && drawLabel)
         curY += label->boundingRect().height() + spacingY;
     unsigned int tallestHeight = 0;
     for(int i = 0; i < frames.size(); i++)
@@ -458,7 +456,7 @@ void Animation::deselectAll()
 void Animation::render(QPainter& painter)
 {
     //Render anim title
-    if(name.length())
+    if(!name.isEmpty() && drawLabel)
     {
         QPen orig = painter.pen();
         painter.setPen(QPen(label->brush().color()));
@@ -577,4 +575,10 @@ void Animation::saveGIF(QString saveFilename, int animFPS)
 
     //Save final GIF
     FreeImage_CloseMultiBitmap(bmp, GIF_DEFAULT);
+}
+
+void Animation::setNameVisible(bool b)
+{
+    drawLabel = b;
+    label->setVisible(b);
 }

@@ -18,6 +18,7 @@ Sheet::Sheet(QGraphicsScene* s, SheetEditorView* sheetView, QImage* bg, unsigned
     sheetPreview = sheetView;
     fontColor = QColor(255, 255, 255);
     curSelectedAnim = 0;
+    animNamesVisible = true;
 }
 
 Sheet::~Sheet()
@@ -436,7 +437,7 @@ bool Sheet::saveToStream(QDataStream& s)
     s << xSpacing << ySpacing << (int)width;
     s << font.toString();
     s << curAnim << curFrame;
-    s << true;//ui->animNameEnabled->isChecked();   //TODO Anim names enabled
+    s << animNamesVisible;
 
     return (s.status() == QDataStream::Ok);
 }
@@ -510,4 +511,11 @@ void Sheet::selectAnimation(int selected)
     if(selected >= animations.size())
         selected = animations.size() - 1;
     curSelectedAnim = selected;
+}
+
+void Sheet::setNamesVisible(bool b)
+{
+    animNamesVisible = b;
+    foreach(Animation* anim, animations)
+        anim->setNameVisible(b);
 }
