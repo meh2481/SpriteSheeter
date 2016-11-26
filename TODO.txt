@@ -3,7 +3,6 @@ Feature undoRedo:
 	-Dragging frames around
 	-Deleting frames
 	-Balancing animation
-	-Reversing frame order
 	-Removing duplicate frames
 	-Toggling showing animation names
 	-Changing anim label

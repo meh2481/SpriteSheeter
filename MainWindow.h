@@ -45,7 +45,7 @@ public:
     Ui::MainWindow* getUI() {return ui;}
     Sheet* getSheet() {return sheet;}
     void drawAnimation();
-    void updateSelectedAnim();
+    void updateSelectedAnim(bool updateName = true);
     void minimizeSheetWidth();  //Minimize the sheet's width against the anim lines currently on it
 
 signals:
@@ -155,6 +155,7 @@ private:
     QStack<UndoStep*> undoStack;
     QStack<UndoStep*> redoStack;
     int lastXSpacing, lastYSpacing, lastSheetW;
+    QString lastAnimName;
 
     QString lastIconStr;
     QString lastOpenDir;

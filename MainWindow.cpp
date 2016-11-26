@@ -28,6 +28,7 @@
 #include "undo/MinimizeWidthCheckboxStep.h"
 #include "undo/SheetWidthStep.h"
 #include "undo/ReverseAnimStep.h"
+#include "undo/AnimNameStep.h"
 
 #define SELECT_RECT_THICKNESS 5
 
@@ -236,7 +237,7 @@ void MainWindow::addFolders(QStringList l)
         importImageList(files, s + '/', folder.dirName());
     }
     //if(l.size())
-        //genUndoState();
+    //genUndoState();
 }
 
 void MainWindow::on_openImagesButton_clicked()
@@ -517,7 +518,7 @@ void MainWindow::on_animationNameEditor_textChanged(const QString& arg1)
         anim->setName(arg1);
         sheet->refresh();
         sheet->updateSceneBounds();
-        updateSelectedAnim();
+        updateSelectedAnim(false);
     }
 }
 
@@ -1475,7 +1476,11 @@ void MainWindow::on_sheetWidthBox_editingFinished()
 
 void MainWindow::on_animationNameEditor_editingFinished()
 {
-    //genUndoState();
+    if(bUIMutex || !sheet->size())
+        return;
+
+    addUndoStep(new AnimNameStep(this, lastAnimName, ui->animationNameEditor->text(), sheet->getCurSelected()));
+    lastAnimName = ui->animationNameEditor->text();
 }
 
 void MainWindow::on_animNameEnabled_toggled(bool checked)
@@ -1830,7 +1835,7 @@ void MainWindow::updatePlayIcon()
     }
 }
 
-void MainWindow::updateSelectedAnim()
+void MainWindow::updateSelectedAnim(bool updateName)
 {
     QString animationName;
     int curAnim = sheet->getCurSelected();
@@ -1858,6 +1863,8 @@ void MainWindow::updateSelectedAnim()
         curSelectedAnimRect->setVisible(false);
     }
     ui->animationNameEditor->setText(animationName);
+    if(updateName)
+        lastAnimName = animationName;
 }
 
 void MainWindow::on_newButton_clicked()

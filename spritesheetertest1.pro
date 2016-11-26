@@ -36,7 +36,8 @@ SOURCES += main.cpp\
     undo/XSpacingStep.cpp \
     undo/MinimizeWidthCheckboxStep.cpp \
     undo/SheetWidthStep.cpp \
-    undo/ReverseAnimStep.cpp
+    undo/ReverseAnimStep.cpp \
+    undo/AnimNameStep.cpp
 
 HEADERS  += \
 		FreeImage.h \
@@ -64,7 +65,8 @@ HEADERS  += \
     undo/XSpacingStep.h \
     undo/MinimizeWidthCheckboxStep.h \
     undo/SheetWidthStep.h \
-    undo/ReverseAnimStep.h
+    undo/ReverseAnimStep.h \
+    undo/AnimNameStep.h
 
 FORMS    += \
     BalanceSheetDialog.ui \
