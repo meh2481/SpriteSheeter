@@ -149,6 +149,8 @@ public:
 
     Frame* getFrame(unsigned int index);
 
+    void removeFrame(int index);
+
 signals:
 
 public slots:

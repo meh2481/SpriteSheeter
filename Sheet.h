@@ -91,7 +91,8 @@ public:
     void selectAnimation(int selected);
     int getCurSelected() {return curSelectedAnim;}
     void setNamesVisible(bool b);
-    void deleteEmpty(); //Delete empty animations
+    QVector<int> deleteEmpty(); //Delete empty animations
+    void removeAnimation(int idx);
 
 signals:
 

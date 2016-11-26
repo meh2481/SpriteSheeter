@@ -573,3 +573,12 @@ Frame* Animation::getFrame(unsigned int index)
         return frames.at(frames.size()-1);
     return NULL;
 }
+
+void Animation::removeFrame(int index)
+{
+    if(index < 0 || index > frames.size() - 1)
+        return;
+
+    delete frames.at(index);
+    frames.remove(index);
+}

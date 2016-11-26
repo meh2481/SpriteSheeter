@@ -15,7 +15,8 @@ class DragDropStep : public UndoStep
     };
 
     int animOverIdx;
-    int dropLocation;
+    int origDropLocation;
+    int newDropLocation;
     int animAddedTo;
     int animCreated;
     QVector<FrameLoc> movedFrames;
@@ -25,8 +26,11 @@ class DragDropStep : public UndoStep
     QVector<QImage*> getPulledImages();
     void selectFrames(Animation* anim, int loc, int count);
 
+    void clear();
+
 public:
     DragDropStep(MainWindow* w, int x, int y);
+    ~DragDropStep();
 
     void undo();
     void redo();

@@ -358,8 +358,9 @@ void Sheet::dropped(int x, int y)
     refresh();
 }
 
-void Sheet::deleteEmpty()
+QVector<int> Sheet::deleteEmpty()
 {
+    QVector<int> deleted;
     for(int i = 0; i < animations.size(); i++)
     {
         if(animations.at(i)->isEmpty())
@@ -368,9 +369,20 @@ void Sheet::deleteEmpty()
                 curSelectedAnim--;
             delete animations.at(i);
             animations.remove(i);
+            deleted << i;
             i--;
         }
     }
+    return deleted;
+}
+
+void Sheet::removeAnimation(int idx)
+{
+    if(idx < 0 || idx > animations.size() - 1)
+        return;
+
+    delete animations.at(idx);
+    animations.remove(idx);
 }
 
 void Sheet::deselectAll()

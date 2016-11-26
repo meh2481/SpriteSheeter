@@ -794,7 +794,7 @@ void MainWindow::mouseUp(int x, int y)
         else
         {
             QGraphicsItem* itemUnder = isItemUnderCursor(x, y);
-            if(clicked && itemUnder == clicked)
+            if(clicked && itemUnder == clicked) //Selecting things
             {
                 //Shift-click to select line
                 if(lastSelected && QGuiApplication::keyboardModifiers() & Qt::ShiftModifier)
@@ -811,12 +811,12 @@ void MainWindow::mouseUp(int x, int y)
 
                 sheet->selectAnimation(sheet->getSelected(x, y));
             }
-            else if(selected)
+            else if(selected)   //Drag-dropping frames
             {
                 sheet->selectAnimation(sheet->getSelected(x, y));
                 addUndoStep(new DragDropStep(this, x, y));
             }
-            else if(!itemUnder)
+            else if(!itemUnder) //Deselecting everything
             {
                 sheet->selectAnimation(sheet->getSelected(x, y));
                 sheet->deselectAll();
