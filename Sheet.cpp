@@ -223,21 +223,6 @@ bool Sheet::clicked(int x, int y, QGraphicsItem* it)
     return over->toggleSelect(it);
 }
 
-void Sheet::deleteSelected()
-{
-    for(int i = animations.size() - 1; i >= 0; i--)
-    {
-        if(animations.at(i)->deleteSelected())
-        {
-            delete animations.at(i);
-            animations.remove(i);
-            selectAnimation(curSelectedAnim);
-        }
-    }
-    recalc();
-    updateSceneBounds();
-}
-
 bool Sheet::hasSelectedFrames()
 {
     foreach(Animation* anim, animations)

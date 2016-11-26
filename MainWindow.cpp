@@ -33,6 +33,7 @@
 #include "undo/BalanceAnimStep.h"
 #include "undo/RemoveDuplicateStep.h"
 #include "undo/DragDropStep.h"
+#include "undo/DeleteStep.h"
 
 #define SELECT_RECT_THICKNESS 5
 
@@ -1025,7 +1026,7 @@ void MainWindow::keyPressEvent(QKeyEvent* e)
 
 
     //Delete current selected frame(s)
-    if(e->key() == Qt::Key_Delete && sheet && sheet->hasSelectedFrames())
+    if(e->key() == Qt::Key_Delete)
     {
         deleteSelected();
     }
@@ -1714,18 +1715,14 @@ void MainWindow::minimizeSheetWidth()
 
 void MainWindow::deleteSelected()
 {
-    if(!sheet->size())
+    if(!sheet->size() || !sheet->hasSelectedFrames())
         return;
 
-    sheet->deleteSelected();
-    if(ui->minWidthCheckbox->isChecked())
-        minimizeSheetWidth();
     curSelectedRect->setVisible(false); //In case we deleted a hovered frame
-    //genUndoState();
     lastSelected = selected = NULL;
     curDragLine->setVisible(false); //If we're currently dragging, hide dragging line
-    drawAnimation();
-    updateSelectedAnim();
+
+    addUndoStep(new DeleteStep(this));
 }
 
 void MainWindow::setModified(bool b)

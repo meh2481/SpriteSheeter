@@ -107,8 +107,6 @@ public:
 
     bool toggleSelect(int pos);
 
-    bool deleteSelected();  //Return true if now empty after deletion
-
     bool hasSelected(); //Return true if any frames in this animation are selected
 
     bool isSelected(QGraphicsItem* it);   //Return true if this item is in this sheet and selected

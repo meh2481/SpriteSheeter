@@ -254,20 +254,6 @@ bool Animation::toggleSelect(int pos)
     return f->isSelected();
 }
 
-bool Animation::deleteSelected()
-{
-    for(int i = frames.size()-1; i >= 0; i--)
-    {
-        if(frames.at(i)->isSelected())
-        {
-            Frame* f = frames.at(i);
-            frames.remove(i);
-            delete f;
-        }
-    }
-    return(!frames.size());
-}
-
 bool Animation::hasSelected()
 {
     foreach(Frame* f, frames)

@@ -41,7 +41,8 @@ SOURCES += main.cpp\
     undo/NameVisibleStep.cpp \
     undo/BalanceAnimStep.cpp \
     undo/RemoveDuplicateStep.cpp \
-    undo/DragDropStep.cpp
+    undo/DragDropStep.cpp \
+    undo/DeleteStep.cpp
 
 HEADERS  += \
 		FreeImage.h \
@@ -74,7 +75,8 @@ HEADERS  += \
     undo/NameVisibleStep.h \
     undo/BalanceAnimStep.h \
     undo/RemoveDuplicateStep.h \
-    undo/DragDropStep.h
+    undo/DragDropStep.h \
+    undo/DeleteStep.h
 
 FORMS    += \
     BalanceSheetDialog.ui \

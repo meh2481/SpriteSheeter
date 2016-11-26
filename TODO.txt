@@ -1,6 +1,5 @@
 Feature undoRedo:
 -Everything that can be undone/redone has instantiation
-	-Dragging frames around
 	-Deleting frames
 	-Adding frame sequences
 	-Importing sheet
@@ -10,9 +9,10 @@ Feature undoRedo:
 -Only gen undo states for non-equal fonts & colors & box values & such
 -IMPORTANT: Any pointers undo classes hold have to be their own memory. Animations should be referenced by index, etc
 -Minimize width for drag/drop, delete frames, remove duplicates, balance
+-Proper anim select on undo/redo with drag/drop frames
 -Debug memory leaks with sheet balance/moving frames
--Use implicit sharing for QImage as intended
-
+	-Use implicit sharing for QImage as intended
+-Check that applicable places are using UI mutex
 
 Release 1.2:
 -Determine FreeImage open formats we support
