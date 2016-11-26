@@ -4,7 +4,6 @@ Feature undoRedo:
 	-Deleting frames
 	-Balancing animation
 	-Removing duplicate frames
-	-Toggling showing animation names
 	-Adding frame sequences
 	-Importing sheet
 	-Drag/drop files in

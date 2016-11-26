@@ -22,6 +22,7 @@ class Frame
     bool selected;
     int x, y;
     bool bgTransparent;
+    bool bVisible;
     QColor frameBgCol;
     QImage* transparentBg;
 
@@ -50,6 +51,8 @@ public:
     bool isSelected() {return selected;}
 
     void render(QPainter& painter);
+
+    Frame* copy();
 };
 
 #endif // FRAME_H

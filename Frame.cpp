@@ -10,6 +10,7 @@ Frame::Frame(QGraphicsScene* s, QImage* i, QColor bgCol, QImage* tBg, bool frame
     x = y = 0;
     selected = false;
     bgTransparent = frameBgTransparent;
+    bVisible = true;
     //Add image
     item = scene->addPixmap(QPixmap::fromImage(*img));
     //Add bg rect
@@ -110,4 +111,16 @@ void Frame::render(QPainter& painter)
     }
 
     painter.drawImage(x, y, *img);
+}
+
+Frame* Frame::copy()
+{
+    Frame* f = new Frame(scene, new QImage(img->copy()), frameBgCol, transparentBg, bgTransparent);
+
+    f->setPosition(x, y);
+    f->setFrameBgTransparent(bgTransparent);
+    if(selected)
+        f->selectToggle();
+
+    return f;
 }

@@ -30,6 +30,7 @@
 #include "undo/ReverseAnimStep.h"
 #include "undo/AnimNameStep.h"
 #include "undo/NameVisibleStep.h"
+#include "undo/BalanceAnimStep.h"
 
 #define SELECT_RECT_THICKNESS 5
 
@@ -1099,12 +1100,7 @@ void MainWindow::balance(int w, int h, BalancePos::Pos vert, BalancePos::Pos hor
     if(!anim)
         return;
 
-    anim->balance(QPoint(w,h), vert, horiz);
-    sheet->refresh();
-
-    drawAnimation();
-    updateSelectedAnim();
-    //genUndoState();
+    addUndoStep(new BalanceAnimStep(this, anim, w, h, vert, horiz));
 }
 
 void MainWindow::undo()

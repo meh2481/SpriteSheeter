@@ -38,6 +38,7 @@ class Animation : public QObject
     QString name;
     QGraphicsSimpleTextItem* label;
     bool drawLabel;
+    bool frameBgVisible;
 
     unsigned int heightRecalc();    //Recalculate where each image is on in the sheet
     unsigned int widthOfImages();
@@ -138,6 +139,10 @@ public:
     int getPosY() {return offsetY;}
 
     void setNameVisible(bool b);
+
+    void clear();
+
+    Frame* getFrame(unsigned int index);
 
 signals:
 

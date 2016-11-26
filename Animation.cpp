@@ -19,12 +19,12 @@ Animation::Animation(QImage* bg, QGraphicsScene* s, QObject *parent) : QObject(p
     label = scene->addSimpleText(name);
     label->setZValue(5);    //Above errything
     drawLabel = true;
+    frameBgVisible = true;
 }
 
 Animation::~Animation()
 {
-    foreach(Frame* f, frames)
-        delete f;
+    clear();
     scene->removeItem(label);
 }
 
@@ -39,6 +39,9 @@ void Animation::insertImage(QImage* img, unsigned int index)
         index = frames.size();
 
     Frame* f = new Frame(scene, img, frameBgCol, transparentBg, frameBgTransparent);
+    f->setFrameBgCol(frameBgCol);
+    f->setFrameBgTransparent(frameBgTransparent);
+    f->setFrameBgVisible(frameBgVisible);
     frames.insert(index, f);
 
     heightRecalc();
@@ -179,6 +182,7 @@ void Animation::setFrameBgTransparent(bool b)
 
 void Animation::setFrameBgVisible(bool b)
 {
+    frameBgVisible = b;
     foreach(Frame* f, frames)
         f->setFrameBgVisible(b);
 }
@@ -581,4 +585,20 @@ void Animation::setNameVisible(bool b)
 {
     drawLabel = b;
     label->setVisible(b);
+}
+
+void Animation::clear()
+{
+    foreach(Frame* f, frames)
+        delete f;
+    frames.clear();
+}
+
+Frame* Animation::getFrame(unsigned int index)
+{
+    if(index < (unsigned int)frames.size())
+        return frames.at(index);
+    if(frames.size())
+        return frames.at(frames.size()-1);
+    return NULL;
 }
