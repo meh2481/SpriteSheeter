@@ -1097,11 +1097,12 @@ void MainWindow::balance(int w, int h, BalancePos::Pos vert, BalancePos::Pos hor
     if(!sheet || !sheet->size())
         return;
 
-    Animation* anim = sheet->getAnimation(sheet->getCurSelected());
+    int curSelected = sheet->getCurSelected();
+    Animation* anim = sheet->getAnimation(curSelected);
     if(!anim)
         return;
 
-    addUndoStep(new BalanceAnimStep(this, anim, w, h, vert, horiz));
+    addUndoStep(new BalanceAnimStep(this, curSelected, w, h, vert, horiz));
 }
 
 void MainWindow::undo()

@@ -6,13 +6,13 @@
 
 class BalanceAnimStep : public UndoStep
 {
-    Animation* a;
+    int animationIndex;
     QVector<QImage*> frames;
     QVector<bool> checked;
     int w, h;
     BalancePos::Pos ve, ho;
 public:
-    BalanceAnimStep(MainWindow* win, Animation* anim, int width, int height, BalancePos::Pos vert, BalancePos::Pos horiz);
+    BalanceAnimStep(MainWindow* win, int animIndex, int width, int height, BalancePos::Pos vert, BalancePos::Pos horiz);
     ~BalanceAnimStep();
 
     void undo();

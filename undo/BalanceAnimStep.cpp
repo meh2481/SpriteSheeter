@@ -2,14 +2,15 @@
 #include "MainWindow.h"
 #include "ui_MainWindow.h"
 
-BalanceAnimStep::BalanceAnimStep(MainWindow* win, Animation* anim, int width, int height, BalancePos::Pos vert, BalancePos::Pos horiz) : UndoStep(win)
+BalanceAnimStep::BalanceAnimStep(MainWindow* win, int animIndex, int width, int height, BalancePos::Pos vert, BalancePos::Pos horiz) : UndoStep(win)
 {
-    a = anim;
+    animationIndex = animIndex;
     w = width;
     h = height;
     ve = vert;
     ho = horiz;
 
+    Animation* anim = win->getSheet()->getAnimation(animIndex);
     QVector<Frame*> startFrames = anim->getFrames();
     foreach(Frame* f, startFrames)
     {
@@ -26,6 +27,7 @@ BalanceAnimStep::~BalanceAnimStep()
 
 void BalanceAnimStep::undo()
 {
+    Animation* a = mainWindow->getSheet()->getAnimation(animationIndex);
     QVector<QImage*> origFrames;
     foreach(QImage* img, frames)
         origFrames.append(new QImage(img->copy()));
@@ -45,6 +47,7 @@ void BalanceAnimStep::undo()
 
 void BalanceAnimStep::redo()
 {
+    Animation* a = mainWindow->getSheet()->getAnimation(animationIndex);
     a->balance(QPoint(w, h), ve, ho);
     mainWindow->getSheet()->refresh();
     mainWindow->getSheet()->updateSceneBounds();
