@@ -1,28 +1,25 @@
 Feature undoRedo:
--Everything that can be undone/redone has instantiation
-	-Adding frame sequences
-	-Importing sheet
-	-Drag/drop files in
--Flag per undo step for if file saved?
--Only gen undo states if sheet isn't empty
+-Flag per undo step for if file saved -- need this or some other way to tell if file is in saved state or not
 -Only gen undo states for non-equal fonts & colors & box values & such
--IMPORTANT: Any pointers undo classes hold have to be their own memory. Animations should be referenced by index, etc
 -Minimize width for drag/drop, delete frames, remove duplicates, balance
 -Proper anim select on undo/redo with drag/drop frames
 -Debug memory leaks with sheet balance/moving frames
 	-Use implicit sharing for QImage as intended
 -Check that applicable places are using UI mutex
+-Add animation name back when undoing a delete
+-Sheet width minimized is a problem on drag/drop, delete, and AddImages undo/redo
 
 Release 1.2:
 -Determine FreeImage open formats we support
--Loading .sheet files should use loading mouse cursor (noticable when large files)
--Bug: Animation preview doesn't reset when selecting new anim in sheet view
--Disable delete button if nothing selected
 -Unble to manually edit sheet width box due to min width constraints
 -File->Save not working?
 -Remove red bg from selected anim; use outline or such
 
 UI Design Stories:
+-Bug: Animation preview doesn't reset when selecting new anim in sheet view
+-Disable delete button if nothing selected
+-Loading .sheet files should use loading mouse cursor (noticable when large files)
+-Ctrl-A should select all
 -Rework frame movement/editing:
 	-Click-drag in box to select multiple frames
 -Rework animation movement/editing:
@@ -36,6 +33,7 @@ UI Design Stories:
 Odd scrollbars with empty sheets sometimes. Sheet view also lets you zoom in on empty sheet.
 
 Technical Stories:
+-Only gen undo states if sheet wasn't empty at beginning?
 -Rather than specifying image types manually, remove filter entirely or add ALL actual file types we support to filter
 -Commandline argument support - Can associate .sheet with program
 -Installer for ease of use / file association?

@@ -34,6 +34,7 @@
 #include "undo/RemoveDuplicateStep.h"
 #include "undo/DragDropStep.h"
 #include "undo/DeleteStep.h"
+#include "undo/AddImagesStep.h"
 
 #define SELECT_RECT_THICKNESS 5
 
@@ -188,20 +189,18 @@ void MainWindow::importImageList(QStringList& fileList, QString prepend, QString
 {
     if(fileList.size())
     {
-        Animation* animation = new Animation(transparentBg, msheetScene, this);
+        QVector<QImage*> animation;
         foreach(QString s1, fileList)
         {
             QString imgPath = prepend + s1;
             QImage* image = loadImageFI(imgPath);
-            if(!image->isNull())
-                animation->insertImage(image);
+            if(image != NULL && !image->isNull())
+                animation.append(image);
             else
                 qDebug() << "Unable to open image " << imgPath << endl;
         }
-        animation->setName(animName);
-        sheet->addAnimation(animation);
+        insertAnimHelper(animation, animName);
         checkMinWidth();
-
         if(ui->minWidthCheckbox->isChecked())
             minimizeSheetWidth();
         drawAnimation();
@@ -325,13 +324,7 @@ void MainWindow::openImportDiag()
 void MainWindow::insertAnimHelper(QVector<QImage*> imgList, QString name)
 {
     if(imgList.size())
-    {
-        Animation* animation = new Animation(transparentBg, msheetScene, this);
-        animation->insertImages(imgList);
-        animation->setName(name);
-        sheet->addAnimation(animation, sheet->getCurSelected());
-        updateSelectedAnim();
-    }
+        addUndoStep(new AddImagesStep(this, imgList, name));
 }
 
 void MainWindow::importImageAsSheet(QString s, int numxframes, int numyframes, bool bVert, bool bSplit)

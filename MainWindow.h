@@ -48,6 +48,7 @@ public:
     void updateSelectedAnim(bool updateName = true);
     void minimizeSheetWidth();  //Minimize the sheet's width against the anim lines currently on it
     int mAnimFrame;
+    void checkMinWidth();   //Check the sheet's current width against the min possible width & update as needed
 
 signals:
     bool setImportImg(QImage* image);
@@ -218,7 +219,6 @@ private:
     void deleteSelected();
     void setModified(bool b);
     QImage* loadImageFI(QString filename);  //Load a QImage using FreeImage, which generally loads images better
-    void checkMinWidth();   //Check the sheet's current width against the min possible width & update as needed
     void updatePlayIcon();  //Update the icon for the anim play/pause button
 };
 
