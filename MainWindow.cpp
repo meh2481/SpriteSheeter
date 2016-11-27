@@ -138,7 +138,7 @@ MainWindow::MainWindow(QWidget *parent) :
     curDragLine->setZValue(2);
     curDragLine->setVisible(false);
 
-    curSelectedAnimRect = msheetScene->addRect(0,0,0,0,QPen(),QBrush(QColor(128, 0, 0, 255)));
+    curSelectedAnimRect = msheetScene->addRect(0,0,0,0,QPen(animHighlightCol, SELECT_RECT_THICKNESS/2), QBrush(QColor(128,0,0,100)));
     curSelectedAnimRect->setZValue(-3);
     curSelectedAnimRect->setVisible(true);
 

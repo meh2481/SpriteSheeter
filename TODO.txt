@@ -7,7 +7,6 @@ Release 1.2:
 -Save/Save As should deal in .sheet format, PNG/etc should be Export
 	-This way, users aren't misled into thinking they can re-open PNG images and such
 -Unble to manually edit sheet width box due to min width constraints
--Remove red bg from selected anim; use outline or such
 
 UI Design Stories:
 -Drag-and-drop should support .sheet file format
