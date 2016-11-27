@@ -473,10 +473,10 @@ int Sheet::getSelected(int x, int y)
 
 void Sheet::selectAnimation(int selected)
 {
-    if(selected < 0)
-        selected = 0;
     if(selected >= animations.size())
         selected = animations.size() - 1;
+    if(selected < 0)
+        selected = 0;
     curSelectedAnim = selected;
 }
 
