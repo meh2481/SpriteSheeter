@@ -155,6 +155,7 @@ private:
     //Undo/redo variables
     QStack<UndoStep*> undoStack;
     QStack<UndoStep*> redoStack;
+    bool bStackBottomSaved;
     int lastXSpacing, lastYSpacing, lastSheetW;
     QString lastAnimName;
 
@@ -167,7 +168,6 @@ private:
     int curMouseX;
     int curMouseY;
 
-    bool bFileModified;
     QString sCurFilename;
 
     //Variables for dealing with the Qt draw engine
@@ -217,9 +217,11 @@ private:
     void saveSettings();
     void saveFile();
     void deleteSelected();
-    void setModified(bool b);
+    void setSaved();
     QImage* loadImageFI(QString filename);  //Load a QImage using FreeImage, which generally loads images better
     void updatePlayIcon();  //Update the icon for the anim play/pause button
+
+    bool isModified();  //If the current sheet is modified
 };
 
 #endif // MAINWINDOW_H

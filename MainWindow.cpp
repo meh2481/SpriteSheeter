@@ -99,7 +99,7 @@ MainWindow::MainWindow(QWidget *parent) :
     bDraggingSheetW = false;
     m_bDraggingSelected = false;
     m_bSetDraggingCursor = false;
-    setModified(false);
+    setSaved();
     m_rLastDragHighlight.setCoords(0,0,0,0);
     m_bLastDragInAnim = false;
     sCurFilename = UNTITLED_IMAGE_STR;
@@ -439,7 +439,7 @@ void MainWindow::genericSave(QString saveFilename)
             saveSheet(saveFilename);
             QFileInfo fi(saveFilename);
             sCurFilename = fi.fileName();
-            setModified(false);
+            setSaved();
             updateWindowTitle();
         }
         else
@@ -452,7 +452,7 @@ void MainWindow::genericSave(QString saveFilename)
             {
                 QFileInfo fi(saveFilename);
                 sCurFilename = fi.fileName();
-                setModified(false);
+                setSaved();
                 updateWindowTitle();
             }
         }
@@ -488,7 +488,7 @@ void MainWindow::saveFile()
     if(!sheet || !sheet->size())
         return;
 
-    if(!bFileModified)
+    if(!isModified())
         return;  //Don't bother saving if we already have
 
     QString saveFilename;
@@ -825,7 +825,7 @@ void MainWindow::mouseUp(int x, int y)
 void MainWindow::closeEvent(QCloseEvent *event)
 {
     //Make sure user has saved before closing
-    if(bFileModified)
+    if(isModified())
     {
         QMessageBox::StandardButton dialog;
         dialog = QMessageBox::warning(this, "Save Changes",
@@ -835,7 +835,7 @@ void MainWindow::closeEvent(QCloseEvent *event)
         if(dialog == QMessageBox::Save)
         {
             saveFile();
-            if(bFileModified)   //If they still haven't saved...
+            if(isModified())   //If they still haven't saved...
             {
                 event->ignore();
                 return;
@@ -977,7 +977,7 @@ void MainWindow::on_sheetWidthBox_valueChanged(int arg1)
 void MainWindow::newFile()
 {
     //Don't overwrite changes when they create a new file
-    if(bFileModified)
+    if(isModified())
     {
         QMessageBox::StandardButton dialog;
         dialog = QMessageBox::warning(this, "Save Changes",
@@ -987,7 +987,7 @@ void MainWindow::newFile()
         if(dialog == QMessageBox::Save)
         {
             saveFile();
-            if(bFileModified)   //If they still haven't saved...
+            if(isModified())   //If they still haven't saved...
                 return;
         }
         else if(dialog != QMessageBox::Discard)
@@ -1003,12 +1003,12 @@ void MainWindow::newFile()
     drawAnimation();
 
     sCurFilename = UNTITLED_IMAGE_STR;
-    setModified(false);
-    updateWindowTitle();
-
     //Clear undo/redo
     clearUndo();
     clearRedo();
+    setSaved();
+    updateWindowTitle();
+
     updateSelectedAnim();
     mAnimFrame = 0;
 }
@@ -1104,10 +1104,6 @@ void MainWindow::undo()
 {
     if(undoStack.size())
     {
-        //Undo undoes a save state
-        if(!bFileModified)
-            setModified(true);
-
         //Save our redo point
         UndoStep* step = undoStack.pop();
         redoStack.push(step);
@@ -1118,6 +1114,7 @@ void MainWindow::undo()
         bUIMutex = false;
 
         updateUndoRedoMenu();
+        updateWindowTitle();
     }
 }
 
@@ -1125,10 +1122,6 @@ void MainWindow::redo()
 {
     if(redoStack.size())
     {
-        //Rndo undoes a save state
-        if(!bFileModified)
-            setModified(true);
-
         //Save this back on our undo list
         UndoStep* step = redoStack.pop();
         undoStack.push(step);
@@ -1139,6 +1132,7 @@ void MainWindow::redo()
         bUIMutex = false;
 
         updateUndoRedoMenu();
+        updateWindowTitle();
     }
 }
 
@@ -1172,7 +1166,7 @@ void MainWindow::saveSheet(QString filename)
 void MainWindow::loadSheet(QString openFilename)
 {
     //Don't overwrite changes when they create a new file
-    if(bFileModified)
+    if(isModified())
     {
         QMessageBox::StandardButton dialog;
         dialog = QMessageBox::warning(this, "Save Changes",
@@ -1182,7 +1176,7 @@ void MainWindow::loadSheet(QString openFilename)
         if(dialog == QMessageBox::Save)
         {
             saveFile();
-            if(bFileModified)   //If they still haven't saved...
+            if(isModified())   //If they still haven't saved...
                 return;
         }
         else if(dialog != QMessageBox::Discard)
@@ -1215,11 +1209,11 @@ void MainWindow::loadSheet(QString openFilename)
 
             QFileInfo fi(openFilename);
             sCurFilename = fi.fileName();
-            setModified(false);
-            updateWindowTitle();
-            lastSaveStr = openFilename;
             clearUndo();
             clearRedo();
+            setSaved();
+            updateWindowTitle();
+            lastSaveStr = openFilename;
         }
     }
 }
@@ -1384,13 +1378,16 @@ void MainWindow::updateWindowTitle()
 {
     QString sWindowStr;
     QTextStream sWindowTitle(&sWindowStr);
-    if(bFileModified)
+    bool b = isModified();
+    if(b)
         sWindowTitle << "*";
     sWindowTitle << sCurFilename;
     sWindowTitle << " - Sprite Sheeter v" << MAJOR_VERSION << "." << MINOR_VERSION;
     if(REV_VERSION)
         sWindowTitle << " r" << REV_VERSION;
     setWindowTitle(sWindowStr);
+    ui->saveButton->setEnabled(b);
+    ui->actionSave->setEnabled(b);
 }
 
 void MainWindow::addUndoStep(UndoStep* step)
@@ -1403,13 +1400,7 @@ void MainWindow::addUndoStep(UndoStep* step)
     //Clear redo list
     clearRedo();
 
-    //Set the window title if this is the first the file has been modified
-    if(!bFileModified)
-    {
-        setModified(true);
-        updateWindowTitle();
-    }
-
+    updateWindowTitle();
     updateUndoRedoMenu();
 }
 
@@ -1718,11 +1709,22 @@ void MainWindow::deleteSelected()
     addUndoStep(new DeleteStep(this));
 }
 
-void MainWindow::setModified(bool b)
+void MainWindow::setSaved()
 {
-    bFileModified = b;
-    ui->saveButton->setEnabled(b);
-    ui->actionSave->setEnabled(b);
+    foreach(UndoStep* st, undoStack)
+        st->setSaved(false);
+
+    foreach(UndoStep* st, redoStack)
+        st->setSaved(false);
+
+    if(!undoStack.isEmpty())
+    {
+        UndoStep* s = undoStack.top();
+        s->setSaved(true);
+        bStackBottomSaved = false;
+    }
+    else
+        bStackBottomSaved = true;
 }
 
 QImage* MainWindow::loadImageFI(QString filename)
@@ -1808,6 +1810,14 @@ void MainWindow::updatePlayIcon()
         ui->animPlayButton->setIcon(QIcon("://images/media-play"));
         ui->animPlayButton->setToolTip("Play animation");
     }
+}
+
+bool MainWindow::isModified()
+{
+    if(undoStack.isEmpty())
+        return !bStackBottomSaved;
+
+    return !(undoStack.top()->isSaved());
 }
 
 void MainWindow::updateSelectedAnim(bool updateName)

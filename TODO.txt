@@ -1,5 +1,5 @@
 Feature undoRedo:
--Flag per undo step for if file saved -- need this or some other way to tell if file is in saved state or not
+-Drag-drop fails if dragging one frame to end of sheet, then dragging another to that same anim (redo moves both)
 -Only gen undo states for non-equal fonts & colors & box values & such
 -Minimize width for drag/drop, delete frames, remove duplicates, balance
 -Proper anim select on undo/redo with drag/drop frames
@@ -16,6 +16,8 @@ Release 1.2:
 -Remove red bg from selected anim; use outline or such
 
 UI Design Stories:
+-Save/Save As should deal in .sheet format, PNG/etc should be Export
+	-This way, users aren't misled into thinking they can re-open PNG images and such
 -Bug: Animation preview doesn't reset when selecting new anim in sheet view
 -Disable delete button if nothing selected
 -Loading .sheet files should use loading mouse cursor (noticable when large files)
