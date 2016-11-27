@@ -906,6 +906,11 @@ void MainWindow::saveSettings()
     settings.setValue("animNames", ui->animNameEnabled->isChecked());
     settings.setValue("lastGIFStr", lastGIFStr);
     settings.setValue("minimizeSheetWidth", ui->minWidthCheckbox->isChecked());
+
+    //Save version number (useful when loading settings from an older version of the program)
+    settings.setValue("major", MAJOR_VERSION);
+    settings.setValue("minor", MINOR_VERSION);
+    settings.setValue("rev", REV_VERSION);
     //settings.setValue("", );
 }
 
@@ -1260,7 +1265,7 @@ void MainWindow::saveToStream(QDataStream& s)
     int minor = MINOR_VERSION;
     int rev = REV_VERSION;
     s << major << minor << rev;  //Later we'll care about this if the save format changes again
-    s << ui->minWidthCheckbox->isChecked(); //v1.2
+    s << ui->minWidthCheckbox->isChecked(); //v1.1
     sheet->saveToStream(s);
 }
 
@@ -1278,9 +1283,9 @@ void MainWindow::loadFromStream(QDataStream& s)
         QMessageBox::warning(this, "File Load", "This sheet file was created with a newer version of Sprite Sheeter than you currently have. Please update your Sprite Sheeter version.");
         return;
     }
-    //v 1.2: Load sheet width minimized checkbox
+    //v 1.1: Load sheet width minimized checkbox
     bool bMinimizeSheet = true;
-    if(major >= 1 && minor >= 2)
+    if(major >= 1 && minor >= 1)
         s >> bMinimizeSheet;
     ui->minWidthCheckbox->setChecked(bMinimizeSheet);
 
@@ -1299,7 +1304,7 @@ void MainWindow::loadFromStream(QDataStream& s)
             s >> imgByteArray;
             QBuffer buffer(&imgByteArray);
             buffer.open(QIODevice::ReadOnly);
-            if(major == 1 && minor < 2) //pre-v1.2 saved as TIFF
+            if(major == 1 && minor < 1) //pre-v1.1 saved as TIFF
                 img.load(&buffer, "TIFF");
             else
             {
@@ -1337,7 +1342,7 @@ void MainWindow::loadFromStream(QDataStream& s)
     s >> sheetBgCol;
     s >> frameBgCol;
     QColor fontColor;
-    if(major > 1 || (major == 1 && minor > 1))  //Version 1.2 introduced font color
+    if(major > 1 || (major == 1 && minor >= 1))  //Version 1.1 introduced font color
         s >> fontColor;
 
     bool bSheetBg, bFrameBg;

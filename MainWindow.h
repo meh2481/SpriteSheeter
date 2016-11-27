@@ -20,7 +20,7 @@
 #define DRAG_HANDLE_SIZE 10
 
 #define MAJOR_VERSION 1
-#define MINOR_VERSION 2
+#define MINOR_VERSION 1
 #define REV_VERSION   0
 
 #define CURSOR_SZ 64
