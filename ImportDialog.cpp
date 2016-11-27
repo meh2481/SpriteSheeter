@@ -22,32 +22,27 @@ ImportDialog::~ImportDialog()
     delete ui;
 }
 
-bool ImportDialog::setPreviewImage(QImage* image)
+bool ImportDialog::setPreviewImage(QImage image)
 {
-    //if(!sImg.isEmpty())
+    if(!image.isNull())
     {
-        //QImage image(sImg);
-        if(image != NULL && !image->isNull())
+        if(scene == NULL)
         {
-            if(scene == NULL)
-            {
-                scene = new QGraphicsScene();
-                ui->imagePreview->setScene(scene);
-            }
-            if(item == NULL)
-            {
-                item = new QGraphicsPixmapItem(QPixmap::fromImage(*image));
-                scene->addItem(item);
-            }
-            else
-                item->setPixmap(QPixmap::fromImage(*image));
-
-            scene->setSceneRect(0, 0, image->width(), image->height());
-
-            ui->imagePreview->show();
-            delete image;
-            return true;
+            scene = new QGraphicsScene();
+            ui->imagePreview->setScene(scene);
         }
+        if(item == NULL)
+        {
+            item = new QGraphicsPixmapItem(QPixmap::fromImage(image));
+            scene->addItem(item);
+        }
+        else
+            item->setPixmap(QPixmap::fromImage(image));
+
+        scene->setSceneRect(0, 0, image.width(), image.height());
+
+        ui->imagePreview->show();
+        return true;
     }
     return false;
 }
@@ -71,9 +66,9 @@ void ImportDialog::showEvent(QShowEvent *)
 
 void ImportDialog::resizeEvent(QResizeEvent* event)
 {
-   QDialog::resizeEvent(event);
+    QDialog::resizeEvent(event);
 
-   ui->imagePreview->fitInView(scene->sceneRect(),Qt::KeepAspectRatio);
+    ui->imagePreview->fitInView(scene->sceneRect(),Qt::KeepAspectRatio);
 }
 
 void ImportDialog::saveSettings()

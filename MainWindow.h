@@ -51,7 +51,7 @@ public:
     void checkMinWidth();   //Check the sheet's current width against the min possible width & update as needed
 
 signals:
-    bool setImportImg(QImage* image);
+    bool setImportImg(QImage image);
     void setBalanceDefWH(int w, int h);
     void setIconImage(QImage img);
 
@@ -141,7 +141,7 @@ private:
     QGraphicsItem* lastSelected;    //Last item that was clicked (persists after clicking stops)
     QGraphicsRectItem* curSelectedRect; //Rect for showing hovered anim frame
     QGraphicsLineItem* curDragLine;
-    QImage* mCurFrame;
+    QImage mCurFrame;
     QGraphicsRectItem* curSelectedAnimRect;
 
     //Variables for drawing the current sheet/animation
@@ -149,7 +149,7 @@ private:
     bool m_bSetDraggingCursor;
     QRect m_rLastDragHighlight;
     bool m_bLastDragInAnim;
-    QImage* transparentBg;
+    QImage transparentBg;
     QColor animHighlightCol;
 
     //Undo/redo variables
@@ -195,7 +195,7 @@ private:
     void loadSettings();
     void cleanMemory();
 
-    void insertAnimHelper(QVector<QImage*> imgList, QString name);  //TODO Remove
+    void insertAnimHelper(QVector<QImage> imgList, QString name);  //TODO Remove
 
     void updateWindowTitle();
     void addUndoStep(UndoStep* step);
@@ -218,7 +218,7 @@ private:
     void saveFile();
     void deleteSelected();
     void setSaved();
-    QImage* loadImageFI(QString filename);  //Load a QImage using FreeImage, which generally loads images better
+    QImage loadImageFI(QString filename);  //Load a QImage using FreeImage, which generally loads images better
     void updatePlayIcon();  //Update the icon for the anim play/pause button
 
     bool isModified();  //If the current sheet is modified

@@ -2,8 +2,8 @@
 #define REMOVEDUPLICATESTEP_H
 #include "UndoStep.h"
 #include <QVector>
+#include <QImage>
 
-class QImage;
 class Animation;
 
 class RemoveDuplicateStep : public UndoStep
@@ -11,7 +11,7 @@ class RemoveDuplicateStep : public UndoStep
     struct Loc {
         int pos;
         bool selected;
-        QImage* img;
+        QImage img;
     };
 
     int prevW;  //Previous sheet width

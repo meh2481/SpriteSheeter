@@ -1,6 +1,4 @@
 Feature undoRedo:
--Debug memory leaks with sheet balance/moving frames
-	-Use implicit sharing for QImage as intended
 -Check that applicable places are using UI mutex
 -Add animation name back when undoing a delete
 -Drag/drop and delete undo/redo should deselect all other frames

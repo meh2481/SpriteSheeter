@@ -33,7 +33,7 @@ class Animation : public QObject
     int curHeight;  //Last-calculated height for the animation
     QColor frameBgCol;
     bool frameBgTransparent;
-    QImage* transparentBg;
+    QImage transparentBg;
     unsigned int minWidth;  //Minimum width for this animation at the current width
     QString name;
     QGraphicsSimpleTextItem* label;
@@ -43,20 +43,20 @@ class Animation : public QObject
     unsigned int heightRecalc();    //Recalculate where each image is on in the sheet
     unsigned int widthOfImages();
 public:
-    explicit Animation(QImage* bg, QGraphicsScene* s, QObject *parent = 0);
+    explicit Animation(QImage bg, QGraphicsScene* s, QObject *parent = 0);
     ~Animation();
 
     //Insert an image at the end of the animation and hand over control of the memory
-    void insertImage(QImage* img);
+    void insertImage(QImage img);
 
     //Insert an image at the specified index and hand over control of the memory
-    void insertImage(QImage* img, unsigned int index);
+    void insertImage(QImage img, unsigned int index);
 
     //Insert a list of images at the end of the animation and hand over control of the memory
-    void insertImages(QVector<QImage*>& imgs);
+    void insertImages(QVector<QImage>& imgs);
 
     //Insert a list of images at the specified index and hand over control of the memory
-    void insertImages(QVector<QImage*>& imgs, unsigned int index);
+    void insertImages(QVector<QImage>& imgs, unsigned int index);
 
     //Remove the selected images from the given animation and add them to this one
     void addImages(QVector<Frame*>& imgs, unsigned int index);

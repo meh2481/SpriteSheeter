@@ -5,7 +5,7 @@
 #include <QPainter>
 #include "FreeImage.h"
 
-Animation::Animation(QImage* bg, QGraphicsScene* s, QObject *parent) : QObject(parent)
+Animation::Animation(QImage bg, QGraphicsScene* s, QObject *parent) : QObject(parent)
 {
     offsetX = offsetY = 0;
     spacingX = spacingY = 0;
@@ -28,12 +28,12 @@ Animation::~Animation()
     scene->removeItem(label);
 }
 
-void Animation::insertImage(QImage* img)
+void Animation::insertImage(QImage img)
 {
     insertImage(img, frames.size());
 }
 
-void Animation::insertImage(QImage* img, unsigned int index)
+void Animation::insertImage(QImage img, unsigned int index)
 {
     if(index > (unsigned int)frames.size())
         index = frames.size();
@@ -47,15 +47,15 @@ void Animation::insertImage(QImage* img, unsigned int index)
     heightRecalc();
 }
 
-void Animation::insertImages(QVector<QImage*>& imgs)
+void Animation::insertImages(QVector<QImage>& imgs)
 {
-    foreach(QImage* img, imgs)
+    foreach(QImage img, imgs)
         insertImage(img);
 }
 
-void Animation::insertImages(QVector<QImage*>& imgs, unsigned int index)
+void Animation::insertImages(QVector<QImage>& imgs, unsigned int index)
 {
-    foreach(QImage* img, imgs)
+    foreach(QImage img, imgs)
         insertImage(img, index++);
 }
 
@@ -492,7 +492,7 @@ void Animation::saveGIF(QString saveFilename, int animFPS)
     foreach(Frame* f, frames)
     {
         //Create image and 256-color image
-        QImage imgTemp(*(f->getImage()));
+        QImage imgTemp(f->getImage());
         //Gotta get Qt image in proper format first
         imgTemp = imgTemp.convertToFormat(QImage::Format_ARGB32);
         QByteArray bytes((char*)imgTemp.bits(), imgTemp.byteCount());

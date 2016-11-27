@@ -44,7 +44,7 @@ private slots:
 private:
     Ui::iconExport *ui;
     QImage iconImg;
-    QImage *transparentBg;
+    QImage transparentBg;
 
     QString lastIconStr;
 

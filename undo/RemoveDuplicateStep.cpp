@@ -41,22 +41,23 @@ void RemoveDuplicateStep::redo()
         {
             Frame* testerItem = frames->at(tester);
             Frame* testeeItem = frames->at(testee);
-            QImage* testerImg = testerItem->getImage();
-            QImage* testeeImg = testeeItem->getImage();
+            QImage testerImg = testerItem->getImage();
+            QImage testeeImg = testeeItem->getImage();
 
             //Images of different size
-            if(testeeImg->width() != testerImg->width() || testeeImg->height() != testerImg->height())
-                continue;
+//            if(testeeImg.width() != testerImg.width() || testeeImg.height() != testerImg->height())
+//                continue;
 
-            //Images of different byte counts
-            if(testeeImg->byteCount() != testerImg->byteCount())
-                continue;
+//            //Images of different byte counts
+//            if(testeeImg->byteCount() != testerImg->byteCount())
+//                continue;
 
-            if(std::memcmp(testeeImg->bits(), testerImg->bits(), testeeImg->byteCount()) == 0)
+//            if(std::memcmp(testeeImg->bits(), testerImg->bits(), testeeImg->byteCount()) == 0)
+            if(testerImg == testeeImg)
             {
                 bFoundDuplicates = true;
                 Loc l;
-                l.img = new QImage(testeeImg->copy());
+                l.img = testeeImg;
                 l.pos = testee;
                 l.selected = testeeItem->isSelected();
                 removedImages.append(l);

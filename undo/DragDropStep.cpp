@@ -44,7 +44,7 @@ void DragDropStep::undo()
     {
         FrameLoc fl = movedFrames.at(j);
         Animation* a = sheet->getAnimation(fl.anim);
-        a->insertImage(new QImage(fl.img->copy()), fl.frame);
+        a->insertImage(fl.img, fl.frame);
         if(fl.selected)
             a->getFrame(fl.frame)->selectToggle();
     }
@@ -76,7 +76,7 @@ void DragDropStep::redo()
     //Figure out what to do with them
     if(newDropLocation >= 0)                   //Add to this anim
     {
-        QVector<QImage*> pulledImages = getPulledImages();
+        QVector<QImage> pulledImages = getPulledImages();
         over->insertImages(pulledImages, newDropLocation);
         selectFrames(over, newDropLocation, pulledImages.size());
         animAddedTo = animOverIdx;
@@ -85,7 +85,7 @@ void DragDropStep::redo()
     else if(newDropLocation == ANIM_BEFORE)    //Add before this anim
     {
         Animation* anim = new Animation(sheet->getTransparentBg(), sheet->getScene());
-        QVector<QImage*> pulledImages = getPulledImages();
+        QVector<QImage> pulledImages = getPulledImages();
         anim->insertImages(pulledImages, 0);
         selectFrames(anim, 0, pulledImages.size());
         sheet->addAnimation(anim, animOverIdx);
@@ -94,7 +94,7 @@ void DragDropStep::redo()
     else if(newDropLocation == ANIM_AFTER)     //Add after this anim
     {
         Animation* anim = new Animation(sheet->getTransparentBg(), sheet->getScene());
-        QVector<QImage*> pulledImages = getPulledImages();
+        QVector<QImage> pulledImages = getPulledImages();
         anim->insertImages(pulledImages, 0);
         selectFrames(anim, 0, pulledImages.size());
         sheet->addAnimation(anim, animOverIdx + 1);
@@ -129,7 +129,7 @@ QVector<DragDropStep::FrameLoc> DragDropStep::pullSelected(Animation* anim, int*
             FrameLoc fl;
             fl.anim = curAnim;
             fl.frame = iter;
-            fl.img = new QImage(f->getImage()->copy());
+            fl.img = f->getImage();
             fl.selected = f->isSelected();
             imgList.append(fl);
             frames->remove(iter);
@@ -142,11 +142,11 @@ QVector<DragDropStep::FrameLoc> DragDropStep::pullSelected(Animation* anim, int*
     return imgList;
 }
 
-QVector<QImage*> DragDropStep::getPulledImages()
+QVector<QImage> DragDropStep::getPulledImages()
 {
-    QVector<QImage*> imgs;
+    QVector<QImage> imgs;
     foreach(FrameLoc f, movedFrames)
-        imgs.append(new QImage(f.img->copy()));
+        imgs.append(f.img);
     return imgs;
 }
 
@@ -162,8 +162,6 @@ void DragDropStep::selectFrames(Animation* anim, int loc, int count)
 
 void DragDropStep::clear()
 {
-    foreach(FrameLoc f, movedFrames)
-        delete f.img;
     movedFrames.clear();
     deletedAnimations.clear();
 }

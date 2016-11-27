@@ -1,7 +1,7 @@
 #include "Frame.h"
 #include <QPainter>
 
-Frame::Frame(QGraphicsScene* s, QImage* i, QColor bgCol, QImage* tBg, bool frameBgTransparent)
+Frame::Frame(QGraphicsScene* s, QImage i, QColor bgCol, QImage tBg, bool frameBgTransparent)
 {
     scene = s;
     img = i;
@@ -12,12 +12,12 @@ Frame::Frame(QGraphicsScene* s, QImage* i, QColor bgCol, QImage* tBg, bool frame
     bgTransparent = frameBgTransparent;
     bVisible = true;
     //Add image
-    item = scene->addPixmap(QPixmap::fromImage(*img));
+    item = scene->addPixmap(QPixmap::fromImage(img));
     //Add bg rect
-    bg = scene->addRect(0, 0, img->width(), img->height(), QPen(Qt::NoPen), QBrush(frameBgCol));
+    bg = scene->addRect(0, 0, img.width(), img.height(), QPen(Qt::NoPen), QBrush(frameBgCol));
     bg->setZValue(-1);  //Behind images
     //Add fg rect
-    fg = scene->addRect(0, 0, img->width(), img->height(), QPen(QColor(0,0,255), FRAME_SELECT_THICKNESS), QBrush(QColor(0,0,255,120)));
+    fg = scene->addRect(0, 0, img.width(), img.height(), QPen(QColor(0,0,255), FRAME_SELECT_THICKNESS), QBrush(QColor(0,0,255,120)));
     fg->setZValue(1);  //In front of images
     fg->setVisible(false);
 }
@@ -27,7 +27,6 @@ Frame::~Frame()
     scene->removeItem(item);
     scene->removeItem(fg);
     scene->removeItem(bg);
-    delete img;
 }
 
 void Frame::setPosition(int xPos, int yPos)
@@ -35,8 +34,8 @@ void Frame::setPosition(int xPos, int yPos)
     x = xPos;
     y = yPos;
     item->setPos(x, y);
-    bg->setRect(x, y, img->width(), img->height());
-    fg->setRect(x, y, img->width(), img->height());
+    bg->setRect(x, y, img.width(), img.height());
+    fg->setRect(x, y, img.width(), img.height());
 }
 
 void Frame::setFrameBgCol(QColor c)
@@ -56,24 +55,23 @@ void Frame::resize(int w, int h, BalancePos::Pos vert, BalancePos::Pos horiz)
     if(vert == BalancePos::Up)
         yPos = 0;
     else if(vert == BalancePos::Mid)
-        yPos = (h/2)-(img->height()/2);
+        yPos = (h/2)-(img.height()/2);
     else
-        yPos = h - img->height();
+        yPos = h - img.height();
 
     if(horiz == BalancePos::Left)
         xPos = 0;
     else if(horiz == BalancePos::Mid)
-        xPos = (w/2)-(img->width()/2);
+        xPos = (w/2)-(img.width()/2);
     else
-        xPos = w - img->width();
+        xPos = w - img.width();
 
-    QImage* final = new QImage(w, h, QImage::Format_ARGB32);
-    final->fill(QColor(0,0,0,0));
-    QPainter painter(final);
-    painter.drawImage(xPos, yPos, *img);
+    QImage final = QImage(w, h, QImage::Format_ARGB32);
+    final.fill(QColor(0,0,0,0));
+    QPainter painter(&final);
+    painter.drawImage(xPos, yPos, img);
     painter.end();
-    item->setPixmap(QPixmap::fromImage(*final));
-    delete img;
+    item->setPixmap(QPixmap::fromImage(final));
     img = final;
 
     //Reset frame rects
@@ -90,7 +88,7 @@ void Frame::setFrameBgTransparent(bool b)
 {
     bgTransparent = b;
     if(b)
-        bg->setBrush(QBrush(*transparentBg));
+        bg->setBrush(QBrush(transparentBg));
     else
         bg->setBrush(QBrush(frameBgCol));
 }
@@ -107,15 +105,15 @@ void Frame::render(QPainter& painter)
     if(!bgTransparent)
     {
         painter.setCompositionMode(QPainter::CompositionMode_SourceOver);
-        painter.fillRect(x, y, img->width(), img->height(), QBrush(frameBgCol));
+        painter.fillRect(x, y, img.width(), img.height(), QBrush(frameBgCol));
     }
 
-    painter.drawImage(x, y, *img);
+    painter.drawImage(x, y, img);
 }
 
 Frame* Frame::copy()
 {
-    Frame* f = new Frame(scene, new QImage(img->copy()), frameBgCol, transparentBg, bgTransparent);
+    Frame* f = new Frame(scene, img.copy(), frameBgCol, transparentBg, bgTransparent);
 
     f->setPosition(x, y);
     f->setFrameBgTransparent(bgTransparent);

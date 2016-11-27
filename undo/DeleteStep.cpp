@@ -44,7 +44,7 @@ void DeleteStep::undo()
     {
         DeleteLoc dl = deletedFrames.at(i);
         Animation* anim = sheet->getAnimation(dl.anim);
-        anim->insertImage(new QImage(dl.img->copy()), dl.frame);
+        anim->insertImage(dl.img, dl.frame);
         anim->getFrame(dl.frame)->selectToggle();   //By definition will always be selected
     }
 
@@ -79,8 +79,6 @@ bool DeleteStep::isDifferent()
 
 void DeleteStep::clear()
 {
-    foreach(DeleteLoc dl, deletedFrames)
-        delete dl.img;
     deletedFrames.clear();
     deletedAnimations.clear();
 }
@@ -118,7 +116,7 @@ QVector<DeleteStep::DeleteLoc> DeleteStep::deleteSelectedFrames(Animation* anim,
             DeleteLoc dl;
             dl.anim = animIdx;
             dl.frame = i;
-            dl.img = new QImage(f->getImage()->copy());
+            dl.img = f->getImage();
             deleted.prepend(dl);    //prepend cause reverse order
             delete f;
         }

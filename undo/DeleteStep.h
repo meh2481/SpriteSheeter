@@ -4,13 +4,13 @@
 #include <QVector>
 #include <QMap>
 #include <QSet>
-class QImage;
+#include <QImage>
 class Animation;
 
 class DeleteStep : public UndoStep
 {
     struct DeleteLoc {
-        QImage* img;
+        QImage img;
         int anim;
         int frame;
     };

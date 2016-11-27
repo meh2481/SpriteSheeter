@@ -2,7 +2,7 @@
 #include "MainWindow.h"
 #include "ui_MainWindow.h"
 
-AddImagesStep::AddImagesStep(MainWindow* w, QVector<QImage*> images, QString name) : UndoStep(w)
+AddImagesStep::AddImagesStep(MainWindow* w, QVector<QImage> images, QString name) : UndoStep(w)
 {
     toAdd = images;
     animName = name;
@@ -26,9 +26,9 @@ void AddImagesStep::redo()
 {
     Sheet* sheet = mainWindow->getSheet();
     Animation* animation = new Animation(sheet->getTransparentBg(), sheet->getScene());
-    QVector<QImage*> imgList;
-    foreach(QImage* img, toAdd)
-        imgList.append(new QImage(img->copy()));
+    QVector<QImage> imgList;
+    foreach(QImage img, toAdd)
+        imgList.append(img);
     animation->insertImages(imgList);
     animation->setName(animName);
     sheet->addAnimation(animation, insertPos);

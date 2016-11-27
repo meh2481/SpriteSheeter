@@ -7,7 +7,7 @@
 class BalanceAnimStep : public UndoStep
 {
     int animationIndex;
-    QVector<QImage*> frames;
+    QVector<QImage> frames;
     QVector<bool> checked;
     int w, h;
     int origSheetWidth;

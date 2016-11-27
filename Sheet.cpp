@@ -3,7 +3,7 @@
 
 #define SCENE_BOUNDS    300
 
-Sheet::Sheet(QGraphicsScene* s, SheetEditorView* sheetView, QImage* bg, unsigned int dragW, QObject *parent) : QObject(parent)
+Sheet::Sheet(QGraphicsScene* s, SheetEditorView* sheetView, QImage bg, unsigned int dragW, QObject *parent) : QObject(parent)
 {
     scene = s;
     width = curHeight = 0;
@@ -74,7 +74,7 @@ void Sheet::recalc()
     {
         QBrush bgTexBrush(sheetBgCol);
         if(sheetBgTransparent)
-            bgTexBrush = QBrush(*transparentBg);
+            bgTexBrush = QBrush(transparentBg);
         backgroundRect = scene->addRect(sceneRect, QPen(Qt::NoPen), bgTexBrush);
         backgroundRect->setZValue(-4);  //Always behind images and outline
     }
@@ -118,7 +118,7 @@ void Sheet::setBgTransparent(bool b)
         if(backgroundRect)
         {
             if(b)
-                backgroundRect->setBrush(QBrush(*transparentBg));
+                backgroundRect->setBrush(QBrush(transparentBg));
             else
                 backgroundRect->setBrush(QBrush(sheetBgCol));
         }
@@ -391,7 +391,7 @@ bool Sheet::saveToStream(QDataStream& s)
             QByteArray imgByteArray;
             QBuffer buffer(&imgByteArray);
             buffer.open(QIODevice::WriteOnly);
-            f->getImage()->save(&buffer, "PNG");
+            f->getImage().save(&buffer, "PNG");
             s << imgByteArray;
             s << f->isSelected();
         }

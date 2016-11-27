@@ -4,13 +4,13 @@
 #include <QVector>
 #include <QMap>
 #include <QSet>
-class QImage;
+#include <QImage>
 class Animation;
 
 class DragDropStep : public UndoStep
 {
     struct FrameLoc {
-        QImage* img;
+        QImage img;
         int anim;
         int frame;
         bool selected;
@@ -27,7 +27,7 @@ class DragDropStep : public UndoStep
     QMap<int, QSet<int> > selectedFrames;
 
     QVector<FrameLoc> pullSelected(Animation* anim, int* pullLoc, int curAnim);
-    QVector<QImage*> getPulledImages();
+    QVector<QImage> getPulledImages();
     void selectFrames(Animation* anim, int loc, int count);
 
     void clear();

@@ -16,23 +16,21 @@ BalanceAnimStep::BalanceAnimStep(MainWindow* win, int animIndex, int width, int 
     QVector<Frame*> startFrames = anim->getFrames();
     foreach(Frame* f, startFrames)
     {
-        frames.append(new QImage(f->getImage()->copy()));
+        frames.append(f->getImage());
         checked.append(f->isSelected());
     }
 }
 
 BalanceAnimStep::~BalanceAnimStep()
 {
-    foreach(QImage* i, frames)
-        delete i;
 }
 
 void BalanceAnimStep::undo()
 {
     Animation* a = mainWindow->getSheet()->getAnimation(animationIndex);
-    QVector<QImage*> origFrames;
-    foreach(QImage* img, frames)
-        origFrames.append(new QImage(img->copy()));
+    QVector<QImage> origFrames;
+    foreach(QImage img, frames)
+        origFrames.append(img);
     a->clear();
     a->insertImages(origFrames);
     for(int i = 0; i < checked.length(); i++)

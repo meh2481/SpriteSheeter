@@ -31,7 +31,7 @@ class Sheet : public QObject
     QColor frameBgCol;
     bool sheetBgTransparent;
     bool frameBgTransparent;
-    QImage* transparentBg;
+    QImage transparentBg;
     unsigned int xSpacing, ySpacing, dragRectWidth;
     SheetEditorView* sheetPreview;
     QFont font;
@@ -41,7 +41,7 @@ class Sheet : public QObject
 
     void updateAnimBg();
 public:
-    explicit Sheet(QGraphicsScene* s, SheetEditorView* sheetView, QImage* bg, unsigned int dragW, QObject *parent = 0);
+    explicit Sheet(QGraphicsScene* s, SheetEditorView* sheetView, QImage bg, unsigned int dragW, QObject *parent = 0);
     ~Sheet();
 
     void addAnimation(Animation* anim);
@@ -59,7 +59,7 @@ public:
     void setYSpacing(unsigned int y);
 
     QGraphicsScene* getScene() {return scene;}
-    QImage* getTransparentBg() {return transparentBg;}
+    QImage getTransparentBg() {return transparentBg;}
 
     unsigned int getWidth() {return width;}
     unsigned int getHeight() {return curHeight;}

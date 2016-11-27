@@ -69,7 +69,7 @@ MainWindow::MainWindow(QWidget *parent) :
     //Connect all our signals & slots up
     QObject::connect(mImportWindow, SIGNAL(importOK(int, int, bool, bool)), this, SLOT(importNext(int, int, bool, bool)));
     QObject::connect(mImportWindow, SIGNAL(importAll(int, int, bool, bool)), this, SLOT(importAll(int, int, bool, bool)));
-    QObject::connect(this, SIGNAL(setImportImg(QImage*)), mImportWindow, SLOT(setPreviewImage(QImage*)));
+    QObject::connect(this, SIGNAL(setImportImg(QImage)), mImportWindow, SLOT(setPreviewImage(QImage)));
     QObject::connect(ui->sheetPreview, SIGNAL(mouseMoved(int,int)), this, SLOT(mouseCursorPos(int, int)));
     QObject::connect(ui->sheetPreview, SIGNAL(mousePressed(int,int)), this, SLOT(mouseDown(int, int)));
     QObject::connect(ui->sheetPreview, SIGNAL(mouseReleased(int,int)), this, SLOT(mouseUp(int, int)));
@@ -90,10 +90,9 @@ MainWindow::MainWindow(QWidget *parent) :
 
     animItem = NULL;
     progressBar = NULL;
-    mCurFrame = NULL;
     mAnimFrame = 0;
     clicked = selected = lastSelected = NULL;
-    transparentBg = new QImage("://bg");
+    transparentBg = QImage("://bg");
     bUIMutex = false;
 
     bDraggingSheetW = false;
@@ -161,8 +160,6 @@ MainWindow::~MainWindow()
 {
     clearUndo();
     clearRedo();
-    if(transparentBg)
-        delete transparentBg;
     if(animItem)
         delete animItem;
     delete sheet;
@@ -189,12 +186,12 @@ void MainWindow::importImageList(QStringList& fileList, QString prepend, QString
 {
     if(fileList.size())
     {
-        QVector<QImage*> animation;
+        QVector<QImage> animation;
         foreach(QString s1, fileList)
         {
             QString imgPath = prepend + s1;
-            QImage* image = loadImageFI(imgPath);
-            if(image != NULL && !image->isNull())
+            QImage image = loadImageFI(imgPath);
+            if(!image.isNull())
                 animation.append(image);
             else
                 qDebug() << "Unable to open image " << imgPath << endl;
@@ -336,7 +333,7 @@ void MainWindow::openImportDiag()
     }
 }
 
-void MainWindow::insertAnimHelper(QVector<QImage*> imgList, QString name)
+void MainWindow::insertAnimHelper(QVector<QImage> imgList, QString name)
 {
     if(imgList.size())
         addUndoStep(new AddImagesStep(this, imgList, name));
@@ -344,8 +341,8 @@ void MainWindow::insertAnimHelper(QVector<QImage*> imgList, QString name)
 
 void MainWindow::importImageAsSheet(QString s, int numxframes, int numyframes, bool bVert, bool bSplit)
 {
-    QImage* image = loadImageFI(s);
-    if(!image)
+    QImage image = loadImageFI(s);
+    if(!image.isNull())
     {
         QMessageBox::information(this, "Image Import", "Error opening image " + s);
         return;
@@ -353,18 +350,18 @@ void MainWindow::importImageAsSheet(QString s, int numxframes, int numyframes, b
     QString fileName = QFileInfo(s).baseName();
 
     //Find image dimensions
-    int iXFrameSize = image->width() / numxframes;
-    int iYFrameSize = image->height() / numyframes;
+    int iXFrameSize = image.width() / numxframes;
+    int iYFrameSize = image.height() / numyframes;
 
     //Grab all the frames out
-    QVector<QImage*> imgList;
+    QVector<QImage> imgList;
     if(!bVert)
     {
         for(int y = 0; y < numyframes; y++)
         {
             for(int x = 0; x < numxframes; x++)
             {
-                imgList.push_back(new QImage(image->copy(x*iXFrameSize, y*iYFrameSize, iXFrameSize, iYFrameSize)));
+                imgList.push_back(image.copy(x*iXFrameSize, y*iYFrameSize, iXFrameSize, iYFrameSize));
             }
             if(bSplit)
             {
@@ -379,7 +376,7 @@ void MainWindow::importImageAsSheet(QString s, int numxframes, int numyframes, b
         {
             for(int y = 0; y < numyframes; y++)
             {
-                imgList.push_back(new QImage(image->copy(x*iXFrameSize, y*iYFrameSize, iXFrameSize, iYFrameSize)));
+                imgList.push_back(image.copy(x*iXFrameSize, y*iYFrameSize, iXFrameSize, iYFrameSize));
             }
             if(bSplit)
             {
@@ -391,7 +388,6 @@ void MainWindow::importImageAsSheet(QString s, int numxframes, int numyframes, b
     if(!bSplit)
         insertAnimHelper(imgList, fileName);
 
-    delete image;
     checkMinWidth();
     drawAnimation();
     //genUndoState();
@@ -537,7 +533,7 @@ void MainWindow::on_animationNameEditor_textChanged(const QString& arg1)
 
 void MainWindow::drawAnimation()
 {
-    mCurFrame = NULL;
+    mCurFrame = QImage();
     if(sheet->size())
     {
         Animation* anim = sheet->getAnimation(sheet->getCurSelected());
@@ -550,7 +546,7 @@ void MainWindow::drawAnimation()
         }
     }
 
-    if(!mCurFrame)
+    if(mCurFrame.isNull())
     {
         if(animItem)
             animItem->hide();
@@ -559,18 +555,18 @@ void MainWindow::drawAnimation()
     }
 
     //Draw image and bg
-    QImage animFrame(mCurFrame->width(), mCurFrame->height(), QImage::Format_ARGB32);
+    QImage animFrame(mCurFrame.width(), mCurFrame.height(), QImage::Format_ARGB32);
     QPainter painter(&animFrame);
     painter.setCompositionMode(QPainter::CompositionMode_SourceOver);
     if(ui->frameBgTransparent->isChecked())
     {
-        QBrush bgTexBrush(*transparentBg);
-        painter.fillRect(0, 0, mCurFrame->width(), mCurFrame->height(), bgTexBrush);
+        QBrush bgTexBrush(transparentBg);
+        painter.fillRect(0, 0, mCurFrame.width(), mCurFrame.height(), bgTexBrush);
     }
     else
         animFrame.fill(sheet->getFrameBgCol());
 
-    painter.drawImage(0, 0, *mCurFrame);
+    painter.drawImage(0, 0, mCurFrame);
 
     if(animItem == NULL)
     {
@@ -1042,10 +1038,10 @@ void MainWindow::keyPressEvent(QKeyEvent* e)
 
 void MainWindow::on_saveFrameButton_clicked()
 {
-    if(!sheet || !sheet->size() || !mCurFrame)
+    if(!sheet || !sheet->size() || mCurFrame.isNull())
         return;
 
-    setIconImage(*mCurFrame);
+    setIconImage(mCurFrame);
     mIconExportWindow->show();
 }
 
@@ -1273,16 +1269,16 @@ void MainWindow::loadFromStream(QDataStream& s)
         for(int j = 0; j < numFrames; j++)
         {
             bool selected = false;
-            QImage* img = new QImage();
+            QImage img;
             QByteArray imgByteArray;
             s >> imgByteArray;
             QBuffer buffer(&imgByteArray);
             buffer.open(QIODevice::ReadOnly);
             if(major == 1 && minor < 2) //pre-v1.2 saved as TIFF
-                img->load(&buffer, "TIFF");
+                img.load(&buffer, "TIFF");
             else
             {
-                img->load(&buffer, "PNG");
+                img.load(&buffer, "PNG");
                 s >> selected;
             }
             Frame* f = new Frame(msheetScene, img, sheet->getFrameBgCol(), transparentBg, false);   //Will set framebgtransparent later
@@ -1536,14 +1532,14 @@ bool MainWindow::loadAnimatedGIF(QString sFilename)
     }
 
     //Grab all the frames and stick them in a Qt-friendly format
-    QVector<QImage*> frameList;
+    QVector<QImage> frameList;
     for(int i = 0; i < numFrames; i++)
     {
         FIBITMAP* frame = FreeImage_LockPage(bmp, i);
         FIBITMAP* frame32bit = FreeImage_ConvertTo32Bits(frame);
 
         QImage imgResult(FreeImage_GetBits(frame32bit), FreeImage_GetWidth(frame32bit), FreeImage_GetHeight(frame32bit), FreeImage_GetPitch(frame32bit), QImage::Format_ARGB32);
-        frameList.push_back(new QImage(imgResult.mirrored()));
+        frameList.push_back(imgResult.mirrored());
 
         FreeImage_Unload(frame32bit);   //Qt expects the memory to be available the whole time wut? Luckily, we have to mirror it anyway so it doesn't matter
         FreeImage_UnlockPage(bmp, frame, false);
@@ -1753,7 +1749,7 @@ void MainWindow::setSaved()
         bStackBottomSaved = true;
 }
 
-QImage* MainWindow::loadImageFI(QString filename)
+QImage MainWindow::loadImageFI(QString filename)
 {
     std::string sFilename = filename.toStdString();
     FREE_IMAGE_FORMAT fif = FIF_UNKNOWN;
@@ -1773,7 +1769,7 @@ QImage* MainWindow::loadImageFI(QString filename)
     if(fif == FIF_UNKNOWN)
     {
         qDebug() << "Unknown image type for file " << filename << endl;
-        return NULL;
+        return QImage();
     }
 
     //check that the plugin has reading capabilities and load the file
@@ -1783,7 +1779,7 @@ QImage* MainWindow::loadImageFI(QString filename)
     if(!dib)
     {
         qDebug() << "Error loading image " << filename << endl;
-        return NULL;
+        return QImage();
     }
     //retrieve the image data
 
@@ -1803,11 +1799,11 @@ QImage* MainWindow::loadImageFI(QString filename)
     if((bits == NULL) || (width == 0) || (height == 0))
     {
         qDebug() << "Unable to lock bits" << endl;
-        return NULL;
+        return QImage();
     }
 
     QImage imgResult(bits, width, height, FreeImage_GetPitch(dib), QImage::Format_ARGB32);
-    QImage* ret = new QImage(imgResult.mirrored());    //Copy the image cause Qt is dumb with image memory
+    QImage ret = imgResult.mirrored();    //Copy the image cause Qt is dumb with image memory
     FreeImage_Unload(dib);
     return ret;
 }

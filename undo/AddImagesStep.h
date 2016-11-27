@@ -8,13 +8,13 @@ class QImage;
 
 class AddImagesStep : public UndoStep
 {
-    QVector<QImage*> toAdd;
+    QVector<QImage> toAdd;
     QString animName;
     int insertPos;
     int prevW;  //Sheet width before applying this step
 
 public:
-    AddImagesStep(MainWindow* w, QVector<QImage*> images, QString name);
+    AddImagesStep(MainWindow* w, QVector<QImage> images, QString name);
 
     void undo();
     void redo();
