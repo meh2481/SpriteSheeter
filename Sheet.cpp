@@ -474,6 +474,12 @@ void Sheet::selectAnimation(int selected)
     curSelectedAnim = selected;
 }
 
+int Sheet::getCurSelected()
+{
+    selectAnimation(curSelectedAnim);   //HACK: Make sure within bounds
+    return curSelectedAnim;
+}
+
 void Sheet::setNamesVisible(bool b)
 {
     animNamesVisible = b;

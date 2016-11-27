@@ -88,7 +88,7 @@ public:
     QColor getFontColor() {return fontColor;}
     int getSelected(int x, int y);
     void selectAnimation(int selected);
-    int getCurSelected() {return curSelectedAnim;}
+    int getCurSelected();
     void setNamesVisible(bool b);
     QVector<int> deleteEmpty(); //Delete empty animations
     void removeAnimation(int idx);

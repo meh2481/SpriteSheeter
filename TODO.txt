@@ -1,10 +1,8 @@
 Feature undoRedo:
--Proper anim select on undo/redo with drag/drop frames
 -Debug memory leaks with sheet balance/moving frames
 	-Use implicit sharing for QImage as intended
 -Check that applicable places are using UI mutex
 -Add animation name back when undoing a delete
--Sheet width minimized is a problem on drag/drop, delete, and AddImages undo/redo
 -Drag/drop and delete undo/redo should deselect all other frames
 
 Release 1.2:
