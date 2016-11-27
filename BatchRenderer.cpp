@@ -88,21 +88,20 @@ void BatchRenderer::run()
 
     //Periodically check if we should stop
     QCoreApplication::processEvents();
-    if(bStop) return;
+    if(bStop)
+        return;
 
     //Create sheet
-    mCurSheet = new QImage(iSizeX, iSizeY, QImage::Format_ARGB32);
+    mCurSheet = QImage(iSizeX, iSizeY, QImage::Format_ARGB32);
 
     //Create image of the proper size and fill it with a good bg color
-    QPainter painter(mCurSheet);
+    QPainter painter(&mCurSheet);
     painter.setFont(sheetFont);
     painter.setCompositionMode(QPainter::CompositionMode_Source);
     if(sheetBgTransparent)
-    {
-        mCurSheet->fill(QColor(0,0,0,0));
-    }
+        mCurSheet.fill(QColor(0,0,0,0));
     else
-        mCurSheet->fill(sheetBgCol);
+        mCurSheet.fill(sheetBgCol);
 
     //Second pass: Print each frame into the final image
     int curX = offsetX;
@@ -117,7 +116,7 @@ void BatchRenderer::run()
         //Draw label for animation
         if(sName->length() && animNameEnabled)
         {
-            painter.setPen(QColor(255,255,255,255));
+            painter.setPen(fontColor);
             painter.drawText(QRectF(offsetX,curY,1000,textHeight), Qt::AlignLeft|Qt::AlignVCenter, *sName);
             curY += textHeight;
         }
@@ -151,7 +150,6 @@ void BatchRenderer::run()
             if(bStop)
             {
                 painter.end();
-                delete mCurSheet;
                 return;
             }
 
@@ -163,10 +161,7 @@ void BatchRenderer::run()
     painter.end();
 
     //Save image as PNG
-    mCurSheet->save(folder + ".png", "PNG");
-
-    //Clean up
-    delete mCurSheet;
+    mCurSheet.save(folder + ".png", "PNG");
 
     //Emit a signal saying we're done bro
     renderingDone();

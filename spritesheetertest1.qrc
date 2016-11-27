@@ -1,6 +1,5 @@
 <RCC>
     <qresource prefix="/">
-        <file>images/down.png</file>
         <file>images/media-play.png</file>
         <file alias="stop">images/media-stop.png</file>
         <file>images/minus-2-256.png</file>
@@ -8,9 +7,17 @@
         <file>images/pause.png</file>
         <file>images/plus-icon.png</file>
         <file>images/prev.png</file>
-        <file>images/up.png</file>
         <file alias="bg">images/bg.png</file>
         <file alias="blank">images/blank.png</file>
         <file>images/icon2.png</file>
+        <file>images/copy.png</file>
+        <file>images/cut.png</file>
+        <file>images/new.png</file>
+        <file>images/paste.png</file>
+        <file>images/redo.png</file>
+        <file>images/save.png</file>
+        <file>images/undo.png</file>
+        <file>images/open.png</file>
+        <file>images/export.png</file>
     </qresource>
 </RCC>

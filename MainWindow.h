@@ -9,12 +9,15 @@
 #include "IconExportDialog.h"
 #include "SheetEditorView.h"
 #include "RecentDocuments.h"
+#include "Animation.h"
+#include "Sheet.h"
+#include "BalancePos.h"
+#include "undo/UndoStep.h"
 #include <QStack>
 #include <QTextStream>
 #include <QProgressDialog>
 
-#define DRAG_HANDLE_SIZE 5
-#define SCENE_BOUNDS    300
+#define DRAG_HANDLE_SIZE 10
 
 #define MAJOR_VERSION 1
 #define MINOR_VERSION 1
@@ -27,7 +30,7 @@
 class ZoomableGraphicsView;
 
 namespace Ui {
-class MainWindow;
+    class MainWindow;
 }
 
 class MainWindow : public QMainWindow
@@ -39,9 +42,17 @@ public:
     ~MainWindow();
 
     void keyPressEvent(QKeyEvent* e);
+    Ui::MainWindow* getUI() {return ui;}
+    Sheet* getSheet() {return sheet;}
+    void drawAnimation();
+    void updateSelectedAnim(bool updateName = true);
+    void minimizeSheetWidth();  //Minimize the sheet's width against the anim lines currently on it
+    int mAnimFrame;
+    bool userEditingWidth;
+    void checkMinWidth();   //Check the sheet's current width against the min possible width & update as needed
 
 signals:
-    bool setImportImg(QString s);
+    bool setImportImg(QImage image);
     void setBalanceDefWH(int w, int h);
     void setIconImage(QImage img);
 
@@ -54,14 +65,16 @@ public slots:
     void mouseUp(int x, int y);
     void newFile();
     void saveFileAs();
-    void enableShortcuts(bool b);
     void undo();
     void redo();
+    void cut();
+    void copy();
+    void paste();
     void saveSheet(QString filename = QString());
     void loadSheet(QString openFilename = QString());
     void addImages(QStringList l);
     void addFolders(QStringList l);
-    void balance(int w, int h, BalanceSheetDialog::Pos vert, BalanceSheetDialog::Pos horiz);
+    void balance(int w, int h, BalancePos::Pos vert, BalancePos::Pos horiz);
 
     void startedBatchRender(QString sheetName);
     void finishedBatchRender();
@@ -71,13 +84,9 @@ private slots:
     void on_openImagesButton_clicked();
     void on_xSpacingBox_valueChanged(int arg1);
     void on_ySpacingBox_valueChanged(int arg1);
-    void on_saveSheetButton_clicked();
     void on_removeAnimButton_clicked();
     void on_animationNameEditor_textChanged(const QString &arg1);
-    void on_prevAnimButton_clicked();
-    void on_nextAnimButton_clicked();
     void on_animPlayButton_clicked();
-    void on_animPauseButton_clicked();
     void on_animStopButton_clicked();
     void on_animPrevFrameButton_clicked();
     void on_animNextFrameButton_clicked();
@@ -87,8 +96,8 @@ private slots:
     void on_saveFrameButton_clicked();
     void on_frameBgColSelect_clicked();
     void on_sheetBgColSelect_clicked();
-    void on_FrameBgTransparent_toggled(bool checked);
-    void on_SheetBgTransparent_toggled(bool checked);
+    void on_frameBgTransparent_toggled(bool checked);
+    void on_sheetBgTransparent_toggled(bool checked);
     void on_balanceAnimButton_clicked();
     void on_fontButton_clicked();
     void on_xSpacingBox_editingFinished();
@@ -96,48 +105,62 @@ private slots:
     void on_sheetWidthBox_editingFinished();
     void on_animationNameEditor_editingFinished();
     void on_animNameEnabled_toggled(bool checked);
-    void on_ExportAnimButton_clicked();
+    void on_exportAnimButton_clicked();
     void on_reverseAnimButton_clicked();
     void on_removeDuplicateFramesButton_clicked();
     void on_actionAbout_triggered();
     void on_actionBatch_Processing_triggered();
+    void on_fontColSelect_clicked();
+    void on_minWidthCheckbox_toggled(bool checked);
+    void on_newButton_clicked();
+    void on_openButton_clicked();
+    void on_saveButton_clicked();
+    void on_cutButton_clicked();
+    void on_copyButton_clicked();
+    void on_pasteButton_clicked();
+    void on_undoButton_clicked();
+    void on_redoButton_clicked();
+    void on_exportButton_clicked();
 
 private:
-    Ui::MainWindow *ui;
-    ZoomableGraphicsView* mSheetZoom;
-    ZoomableGraphicsView* mAnimationZoom;
-    ImportDialog *mImportWindow;
-    BalanceSheetDialog *mBalanceWindow;
-    IconExportDialog   *mIconExportWindow;
-    RecentDocuments    *mRecentDocuments;
-    QStringList mOpenFiles;
-    QString curImportImage;
-    QString lastSaveStr;
-    QString lastImportExportStr;
+    Ui::MainWindow*         ui;
+    ZoomableGraphicsView*   mSheetZoom;
+    ZoomableGraphicsView*   mAnimationZoom;
+    ImportDialog*           mImportWindow;
+    BalanceSheetDialog*     mBalanceWindow;
+    IconExportDialog*       mIconExportWindow;
+    RecentDocuments*        mRecentDocuments;
+    QStringList             mOpenFiles;
+    QString                 curImportImage;
+    QString                 lastSaveStr;
+    QString                 lastImportExportStr;
+
+    //Animation variables
+    Sheet* sheet;
+
+    QGraphicsItem* clicked; //Last scene item the user clicked on
+    QGraphicsItem* selected; //Last scene item the user clicked on that was currently selected
+    QGraphicsItem* lastSelected;    //Last item that was clicked (persists after clicking stops)
+    QGraphicsRectItem* curSelectedRect; //Rect for showing hovered anim frame
+    QGraphicsLineItem* curDragLine;
+    QImage mCurFrame;
+    QGraphicsRectItem* curSelectedAnimRect;
 
     //Variables for drawing the current sheet/animation
-    QImage* mCurSheet;
-    QFont   sheetFont;
-    QList<QList<QImage> > mSheetFrames;
-    QList<QList<QImage> >::iterator mCurAnim;
-    QList<QList<QImage> >::iterator m_selDragToAnim;
-    QList<QImage>::iterator m_selDragToPos;
-    QList<QImage>::iterator mCurFrame;
-    QList<QImage>::iterator mCurSelected;
-    QList<QList<QImage> >::iterator mCurSelectedInAnim;
     bool m_bDraggingSelected;
     bool m_bSetDraggingCursor;
     QRect m_rLastDragHighlight;
     bool m_bLastDragInAnim;
-    QList<QString> mAnimNames;
-    QList<QString>::iterator mCurAnimName;
-    QImage* transparentBg;
-    QColor sheetBgCol;
-    QColor frameBgCol;
+    QImage transparentBg;
     QColor animHighlightCol;
 
-    QStack<QByteArray*> undoList;
-    QStack<QByteArray*> redoList;
+    //Undo/redo variables
+    QStack<UndoStep*> undoStack;
+    QStack<UndoStep*> redoStack;
+    bool bStackBottomSaved;
+    int lastXSpacing, lastYSpacing, lastSheetW;
+    int wEditing;
+    QString lastAnimName;
 
     QString lastIconStr;
     QString lastOpenDir;
@@ -148,15 +171,12 @@ private:
     int curMouseX;
     int curMouseY;
 
-    bool bFileModified;
-    bool bShortcuts;
     QString sCurFilename;
 
     //Variables for dealing with the Qt draw engine
     QGraphicsScene* animScene;
     QGraphicsPixmapItem* animItem;
     QGraphicsScene* msheetScene;
-    QGraphicsPixmapItem* sheetItem;
 
     //Animation update timer
     QTimer* animUpdateTimer;
@@ -165,30 +185,23 @@ private:
     int mStartSheetW;
     int xStartDragSheetW;
     bool bDraggingSheetW;
-    bool bLoadMutex;
-
-    //For clicking to select an animation
-    QList<QRect> mAnimRects;
+    bool bUIMutex;
 
     QProgressDialog* progressBar;
 
     void openImportDiag();
-    void importImage(QString s, int numxframes, int numyframes, bool bVert, bool bSplit);
+    void importImageAsSheet(QString s, int numxframes, int numyframes, bool bVert, bool bSplit);
     void importImageList(QStringList& fileList, QString prepend = QString(""), QString animName = QString(""));
-    void CenterParent(QWidget* parent, QWidget* child);
-
-    void drawAnimation();
-    void drawSheet(bool bHighlight = true);
+    void centerParent(QWidget* parent, QWidget* child);
 
     void closeEvent(QCloseEvent *event);
-    void readSettings();
+    void loadSettings();
     void cleanMemory();
 
-    void insertAnimHelper(QList<QImage> imgList, QString name);
+    void insertAnimHelper(QVector<QImage> imgList, QString name);  //TODO Remove
 
-    void fixWindowTitle();
-    void genUndoState();
-    void pushUndo();
+    void updateWindowTitle();
+    void addUndoStep(UndoStep* step);
     void clearUndo();
     void clearRedo();
     void updateUndoRedoMenu();  //Update the menu icons to active/inactive as needed
@@ -199,10 +212,19 @@ private:
 
     bool loadAnimatedGIF(QString sFilename);    //Returns false on non-multi-page gif or failure, true on success
 
-protected:
-    //void changeEvent(QEvent *e);
-    bool eventFilter(QObject* obj, QEvent *event);
+    bool isMouseOverDragArea(int x, int y);
+    QGraphicsItem* isItemUnderCursor(int x, int y);
+    void setColorButtonIcons();   //Set the colors of the color selection buttons
+    QStringList supportedFileFormats();
+    QString getSaveFilename(const char* title);
+    void saveSettings();
+    void saveFile();
+    void deleteSelected();
+    void setSaved();
+    QImage loadImageFI(QString filename);  //Load a QImage using FreeImage, which generally loads images better
+    void updatePlayIcon();  //Update the icon for the anim play/pause button
 
+    bool isModified();  //If the current sheet is modified
 };
 
 #endif // MAINWINDOW_H

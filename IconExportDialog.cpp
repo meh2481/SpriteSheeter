@@ -19,15 +19,13 @@ IconExportDialog::IconExportDialog(QWidget *parent) : QDialog(parent),
 
     bMouseDown = false;
 
-    transparentBg = new QImage("://bg");
+    transparentBg = QImage("://bg");
     loadSettings();
 }
 
 IconExportDialog::~IconExportDialog()
 {
     saveSettings();
-    if(transparentBg)
-        delete transparentBg;
     if(item)
         delete item;
     if(scene)
@@ -161,7 +159,7 @@ void IconExportDialog::drawPreview()
         painter.setCompositionMode(QPainter::CompositionMode_Source);
 
         //Fill image bg transparent
-        QBrush bgTexBrush(*transparentBg);
+        QBrush bgTexBrush(transparentBg);
         painter.setCompositionMode(QPainter::CompositionMode_SourceOver);
         painter.fillRect(0, 0, ICON_WIDTH, ICON_HEIGHT, bgTexBrush);
 

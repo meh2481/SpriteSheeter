@@ -21,7 +21,29 @@ SOURCES += main.cpp\
     BalanceSheetDialog.cpp \
     RecentDocuments.cpp \
     BatchRenderer.cpp \
-    AnimPreview.cpp
+    AnimPreview.cpp \
+    Animation.cpp \
+    Sheet.cpp \
+    Frame.cpp \
+    undo/UndoStep.cpp \
+    undo/FontColorStep.cpp \
+    undo/FrameBgColorStep.cpp \
+    undo/SheetBgColorStep.cpp \
+    undo/SheetBgTransparentStep.cpp \
+    undo/FrameBgTransparentStep.cpp \
+    undo/SheetFontStep.cpp \
+    undo/YSpacingStep.cpp \
+    undo/XSpacingStep.cpp \
+    undo/MinimizeWidthCheckboxStep.cpp \
+    undo/SheetWidthStep.cpp \
+    undo/ReverseAnimStep.cpp \
+    undo/AnimNameStep.cpp \
+    undo/NameVisibleStep.cpp \
+    undo/BalanceAnimStep.cpp \
+    undo/RemoveDuplicateStep.cpp \
+    undo/DragDropStep.cpp \
+    undo/DeleteStep.cpp \
+    undo/AddImagesStep.cpp
 
 HEADERS  += \
 		FreeImage.h \
@@ -33,7 +55,30 @@ HEADERS  += \
     BalanceSheetDialog.h \
     AnimPreview.h \
     RecentDocuments.h \
-    BatchRenderer.h
+    BatchRenderer.h \
+    Animation.h \
+    Sheet.h \
+    BalancePos.h \
+    Frame.h \
+    undo/UndoStep.h \
+    undo/FontColorStep.h \
+    undo/FrameBgColorStep.h \
+    undo/SheetBgColorStep.h \
+    undo/SheetBgTransparentStep.h \
+    undo/FrameBgTransparentStep.h \
+    undo/SheetFontStep.h \
+    undo/YSpacingStep.h \
+    undo/XSpacingStep.h \
+    undo/MinimizeWidthCheckboxStep.h \
+    undo/SheetWidthStep.h \
+    undo/ReverseAnimStep.h \
+    undo/AnimNameStep.h \
+    undo/NameVisibleStep.h \
+    undo/BalanceAnimStep.h \
+    undo/RemoveDuplicateStep.h \
+    undo/DragDropStep.h \
+    undo/DeleteStep.h \
+    undo/AddImagesStep.h
 
 FORMS    += \
     BalanceSheetDialog.ui \

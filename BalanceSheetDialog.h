@@ -5,9 +5,10 @@
 #include <QGraphicsScene>
 #include <QGraphicsView>
 #include <QGraphicsPixmapItem>
+#include "BalancePos.h"
 
 namespace Ui {
-class balanceSheet;
+    class balanceSheet;
 }
 
 class BalanceSheetDialog : public QDialog
@@ -18,16 +19,9 @@ public:
     explicit BalanceSheetDialog(QWidget *parent = 0);
     ~BalanceSheetDialog();
 
-    typedef int Pos;
-    static const Pos Up = 0;
-    static const Pos Mid = 1;
-    static const Pos Down = 2;
-    static const Pos Left = 0;
-    static const Pos Right = 2;
-
 signals:
 
-    void balance(int w, int h, BalanceSheetDialog::Pos vert, BalanceSheetDialog::Pos horiz);
+    void balance(int w, int h, BalancePos::Pos vert, BalancePos::Pos horiz);
 
 public slots:
     void defaultWH(int w, int h);
@@ -49,8 +43,8 @@ private slots:
 private:
     Ui::balanceSheet *ui;
 
-    Pos vertPos;
-    Pos horizPos;
+    BalancePos::Pos vertPos;
+    BalancePos::Pos horizPos;
 
     void clearIcons();
 };
