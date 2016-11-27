@@ -1,20 +1,23 @@
 Feature undoRedo:
--Drag-drop fails if dragging one frame to end of sheet, then dragging another to that same anim (redo moves both)
--Minimize width for drag/drop, delete frames, remove duplicates, balance
+-Minimize width as neded (Check x spacing undo/redo for example)
+	-Drag/drop
+	-Remove duplicates
+	-Reverse anim
 -Proper anim select on undo/redo with drag/drop frames
 -Debug memory leaks with sheet balance/moving frames
 	-Use implicit sharing for QImage as intended
 -Check that applicable places are using UI mutex
 -Add animation name back when undoing a delete
 -Sheet width minimized is a problem on drag/drop, delete, and AddImages undo/redo
+-Drag/drop and delete undo/redo should deselect all other frames
 
 Release 1.2:
+-Save/Save As should deal in .sheet format, PNG/etc should be Export
+	-This way, users aren't misled into thinking they can re-open PNG images and such
 -Unble to manually edit sheet width box due to min width constraints
 -Remove red bg from selected anim; use outline or such
 
 UI Design Stories:
--Save/Save As should deal in .sheet format, PNG/etc should be Export
-	-This way, users aren't misled into thinking they can re-open PNG images and such
 -Drag-and-drop should support .sheet file format
 	-Import sheet also support .sheet format. That way we can add frames from another .sheet to this one
 -Bug: Animation preview doesn't reset when selecting new anim in sheet view

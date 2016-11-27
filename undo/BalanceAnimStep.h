@@ -10,6 +10,7 @@ class BalanceAnimStep : public UndoStep
     QVector<QImage*> frames;
     QVector<bool> checked;
     int w, h;
+    int origSheetWidth;
     BalancePos::Pos ve, ho;
 public:
     BalanceAnimStep(MainWindow* win, int animIndex, int width, int height, BalancePos::Pos vert, BalancePos::Pos horiz);

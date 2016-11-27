@@ -18,6 +18,7 @@ class DeleteStep : public UndoStep
     QMap<int, QSet<int> > framesToDelete;
     QVector<DeleteLoc> deletedFrames;
     QVector<int> deletedAnimations;
+    int prevW;  //previous width of sheet
 
     void clear();
     void deleteSelected();

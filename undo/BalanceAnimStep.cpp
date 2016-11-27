@@ -10,6 +10,8 @@ BalanceAnimStep::BalanceAnimStep(MainWindow* win, int animIndex, int width, int 
     ve = vert;
     ho = horiz;
 
+    origSheetWidth = win->getUI()->sheetWidthBox->value();
+
     Animation* anim = win->getSheet()->getAnimation(animIndex);
     QVector<Frame*> startFrames = anim->getFrames();
     foreach(Frame* f, startFrames)
@@ -39,6 +41,9 @@ void BalanceAnimStep::undo()
         if(f && checked.at(i))
             f->selectToggle();
     }
+    mainWindow->getUI()->sheetWidthBox->setValue(origSheetWidth);
+    if(mainWindow->getUI()->minWidthCheckbox->isChecked())
+        mainWindow->minimizeSheetWidth();
     mainWindow->getSheet()->refresh();
     mainWindow->getSheet()->updateSceneBounds();
     mainWindow->drawAnimation();
@@ -49,6 +54,13 @@ void BalanceAnimStep::redo()
 {
     Animation* a = mainWindow->getSheet()->getAnimation(animationIndex);
     a->balance(QPoint(w, h), ve, ho);
+    int minW = mainWindow->getSheet()->getSmallestPossibleWidth();
+    if(minW > mainWindow->getUI()->sheetWidthBox->value())
+        mainWindow->getUI()->sheetWidthBox->setValue(minW);
+    else
+        mainWindow->getUI()->sheetWidthBox->setValue(origSheetWidth);
+    if(mainWindow->getUI()->minWidthCheckbox->isChecked())
+        mainWindow->minimizeSheetWidth();
     mainWindow->getSheet()->refresh();
     mainWindow->getSheet()->updateSceneBounds();
     mainWindow->drawAnimation();

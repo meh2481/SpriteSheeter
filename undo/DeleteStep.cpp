@@ -18,6 +18,7 @@ DeleteStep::DeleteStep(MainWindow* w) : UndoStep(w)
         }
         framesToDelete.insert(i, animSelected);
     }
+    prevW = w->getUI()->sheetWidthBox->value();
 }
 
 DeleteStep::~DeleteStep()
@@ -47,6 +48,7 @@ void DeleteStep::undo()
         anim->getFrame(dl.frame)->selectToggle();   //By definition will always be selected
     }
 
+    mainWindow->getUI()->sheetWidthBox->setValue(prevW);
     if(ui->minWidthCheckbox->isChecked())
         mainWindow->minimizeSheetWidth();
     sheet->refresh();
@@ -62,10 +64,10 @@ void DeleteStep::redo()
     Sheet* sheet = mainWindow->getSheet();
 
     deleteSelected();
-    if(ui->minWidthCheckbox->isChecked())
-        mainWindow->minimizeSheetWidth();
     sheet->refresh();
     sheet->updateSceneBounds();
+    if(ui->minWidthCheckbox->isChecked())
+        mainWindow->minimizeSheetWidth();
     mainWindow->drawAnimation();
     mainWindow->updateSelectedAnim();
 }
