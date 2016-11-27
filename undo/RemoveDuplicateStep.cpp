@@ -5,6 +5,7 @@
 RemoveDuplicateStep::RemoveDuplicateStep(MainWindow* w, int animIndex) : UndoStep(w)
 {
     idx = animIndex;
+    prevW = w->getUI()->sheetWidthBox->value();
 }
 
 void RemoveDuplicateStep::undo()
@@ -23,6 +24,9 @@ void RemoveDuplicateStep::undo()
     mainWindow->getSheet()->refresh();
     mainWindow->mAnimFrame = 0;
     mainWindow->drawAnimation();
+    mainWindow->getUI()->sheetWidthBox->setValue(prevW);
+    if(mainWindow->getUI()->minWidthCheckbox->isChecked())
+        mainWindow->minimizeSheetWidth();
     mainWindow->updateSelectedAnim();
 }
 
@@ -66,7 +70,8 @@ void RemoveDuplicateStep::redo()
     if(bFoundDuplicates)
     {
         mainWindow->getSheet()->refresh();
-
+        if(mainWindow->getUI()->minWidthCheckbox->isChecked())
+            mainWindow->minimizeSheetWidth();
         mainWindow->mAnimFrame = 0;
         mainWindow->drawAnimation();
         mainWindow->updateSelectedAnim();

@@ -14,6 +14,7 @@ class RemoveDuplicateStep : public UndoStep
         QImage* img;
     };
 
+    int prevW;  //Previous sheet width
     int idx;
     QVector<Loc> removedImages;
 public:

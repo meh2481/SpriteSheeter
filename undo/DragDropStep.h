@@ -21,6 +21,7 @@ class DragDropStep : public UndoStep
     int newDropLocation;
     int animAddedTo;
     int animCreated;
+    int prevW;  //Previous sheet width
     QVector<FrameLoc> movedFrames;
     QVector<int> deletedAnimations;
     QMap<int, QSet<int> > selectedFrames;

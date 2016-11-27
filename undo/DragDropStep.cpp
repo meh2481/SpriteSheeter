@@ -9,6 +9,7 @@ DragDropStep::DragDropStep(MainWindow* w, int x, int y) : UndoStep(w)
     animAddedTo = animCreated = -1;
 
     readSelectedFrames();
+    prevW = w->getUI()->sheetWidthBox->value();
 }
 
 DragDropStep::~DragDropStep()
@@ -49,6 +50,9 @@ void DragDropStep::undo()
     }
     //Recalculate sheet positions
     sheet->refresh();
+    mainWindow->getUI()->sheetWidthBox->setValue(prevW);
+    if(mainWindow->getUI()->minWidthCheckbox->isChecked())
+        mainWindow->minimizeSheetWidth();
     mainWindow->updateSelectedAnim();
 }
 
@@ -102,6 +106,8 @@ void DragDropStep::redo()
 
     //Recalculate sheet positions
     sheet->refresh();
+    if(mainWindow->getUI()->minWidthCheckbox->isChecked())
+        mainWindow->minimizeSheetWidth();
     mainWindow->updateSelectedAnim();
 }
 
