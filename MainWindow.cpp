@@ -1034,6 +1034,13 @@ void MainWindow::keyPressEvent(QKeyEvent* e)
     {
         deleteSelected();
     }
+    else if(e->key() == Qt::Key_A && QApplication::keyboardModifiers() & Qt::ControlModifier)
+    {
+        if(QApplication::keyboardModifiers() & Qt::ShiftModifier)
+            sheet->deselectAll();
+        else
+            sheet->selectAll();
+    }
 }
 
 void MainWindow::on_saveFrameButton_clicked()

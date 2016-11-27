@@ -92,6 +92,7 @@ public:
     void setNamesVisible(bool b);
     QVector<int> deleteEmpty(); //Delete empty animations
     void removeAnimation(int idx);
+    void selectAll();
 
 signals:
 

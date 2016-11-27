@@ -149,6 +149,8 @@ public:
 
     void removeFrame(int index);
 
+    void selectAll();
+
 signals:
 
 public slots:

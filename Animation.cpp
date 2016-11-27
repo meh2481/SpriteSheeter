@@ -568,3 +568,12 @@ void Animation::removeFrame(int index)
     delete frames.at(index);
     frames.remove(index);
 }
+
+void Animation::selectAll()
+{
+    foreach(Frame* f, frames)
+    {
+        if(!f->isSelected())
+            f->selectToggle();
+    }
+}

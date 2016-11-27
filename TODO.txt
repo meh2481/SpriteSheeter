@@ -1,6 +1,5 @@
 Feature undoRedo:
--Check that applicable places are using UI mutex
--Add animation name back when undoing a delete
+-Add animation name back when undoing a delete (And set to hidden/visible based on current setting)
 -Drag/drop and delete undo/redo should deselect all other frames
 
 Release 1.2:
@@ -9,12 +8,12 @@ Release 1.2:
 -Unble to manually edit sheet width box due to min width constraints
 
 UI Design Stories:
+-Re-add up/down select while editing animation names?
 -Drag-and-drop should support .sheet file format
 	-Import sheet also support .sheet format. That way we can add frames from another .sheet to this one
 -Bug: Animation preview doesn't reset when selecting new anim in sheet view
 -Disable delete button if nothing selected
 -Loading .sheet files should use loading mouse cursor (noticable when loading large files)
--Ctrl-A should select all
 -Rework frame movement/editing:
 	-Click-drag in box to select multiple frames
 -Rework animation movement/editing:

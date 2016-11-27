@@ -370,6 +370,12 @@ void Sheet::removeAnimation(int idx)
     animations.remove(idx);
 }
 
+void Sheet::selectAll()
+{
+    foreach(Animation* anim, animations)
+        anim->selectAll();
+}
+
 void Sheet::deselectAll()
 {
     foreach(Animation* anim, animations)
