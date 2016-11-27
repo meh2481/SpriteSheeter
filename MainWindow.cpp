@@ -210,23 +210,38 @@ void MainWindow::importImageList(QStringList& fileList, QString prepend, QString
 
 QStringList MainWindow::supportedFileFormats()
 {
-    QStringList fileFilters;
-    //TODO: Use FreeImage supported file formats
-    fileFilters << "*.png"
-                << "*.dds"
-                << "*.bmp"
-                << "*.gif"
-                << "*.pbm"
-                << "*.pgm"
-                << "*.ppm"
-                << "*.tif"
-                << "*.tiff"
-                << "*.xbm"
-                << "*.xpm"
-                << "*.tga"
-                << "*.jpg"
-                << "*.jpeg";
-    return fileFilters;
+    QStringList fileFormats;
+    //FreeImage supported file formats from http://freeimage.sourceforge.net/features.html
+    fileFormats
+            << "*.bmp"
+            << "*.dds"
+            << "*.exr"
+            << "*.gif"
+            << "*.hdr"
+            << "*.ico"
+            << "*.iff"
+            << "*.jng"
+            << "*.jpeg"
+            << "*.jpg"
+            << "*.mng"
+            << "*.pcx"
+            << "*.pbm"
+            << "*.pgm"
+            << "*.ppm"
+            << "*.pfm"
+            << "*.png"
+            << "*.pict"
+            << "*.psd"
+            << "*.raw"
+            << "*.ras"
+            << "*.sgi"
+            << "*.tga"
+            << "*.tif"
+            << "*.tiff"
+            << "*.wbmp"
+            << "*.xbm"
+            << "*.xpm";
+    return fileFormats;
 }
 
 void MainWindow::addFolders(QStringList l)

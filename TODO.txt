@@ -1,6 +1,5 @@
 Feature undoRedo:
 -Drag-drop fails if dragging one frame to end of sheet, then dragging another to that same anim (redo moves both)
--Only gen undo states for non-equal fonts & colors & box values & such
 -Minimize width for drag/drop, delete frames, remove duplicates, balance
 -Proper anim select on undo/redo with drag/drop frames
 -Debug memory leaks with sheet balance/moving frames
@@ -10,9 +9,7 @@ Feature undoRedo:
 -Sheet width minimized is a problem on drag/drop, delete, and AddImages undo/redo
 
 Release 1.2:
--Determine FreeImage open formats we support
 -Unble to manually edit sheet width box due to min width constraints
--File->Save not working?
 -Remove red bg from selected anim; use outline or such
 
 UI Design Stories:
