@@ -1,5 +1,7 @@
 Release 1.2:
 -Drag/drop to beginning and end of sheet don't save anim locations properly
+-git force merge commit into develop/master
+-select all frames in anim if click on it
 
 UI Design Stories:
 -Save/Save As should deal in .sheet format, PNG/etc should be Export

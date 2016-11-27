@@ -829,8 +829,15 @@ void MainWindow::mouseUp(int x, int y)
             }
             else if(!itemUnder) //Deselecting everything
             {
-                sheet->selectAnimation(sheet->getSelected(x, y));
+                int selectedAnim = sheet->getSelected(x, y);
+                sheet->selectAnimation(selectedAnim);
                 sheet->deselectAll();
+                if(x > 0 && x < (int)sheet->getWidth() && y > 0 && y < (int)sheet->getHeight())
+                {
+                    Animation* anim = sheet->getAnimation(selectedAnim);
+                    if(anim != NULL)
+                        anim->selectAll();
+                }
             }
             updateSelectedAnim();
         }
