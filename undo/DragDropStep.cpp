@@ -21,16 +21,6 @@ void DragDropStep::undo()
 {
     Sheet* sheet = mainWindow->getSheet();
     sheet->deselectAll();
-    //See if we created a new anim
-    if(animCreated >= 0)
-        sheet->removeAnimation(animCreated);
-    else
-    {
-        Animation* anim = sheet->getAnimation(animAddedTo);
-        //Remove added frames
-        for(int i = 0; i < movedFrames.size(); i++)
-            anim->removeFrame(newDropLocation);
-    }
 
     //Loop through reverse, adding back in deleted animations
     for(int i = deletedAnimations.size() - 1; i >= 0; i--)
@@ -42,6 +32,17 @@ void DragDropStep::undo()
         sheet->addAnimation(anim, deleted);
     }
 
+    //See if we created a new anim
+    if(animCreated >= 0)
+        sheet->removeAnimation(animCreated);
+    else
+    {
+        Animation* anim = sheet->getAnimation(animAddedTo);
+        //Remove added frames
+        for(int i = 0; i < movedFrames.size(); i++)
+            anim->removeFrame(newDropLocation);
+    }
+
     //Loop through reverse, adding back in deleted frames
     for(int j = movedFrames.size() - 1; j >= 0; j--)
     {
@@ -50,6 +51,7 @@ void DragDropStep::undo()
         a->insertImage(fl.img, fl.frame);
         a->getFrame(fl.frame)->selectToggle();
     }
+
     //Recalculate sheet positions
     sheet->refresh();
     mainWindow->userEditingWidth = false;
