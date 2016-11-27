@@ -448,6 +448,9 @@
             </item>
             <item>
              <widget class="QPushButton" name="exportButton">
+              <property name="toolTip">
+               <string>Export this sheet as an image</string>
+              </property>
               <property name="text">
                <string>Export</string>
               </property>
