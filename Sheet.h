@@ -68,7 +68,7 @@ public:
     Animation* getAnimation(unsigned int index);   //Return NULL or the current animation
     QVector<Animation*>* getAnimationPtr() {return &animations;}
     int getOver(int x, int y);  //Get animation this xy position is over
-    void refresh(){setWidth(width);updateSceneBounds();} //Recalculate sheet
+    void refresh(){setWidth(width);selectAnimation(curSelectedAnim);updateSceneBounds();} //Recalculate sheet
     unsigned int getMinWidth(); //Get the minimum width for the current width
     unsigned int getSmallestPossibleWidth();    //Get the smallest possible width for this sheet (width of largest animation frame image)
     bool clicked(int x, int y, QGraphicsItem* it);
@@ -90,6 +90,7 @@ public:
     void selectAnimation(int selected);
     int getCurSelected();
     void setNamesVisible(bool b);
+    bool areNamesVisible() {return animNamesVisible;}
     QVector<int> deleteEmpty(); //Delete empty animations
     void removeAnimation(int idx);
     void selectAll();

@@ -5,6 +5,7 @@
 #include <QMap>
 #include <QSet>
 #include <QImage>
+#include <QString>
 class Animation;
 
 class DeleteStep : public UndoStep
@@ -18,6 +19,7 @@ class DeleteStep : public UndoStep
     QMap<int, QSet<int> > framesToDelete;
     QVector<DeleteLoc> deletedFrames;
     QVector<int> deletedAnimations;
+    QVector<QString> deletedAnimNames;
     int prevW;  //previous width of sheet
 
     void clear();

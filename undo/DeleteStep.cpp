@@ -36,6 +36,8 @@ void DeleteStep::undo()
     {
         int deleted = deletedAnimations.at(i);
         Animation* anim = new Animation(sheet->getTransparentBg(), sheet->getScene());
+        anim->setName(deletedAnimNames.at(i));
+        anim->setNameVisible(sheet->areNamesVisible());
         sheet->addAnimation(anim, deleted);
     }
 
@@ -81,6 +83,7 @@ void DeleteStep::clear()
 {
     deletedFrames.clear();
     deletedAnimations.clear();
+    deletedAnimNames.clear();
 }
 
 void DeleteStep::deleteSelected()
@@ -95,6 +98,7 @@ void DeleteStep::deleteSelected()
 
         if(animations->at(i)->isEmpty())
         {
+            deletedAnimNames.prepend(animations->at(i)->getName());
             delete animations->at(i);
             animations->remove(i);
             deletedAnimations.prepend(i);   //prepend cause reverse order

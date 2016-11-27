@@ -36,6 +36,8 @@ void DragDropStep::undo()
     {
         int deleted = deletedAnimations.at(i);
         Animation* anim = new Animation(sheet->getTransparentBg(), sheet->getScene());
+        anim->setName(deletedAnimNames.at(i));
+        anim->setNameVisible(sheet->areNamesVisible());
         sheet->addAnimation(anim, deleted);
     }
 
@@ -102,7 +104,7 @@ void DragDropStep::redo()
     }
 
     //Delete animations that are empty as a result of this
-    deletedAnimations = sheet->deleteEmpty();
+    deleteEmpty();
 
     //Recalculate sheet positions
     sheet->refresh();
@@ -160,10 +162,30 @@ void DragDropStep::selectFrames(Animation* anim, int loc, int count)
     }
 }
 
+void DragDropStep::deleteEmpty()
+{
+    deletedAnimations.clear();
+    deletedAnimNames.clear();
+
+    QVector<Animation*>* animations = mainWindow->getSheet()->getAnimationPtr();
+    for(int i = 0; i < animations->size(); i++)
+    {
+        if(animations->at(i)->isEmpty())
+        {
+            deletedAnimNames << animations->at(i)->getName();
+            delete animations->at(i);
+            animations->remove(i);
+            deletedAnimations << i;
+            i--;
+        }
+    }
+}
+
 void DragDropStep::clear()
 {
     movedFrames.clear();
     deletedAnimations.clear();
+    deletedAnimNames.clear();
 }
 
 void DragDropStep::readSelectedFrames()

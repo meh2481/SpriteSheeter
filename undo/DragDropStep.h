@@ -5,6 +5,7 @@
 #include <QMap>
 #include <QSet>
 #include <QImage>
+#include <QString>
 class Animation;
 
 class DragDropStep : public UndoStep
@@ -24,11 +25,13 @@ class DragDropStep : public UndoStep
     int prevW;  //Previous sheet width
     QVector<FrameLoc> movedFrames;
     QVector<int> deletedAnimations;
+    QVector<QString> deletedAnimNames;
     QMap<int, QSet<int> > selectedFrames;
 
     QVector<FrameLoc> pullSelected(Animation* anim, int* pullLoc, int curAnim);
     QVector<QImage> getPulledImages();
     void selectFrames(Animation* anim, int loc, int count);
+    void deleteEmpty();
 
     void clear();
     void readSelectedFrames();
