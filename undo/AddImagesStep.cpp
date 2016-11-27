@@ -7,6 +7,7 @@ AddImagesStep::AddImagesStep(MainWindow* w, QVector<QImage*> images, QString nam
     toAdd = images;
     animName = name;
     insertPos = w->getSheet()->getCurSelected();
+    prevW = w->getUI()->sheetWidthBox->value();
 }
 
 void AddImagesStep::undo()
@@ -14,6 +15,7 @@ void AddImagesStep::undo()
     Sheet* sheet = mainWindow->getSheet();
     sheet->removeAnimation(insertPos);
     sheet->refresh();
+    mainWindow->getUI()->sheetWidthBox->setValue(prevW);
     if(mainWindow->getUI()->minWidthCheckbox->isChecked())
         mainWindow->minimizeSheetWidth();
     mainWindow->drawAnimation();
@@ -33,6 +35,7 @@ void AddImagesStep::redo()
 
     sheet->refresh();
     mainWindow->checkMinWidth();
+    mainWindow->getUI()->sheetWidthBox->setValue(prevW);
     if(mainWindow->getUI()->minWidthCheckbox->isChecked())
         mainWindow->minimizeSheetWidth();
     mainWindow->drawAnimation();

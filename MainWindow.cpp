@@ -1715,6 +1715,9 @@ void MainWindow::on_minWidthCheckbox_toggled(bool checked)
 
 void MainWindow::minimizeSheetWidth()
 {
+    if(!sheet->size())
+        return;
+
     unsigned int width = sheet->getMinWidth();
     ui->sheetWidthBox->setValue(width); //Updates width of sheet automatically
     lastSheetW = width;

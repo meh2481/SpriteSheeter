@@ -1,6 +1,4 @@
 Feature undoRedo:
--Minimize width as needed (Check x spacing undo/redo for example)
-	-Reverse anim
 -Proper anim select on undo/redo with drag/drop frames
 -Debug memory leaks with sheet balance/moving frames
 	-Use implicit sharing for QImage as intended
@@ -35,6 +33,7 @@ UI Design Stories:
 -Odd scrollbars with empty sheets sometimes. Sheet view also lets you zoom in on empty sheet.
 
 Technical Stories:
+-Drag-drop failed by dragging frame to end of sheet?
 -Only gen undo states if sheet wasn't empty at beginning? -- First attempt found that this wasn't straightforward; recommend closer look
 -Rather than specifying image types manually, remove load filter entirely?
 -Commandline argument support - That way we can associate .sheet with program

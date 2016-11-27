@@ -5,6 +5,7 @@
 class ReverseAnimStep : public UndoStep
 {
     int anim;
+    int prevW;  //Previous sheet width before this step
 public:
     ReverseAnimStep(MainWindow* w, int curSelectedAnim);
 
