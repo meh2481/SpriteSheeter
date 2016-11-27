@@ -11,6 +11,7 @@ MinimizeWidthCheckboxStep::MinimizeWidthCheckboxStep(MainWindow* w, bool prevChe
 
 void MinimizeWidthCheckboxStep::undo()
 {
+    mainWindow->userEditingWidth = false;
     mainWindow->getUI()->sheetWidthBox->setValue(lastW);
     if(prev)
         mainWindow->minimizeSheetWidth();

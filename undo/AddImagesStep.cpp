@@ -15,6 +15,7 @@ void AddImagesStep::undo()
     Sheet* sheet = mainWindow->getSheet();
     sheet->removeAnimation(insertPos);
     sheet->refresh();
+    mainWindow->userEditingWidth = false;
     mainWindow->getUI()->sheetWidthBox->setValue(prevW);
     if(mainWindow->getUI()->minWidthCheckbox->isChecked())
         mainWindow->minimizeSheetWidth();
@@ -35,6 +36,7 @@ void AddImagesStep::redo()
 
     sheet->refresh();
     mainWindow->checkMinWidth();
+    mainWindow->userEditingWidth = false;
     mainWindow->getUI()->sheetWidthBox->setValue(prevW);
     if(mainWindow->getUI()->minWidthCheckbox->isChecked())
         mainWindow->minimizeSheetWidth();

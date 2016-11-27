@@ -94,6 +94,8 @@ MainWindow::MainWindow(QWidget *parent) :
     clicked = selected = lastSelected = NULL;
     transparentBg = QImage("://bg");
     bUIMutex = false;
+    userEditingWidth = true;
+    wEditing = 1000;
 
     bDraggingSheetW = false;
     m_bDraggingSelected = false;
@@ -422,7 +424,10 @@ void MainWindow::on_xSpacingBox_valueChanged(int arg1)
     sheet->setXSpacing(arg1);
     int minW = sheet->getSmallestPossibleWidth();
     if(minW > ui->sheetWidthBox->value())
+    {
+        userEditingWidth = false;
         ui->sheetWidthBox->setValue(minW);
+    }
     updateSelectedAnim();
 }
 
@@ -721,6 +726,7 @@ void MainWindow::mouseCursorPos(int x, int y)
         //If dragging, update sheet width (set the box value directly so that it updates properly)
         if(bDraggingSheetW)
         {
+            userEditingWidth = false;
             ui->sheetWidthBox->setValue(mStartSheetW - (xStartDragSheetW - x));
             if(ui->minWidthCheckbox->isChecked())
                 minimizeSheetWidth();
@@ -907,6 +913,7 @@ void MainWindow::loadSettings()
     restoreState(settings.value("windowState").toByteArray());
     ui->xSpacingBox->setValue(settings.value("xSpacing").toInt());
     ui->ySpacingBox->setValue(settings.value("ySpacing").toInt());
+    userEditingWidth = false;
     ui->sheetWidthBox->setValue(settings.value("sheetWidth").toInt());
     ui->animationSpeedSpinbox->setValue(settings.value("animationSpeed").toInt());
     ui->frameBgTransparent->setChecked(settings.value("FrameBgTransparent").toBool());
@@ -975,14 +982,18 @@ void MainWindow::loadSettings()
 
 void MainWindow::on_sheetWidthBox_valueChanged(int arg1)
 {
+    wEditing = arg1;
     unsigned int smallestPossible = sheet->getSmallestPossibleWidth();
-    if((unsigned int) arg1 < smallestPossible)
+    if((unsigned int) arg1 < smallestPossible && !userEditingWidth)
     {
         arg1 = smallestPossible;
+        userEditingWidth = false;
         ui->sheetWidthBox->setValue(arg1);  //yaaay recursion
+        userEditingWidth = false;
     }
     sheet->setWidth(arg1);
     updateSelectedAnim();
+    userEditingWidth = true;
 }
 
 void MainWindow::newFile()
@@ -1338,6 +1349,7 @@ void MainWindow::loadFromStream(QDataStream& s)
     //Set sheet spacing now
     sheet->setXSpacing(ui->xSpacingBox->value());
     sheet->setYSpacing(ui->ySpacingBox->value());
+    userEditingWidth = false;
     ui->sheetWidthBox->setValue(sheetWidth);
     lastSheetW = ui->sheetWidthBox->value();
 
@@ -1479,12 +1491,14 @@ void MainWindow::on_ySpacingBox_editingFinished()
 
 void MainWindow::on_sheetWidthBox_editingFinished()
 {
-    if(bUIMutex)
-        return;
+    qDebug() << "Editing finished" << lastSheetW << wEditing;
+    //userEditingWidth = false;
+    //if(bUIMutex)
+    //    return;
 
-    addUndoStep(new SheetWidthStep(this, lastSheetW, ui->sheetWidthBox->value()));
+    addUndoStep(new SheetWidthStep(this, lastSheetW, wEditing));
 
-    lastSheetW = ui->sheetWidthBox->value();
+    lastSheetW = wEditing;
 }
 
 void MainWindow::on_animationNameEditor_editingFinished()
@@ -1722,6 +1736,7 @@ void MainWindow::minimizeSheetWidth()
         return;
 
     unsigned int width = sheet->getMinWidth();
+    userEditingWidth = false;
     ui->sheetWidthBox->setValue(width); //Updates width of sheet automatically
     lastSheetW = width;
 }
@@ -1821,6 +1836,7 @@ void MainWindow::checkMinWidth()
     unsigned int minW = sheet->getSmallestPossibleWidth();
     if(curW < minW)
     {
+        userEditingWidth = false;
         ui->sheetWidthBox->setValue(minW);
         sheet->updateSceneBounds();
         lastSheetW = ui->sheetWidthBox->value();

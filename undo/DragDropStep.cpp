@@ -52,6 +52,7 @@ void DragDropStep::undo()
     }
     //Recalculate sheet positions
     sheet->refresh();
+    mainWindow->userEditingWidth = false;
     mainWindow->getUI()->sheetWidthBox->setValue(prevW);
     if(mainWindow->getUI()->minWidthCheckbox->isChecked())
         mainWindow->minimizeSheetWidth();

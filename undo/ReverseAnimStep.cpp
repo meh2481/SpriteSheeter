@@ -21,6 +21,7 @@ void ReverseAnimStep::redo()
         a->reverse();
         mainWindow->getSheet()->refresh();   //Tell sheet to recalculate positions
         mainWindow->drawAnimation();
+        mainWindow->userEditingWidth = false;
         mainWindow->getUI()->sheetWidthBox->setValue(prevW);
         if(mainWindow->getUI()->minWidthCheckbox->isChecked())
             mainWindow->minimizeSheetWidth();

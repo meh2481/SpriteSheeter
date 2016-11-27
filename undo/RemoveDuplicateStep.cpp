@@ -24,6 +24,7 @@ void RemoveDuplicateStep::undo()
     mainWindow->getSheet()->refresh();
     mainWindow->mAnimFrame = 0;
     mainWindow->drawAnimation();
+    mainWindow->userEditingWidth = false;
     mainWindow->getUI()->sheetWidthBox->setValue(prevW);
     if(mainWindow->getUI()->minWidthCheckbox->isChecked())
         mainWindow->minimizeSheetWidth();

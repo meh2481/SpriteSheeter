@@ -48,6 +48,7 @@ public:
     void updateSelectedAnim(bool updateName = true);
     void minimizeSheetWidth();  //Minimize the sheet's width against the anim lines currently on it
     int mAnimFrame;
+    bool userEditingWidth;
     void checkMinWidth();   //Check the sheet's current width against the min possible width & update as needed
 
 signals:
@@ -157,6 +158,7 @@ private:
     QStack<UndoStep*> redoStack;
     bool bStackBottomSaved;
     int lastXSpacing, lastYSpacing, lastSheetW;
+    int wEditing;
     QString lastAnimName;
 
     QString lastIconStr;

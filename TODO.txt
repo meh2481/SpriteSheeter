@@ -1,11 +1,10 @@
 Feature undoRedo:
--Add animation name back when undoing a delete (And set to hidden/visible based on current setting)
+-Drag/drop to beginning and end of sheet don't save anim locations properly
 -Drag/drop and delete undo/redo should deselect all other frames
 
 Release 1.2:
 -Save/Save As should deal in .sheet format, PNG/etc should be Export
 	-This way, users aren't misled into thinking they can re-open PNG images and such
--Unble to manually edit sheet width box due to min width constraints
 
 UI Design Stories:
 -Re-add up/down select while editing animation names?

@@ -39,6 +39,7 @@ void BalanceAnimStep::undo()
         if(f && checked.at(i))
             f->selectToggle();
     }
+    mainWindow->userEditingWidth = false;
     mainWindow->getUI()->sheetWidthBox->setValue(origSheetWidth);
     if(mainWindow->getUI()->minWidthCheckbox->isChecked())
         mainWindow->minimizeSheetWidth();
@@ -53,6 +54,7 @@ void BalanceAnimStep::redo()
     Animation* a = mainWindow->getSheet()->getAnimation(animationIndex);
     a->balance(QPoint(w, h), ve, ho);
     int minW = mainWindow->getSheet()->getSmallestPossibleWidth();
+    mainWindow->userEditingWidth = false;
     if(minW > mainWindow->getUI()->sheetWidthBox->value())
         mainWindow->getUI()->sheetWidthBox->setValue(minW);
     else

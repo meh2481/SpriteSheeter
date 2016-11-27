@@ -50,6 +50,7 @@ void DeleteStep::undo()
         anim->getFrame(dl.frame)->selectToggle();   //By definition will always be selected
     }
 
+    mainWindow->userEditingWidth = false;
     mainWindow->getUI()->sheetWidthBox->setValue(prevW);
     if(ui->minWidthCheckbox->isChecked())
         mainWindow->minimizeSheetWidth();
