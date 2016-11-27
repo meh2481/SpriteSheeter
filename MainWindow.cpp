@@ -17,6 +17,24 @@
 #include <QTreeView>
 #include "BatchRenderer.h"
 #include <QThreadPool>
+#include "undo/FontColorStep.h"
+#include "undo/FrameBgColorStep.h"
+#include "undo/SheetBgColorStep.h"
+#include "undo/SheetBgTransparentStep.h"
+#include "undo/FrameBgTransparentStep.h"
+#include "undo/SheetFontStep.h"
+#include "undo/YSpacingStep.h"
+#include "undo/XSpacingStep.h"
+#include "undo/MinimizeWidthCheckboxStep.h"
+#include "undo/SheetWidthStep.h"
+#include "undo/ReverseAnimStep.h"
+#include "undo/AnimNameStep.h"
+#include "undo/NameVisibleStep.h"
+#include "undo/BalanceAnimStep.h"
+#include "undo/RemoveDuplicateStep.h"
+#include "undo/DragDropStep.h"
+#include "undo/DeleteStep.h"
+#include "undo/AddImagesStep.h"
 
 #define SELECT_RECT_THICKNESS 5
 
@@ -51,7 +69,7 @@ MainWindow::MainWindow(QWidget *parent) :
     //Connect all our signals & slots up
     QObject::connect(mImportWindow, SIGNAL(importOK(int, int, bool, bool)), this, SLOT(importNext(int, int, bool, bool)));
     QObject::connect(mImportWindow, SIGNAL(importAll(int, int, bool, bool)), this, SLOT(importAll(int, int, bool, bool)));
-    QObject::connect(this, SIGNAL(setImportImg(QImage*)), mImportWindow, SLOT(setPreviewImage(QImage*)));
+    QObject::connect(this, SIGNAL(setImportImg(QImage)), mImportWindow, SLOT(setPreviewImage(QImage)));
     QObject::connect(ui->sheetPreview, SIGNAL(mouseMoved(int,int)), this, SLOT(mouseCursorPos(int, int)));
     QObject::connect(ui->sheetPreview, SIGNAL(mousePressed(int,int)), this, SLOT(mouseDown(int, int)));
     QObject::connect(ui->sheetPreview, SIGNAL(mouseReleased(int,int)), this, SLOT(mouseUp(int, int)));
@@ -72,16 +90,17 @@ MainWindow::MainWindow(QWidget *parent) :
 
     animItem = NULL;
     progressBar = NULL;
-    mCurFrame = NULL;
     mAnimFrame = 0;
     clicked = selected = lastSelected = NULL;
-    transparentBg = new QImage("://bg");
-    bLoadMutex = false;
+    transparentBg = QImage("://bg");
+    bUIMutex = false;
+    userEditingWidth = true;
+    wEditing = 1000;
 
     bDraggingSheetW = false;
     m_bDraggingSelected = false;
     m_bSetDraggingCursor = false;
-    setModified(false);
+    setSaved();
     m_rLastDragHighlight.setCoords(0,0,0,0);
     m_bLastDragInAnim = false;
     sCurFilename = UNTITLED_IMAGE_STR;
@@ -104,8 +123,6 @@ MainWindow::MainWindow(QWidget *parent) :
     mSheetZoom = new ZoomableGraphicsView(ui->sheetPreview);
     mAnimationZoom = new ZoomableGraphicsView(ui->animationPreview);
 
-    sheetBgCol = QColor(0, 128, 128, 255);
-    frameBgCol = QColor(0, 255, 0, 255);
     animHighlightCol = QColor(128, 0, 0, 255);
 
     //Create animation sheet
@@ -123,7 +140,7 @@ MainWindow::MainWindow(QWidget *parent) :
     curDragLine->setZValue(2);
     curDragLine->setVisible(false);
 
-    curSelectedAnimRect = msheetScene->addRect(0,0,0,0,QPen(),QBrush(QColor(128, 0, 0, 255)));
+    curSelectedAnimRect = msheetScene->addRect(0,0,0,0,QPen(animHighlightCol, SELECT_RECT_THICKNESS/2), QBrush(QColor(128,0,0,100)));
     curSelectedAnimRect->setZValue(-3);
     curSelectedAnimRect->setVisible(true);
 
@@ -135,7 +152,7 @@ MainWindow::MainWindow(QWidget *parent) :
     updateWindowTitle();
 
     //Store initial undo state
-    pushUndo();
+    //pushUndo();
     updateUndoRedoMenu();
 
     msheetScene->setSceneRect(0,0,0,0);
@@ -145,8 +162,6 @@ MainWindow::~MainWindow()
 {
     clearUndo();
     clearRedo();
-    if(transparentBg)
-        delete transparentBg;
     if(animItem)
         delete animItem;
     delete sheet;
@@ -173,20 +188,18 @@ void MainWindow::importImageList(QStringList& fileList, QString prepend, QString
 {
     if(fileList.size())
     {
-        Animation* animation = new Animation(transparentBg, msheetScene, this);
+        QVector<QImage> animation;
         foreach(QString s1, fileList)
         {
             QString imgPath = prepend + s1;
-            QImage* image = loadImageFI(imgPath);
-            if(!image->isNull())
-                animation->insertImage(image);
+            QImage image = loadImageFI(imgPath);
+            if(!image.isNull())
+                animation.append(image);
             else
                 qDebug() << "Unable to open image " << imgPath << endl;
         }
-        animation->setName(animName);
-        sheet->addAnimation(animation);
+        insertAnimHelper(animation, animName);
         checkMinWidth();
-
         if(ui->minWidthCheckbox->isChecked())
             minimizeSheetWidth();
         drawAnimation();
@@ -196,23 +209,38 @@ void MainWindow::importImageList(QStringList& fileList, QString prepend, QString
 
 QStringList MainWindow::supportedFileFormats()
 {
-    QStringList fileFilters;
-    //TODO: Use FreeImage supported file formats
-    fileFilters << "*.png"
-                << "*.dds"
-                << "*.bmp"
-                << "*.gif"
-                << "*.pbm"
-                << "*.pgm"
-                << "*.ppm"
-                << "*.tif"
-                << "*.tiff"
-                << "*.xbm"
-                << "*.xpm"
-                << "*.tga"
-                << "*.jpg"
-                << "*.jpeg";
-    return fileFilters;
+    QStringList fileFormats;
+    //FreeImage supported file formats from http://freeimage.sourceforge.net/features.html
+    fileFormats
+            << "*.bmp"
+            << "*.dds"
+            << "*.exr"
+            << "*.gif"
+            << "*.hdr"
+            << "*.ico"
+            << "*.iff"
+            << "*.jng"
+            << "*.jpeg"
+            << "*.jpg"
+            << "*.mng"
+            << "*.pcx"
+            << "*.pbm"
+            << "*.pgm"
+            << "*.ppm"
+            << "*.pfm"
+            << "*.png"
+            << "*.pict"
+            << "*.psd"
+            << "*.raw"
+            << "*.ras"
+            << "*.sgi"
+            << "*.tga"
+            << "*.tif"
+            << "*.tiff"
+            << "*.wbmp"
+            << "*.xbm"
+            << "*.xpm";
+    return fileFormats;
 }
 
 void MainWindow::addFolders(QStringList l)
@@ -226,8 +254,8 @@ void MainWindow::addFolders(QStringList l)
 
         importImageList(files, s + '/', folder.dirName());
     }
-    if(l.size())
-        genUndoState();
+    //if(l.size())
+    //genUndoState();
 }
 
 void MainWindow::on_openImagesButton_clicked()
@@ -251,7 +279,7 @@ void MainWindow::on_openStripButton_clicked()
         QFileInfo inf(s);
         lastOpenDir = inf.absoluteDir().absolutePath();
         importImageList(mOpenFiles);
-        genUndoState();
+        //genUndoState();
     }
 }
 
@@ -307,22 +335,16 @@ void MainWindow::openImportDiag()
     }
 }
 
-void MainWindow::insertAnimHelper(QVector<QImage*> imgList, QString name)
+void MainWindow::insertAnimHelper(QVector<QImage> imgList, QString name)
 {
     if(imgList.size())
-    {
-        Animation* animation = new Animation(transparentBg, msheetScene, this);
-        animation->insertImages(imgList);
-        animation->setName(name);
-        sheet->addAnimation(animation, sheet->getCurSelected());
-        updateSelectedAnim();
-    }
+        addUndoStep(new AddImagesStep(this, imgList, name));
 }
 
 void MainWindow::importImageAsSheet(QString s, int numxframes, int numyframes, bool bVert, bool bSplit)
 {
-    QImage* image = loadImageFI(s);
-    if(!image)
+    QImage image = loadImageFI(s);
+    if(!image.isNull())
     {
         QMessageBox::information(this, "Image Import", "Error opening image " + s);
         return;
@@ -330,18 +352,18 @@ void MainWindow::importImageAsSheet(QString s, int numxframes, int numyframes, b
     QString fileName = QFileInfo(s).baseName();
 
     //Find image dimensions
-    int iXFrameSize = image->width() / numxframes;
-    int iYFrameSize = image->height() / numyframes;
+    int iXFrameSize = image.width() / numxframes;
+    int iYFrameSize = image.height() / numyframes;
 
     //Grab all the frames out
-    QVector<QImage*> imgList;
+    QVector<QImage> imgList;
     if(!bVert)
     {
         for(int y = 0; y < numyframes; y++)
         {
             for(int x = 0; x < numxframes; x++)
             {
-                imgList.push_back(new QImage(image->copy(x*iXFrameSize, y*iYFrameSize, iXFrameSize, iYFrameSize)));
+                imgList.push_back(image.copy(x*iXFrameSize, y*iYFrameSize, iXFrameSize, iYFrameSize));
             }
             if(bSplit)
             {
@@ -356,7 +378,7 @@ void MainWindow::importImageAsSheet(QString s, int numxframes, int numyframes, b
         {
             for(int y = 0; y < numyframes; y++)
             {
-                imgList.push_back(new QImage(image->copy(x*iXFrameSize, y*iYFrameSize, iXFrameSize, iYFrameSize)));
+                imgList.push_back(image.copy(x*iXFrameSize, y*iYFrameSize, iXFrameSize, iYFrameSize));
             }
             if(bSplit)
             {
@@ -368,10 +390,9 @@ void MainWindow::importImageAsSheet(QString s, int numxframes, int numyframes, b
     if(!bSplit)
         insertAnimHelper(imgList, fileName);
 
-    delete image;
     checkMinWidth();
     drawAnimation();
-    genUndoState();
+    //genUndoState();
 }
 
 //Example from http://www.qtforum.org/article/28852/center-any-child-window-center-parent.html
@@ -403,7 +424,10 @@ void MainWindow::on_xSpacingBox_valueChanged(int arg1)
     sheet->setXSpacing(arg1);
     int minW = sheet->getSmallestPossibleWidth();
     if(minW > ui->sheetWidthBox->value())
+    {
+        userEditingWidth = false;
         ui->sheetWidthBox->setValue(minW);
+    }
     updateSelectedAnim();
 }
 
@@ -431,9 +455,8 @@ void MainWindow::genericSave(QString saveFilename)
             saveSheet(saveFilename);
             QFileInfo fi(saveFilename);
             sCurFilename = fi.fileName();
-            setModified(false);
+            setSaved();
             updateWindowTitle();
-            //TODO Store file orig state
         }
         else
         {
@@ -445,9 +468,8 @@ void MainWindow::genericSave(QString saveFilename)
             {
                 QFileInfo fi(saveFilename);
                 sCurFilename = fi.fileName();
-                setModified(false);
+                setSaved();
                 updateWindowTitle();
-                //TODO Store file orig state
             }
         }
 
@@ -482,7 +504,7 @@ void MainWindow::saveFile()
     if(!sheet || !sheet->size())
         return;
 
-    if(!bFileModified)
+    if(!isModified())
         return;  //Don't bother saving if we already have
 
     QString saveFilename;
@@ -510,13 +532,13 @@ void MainWindow::on_animationNameEditor_textChanged(const QString& arg1)
         anim->setName(arg1);
         sheet->refresh();
         sheet->updateSceneBounds();
-        updateSelectedAnim();
+        updateSelectedAnim(false);
     }
 }
 
 void MainWindow::drawAnimation()
 {
-    mCurFrame = NULL;
+    mCurFrame = QImage();
     if(sheet->size())
     {
         Animation* anim = sheet->getAnimation(sheet->getCurSelected());
@@ -529,7 +551,7 @@ void MainWindow::drawAnimation()
         }
     }
 
-    if(!mCurFrame)
+    if(mCurFrame.isNull())
     {
         if(animItem)
             animItem->hide();
@@ -538,18 +560,18 @@ void MainWindow::drawAnimation()
     }
 
     //Draw image and bg
-    QImage animFrame(mCurFrame->width(), mCurFrame->height(), QImage::Format_ARGB32);
+    QImage animFrame(mCurFrame.width(), mCurFrame.height(), QImage::Format_ARGB32);
     QPainter painter(&animFrame);
     painter.setCompositionMode(QPainter::CompositionMode_SourceOver);
-    if(ui->FrameBgTransparent->isChecked())
+    if(ui->frameBgTransparent->isChecked())
     {
-        QBrush bgTexBrush(*transparentBg);
-        painter.fillRect(0, 0, mCurFrame->width(), mCurFrame->height(), bgTexBrush);
+        QBrush bgTexBrush(transparentBg);
+        painter.fillRect(0, 0, mCurFrame.width(), mCurFrame.height(), bgTexBrush);
     }
     else
-        animFrame.fill(frameBgCol);
+        animFrame.fill(sheet->getFrameBgCol());
 
-    painter.drawImage(0, 0, *mCurFrame);
+    painter.drawImage(0, 0, mCurFrame);
 
     if(animItem == NULL)
     {
@@ -704,6 +726,7 @@ void MainWindow::mouseCursorPos(int x, int y)
         //If dragging, update sheet width (set the box value directly so that it updates properly)
         if(bDraggingSheetW)
         {
+            userEditingWidth = false;
             ui->sheetWidthBox->setValue(mStartSheetW - (xStartDragSheetW - x));
             if(ui->minWidthCheckbox->isChecked())
                 minimizeSheetWidth();
@@ -776,12 +799,13 @@ void MainWindow::mouseUp(int x, int y)
         {
             bDraggingSheetW = false;
             sheet->updateSceneBounds();
-            genUndoState();
+            addUndoStep(new SheetWidthStep(this, lastSheetW, ui->sheetWidthBox->value()));
+            lastSheetW = ui->sheetWidthBox->value();
         }
         else
         {
             QGraphicsItem* itemUnder = isItemUnderCursor(x, y);
-            if(clicked && itemUnder == clicked)
+            if(clicked && itemUnder == clicked) //Selecting things
             {
                 //Shift-click to select line
                 if(lastSelected && QGuiApplication::keyboardModifiers() & Qt::ShiftModifier)
@@ -798,15 +822,22 @@ void MainWindow::mouseUp(int x, int y)
 
                 sheet->selectAnimation(sheet->getSelected(x, y));
             }
-            else if(selected)
+            else if(selected)   //Drag-dropping frames
             {
                 sheet->selectAnimation(sheet->getSelected(x, y));
-                sheet->dropped(x, y);
+                addUndoStep(new DragDropStep(this, x, y));
             }
-            else if(!itemUnder)
+            else if(!itemUnder) //Deselecting everything
             {
-                sheet->selectAnimation(sheet->getSelected(x, y));
+                int selectedAnim = sheet->getSelected(x, y);
+                sheet->selectAnimation(selectedAnim);
                 sheet->deselectAll();
+                if(x > 0 && x < (int)sheet->getWidth() && y > 0 && y < (int)sheet->getHeight())
+                {
+                    Animation* anim = sheet->getAnimation(selectedAnim);
+                    if(anim != NULL)
+                        anim->selectAll();
+                }
             }
             updateSelectedAnim();
         }
@@ -818,7 +849,7 @@ void MainWindow::mouseUp(int x, int y)
 void MainWindow::closeEvent(QCloseEvent *event)
 {
     //Make sure user has saved before closing
-    if(bFileModified)
+    if(isModified())
     {
         QMessageBox::StandardButton dialog;
         dialog = QMessageBox::warning(this, "Save Changes",
@@ -828,7 +859,7 @@ void MainWindow::closeEvent(QCloseEvent *event)
         if(dialog == QMessageBox::Save)
         {
             saveFile();
-            if(bFileModified)   //If they still haven't saved...
+            if(isModified())   //If they still haven't saved...
             {
                 event->ignore();
                 return;
@@ -855,14 +886,14 @@ void MainWindow::saveSettings()
     settings.setValue("ySpacing", ui->ySpacingBox->value());
     settings.setValue("sheetWidth", ui->sheetWidthBox->value());
     settings.setValue("animationSpeed", ui->animationSpeedSpinbox->value());
-    settings.setValue("FrameBgTransparent", ui->FrameBgTransparent->isChecked());
-    settings.setValue("SheetBgTransparent", ui->SheetBgTransparent->isChecked());
-    settings.setValue("sheetBgColr", sheetBgCol.red());
-    settings.setValue("sheetBgColg", sheetBgCol.green());
-    settings.setValue("sheetBgColb", sheetBgCol.blue());
-    settings.setValue("frameBgColr", frameBgCol.red());
-    settings.setValue("frameBgColg", frameBgCol.green());
-    settings.setValue("frameBgColb", frameBgCol.blue());
+    settings.setValue("FrameBgTransparent", ui->frameBgTransparent->isChecked());
+    settings.setValue("SheetBgTransparent", ui->sheetBgTransparent->isChecked());
+    settings.setValue("sheetBgColr", sheet->getBgCol().red());
+    settings.setValue("sheetBgColg", sheet->getBgCol().green());
+    settings.setValue("sheetBgColb", sheet->getBgCol().blue());
+    settings.setValue("frameBgColr", sheet->getFrameBgCol().red());
+    settings.setValue("frameBgColg", sheet->getFrameBgCol().green());
+    settings.setValue("frameBgColb", sheet->getFrameBgCol().blue());
     QColor fontColor = sheet->getFontColor();
     settings.setValue("fontColr", fontColor.red());
     settings.setValue("fontColg", fontColor.green());
@@ -881,7 +912,7 @@ void MainWindow::saveSettings()
 void MainWindow::loadSettings()
 {
     //Read in settings from config (registry or wherever it is)
-    bLoadMutex = true;
+    bUIMutex = true;
     QSettings settings("DaxarDev", "SpriteSheeter");
     if(settings.value("xSpacing", -1).toInt() == -1)    //No settings are here
         return;
@@ -889,13 +920,16 @@ void MainWindow::loadSettings()
     restoreState(settings.value("windowState").toByteArray());
     ui->xSpacingBox->setValue(settings.value("xSpacing").toInt());
     ui->ySpacingBox->setValue(settings.value("ySpacing").toInt());
+    userEditingWidth = false;
     ui->sheetWidthBox->setValue(settings.value("sheetWidth").toInt());
     ui->animationSpeedSpinbox->setValue(settings.value("animationSpeed").toInt());
-    ui->FrameBgTransparent->setChecked(settings.value("FrameBgTransparent").toBool());
-    ui->SheetBgTransparent->setChecked(settings.value("SheetBgTransparent").toBool());
+    ui->frameBgTransparent->setChecked(settings.value("FrameBgTransparent").toBool());
+    ui->sheetBgTransparent->setChecked(settings.value("SheetBgTransparent").toBool());
+    QColor sheetBgCol;
     sheetBgCol.setRed(settings.value("sheetBgColr").toInt());
     sheetBgCol.setGreen(settings.value("sheetBgColg").toInt());
     sheetBgCol.setBlue(settings.value("sheetBgColb").toInt());
+    QColor frameBgCol;
     frameBgCol.setRed(settings.value("frameBgColr").toInt());
     frameBgCol.setGreen(settings.value("frameBgColg").toInt());
     frameBgCol.setBlue(settings.value("frameBgColb").toInt());
@@ -927,8 +961,8 @@ void MainWindow::loadSettings()
     //Fill in frame/sheet colors
     setColorButtonIcons();
 
-    ui->frameBgColSelect->setEnabled(!ui->FrameBgTransparent->isChecked());
-    ui->sheetBgColSelect->setEnabled(!ui->SheetBgTransparent->isChecked());
+    ui->frameBgColSelect->setEnabled(!ui->frameBgTransparent->isChecked());
+    ui->sheetBgColSelect->setEnabled(!ui->sheetBgTransparent->isChecked());
 
     //Init sheet values
     if(sheet)
@@ -938,35 +972,41 @@ void MainWindow::loadSettings()
         sheet->setWidth(ui->sheetWidthBox->value());
         sheet->setBgCol(sheetBgCol);
         sheet->setFrameBgCol(frameBgCol);
-        sheet->setBgTransparent(ui->SheetBgTransparent->isChecked());
-        sheet->setFrameBgTransparent(ui->FrameBgTransparent->isChecked());
+        sheet->setBgTransparent(ui->sheetBgTransparent->isChecked());
+        sheet->setFrameBgTransparent(ui->frameBgTransparent->isChecked());
         sheet->setFont(sheetFont);
         sheet->setFontColor(fontColor);
         sheet->updateSceneBounds();
+        sheet->setNamesVisible(ui->animNameEnabled->isChecked());
     }
 
-    bLoadMutex = false;
+    lastYSpacing = ui->ySpacingBox->value();
+    lastXSpacing = ui->xSpacingBox->value();
+    lastSheetW = ui->sheetWidthBox->value();
+
+    bUIMutex = false;
 }
 
 void MainWindow::on_sheetWidthBox_valueChanged(int arg1)
 {
-    if(sheet)
+    wEditing = arg1;
+    unsigned int smallestPossible = sheet->getSmallestPossibleWidth();
+    if((unsigned int) arg1 < smallestPossible && !userEditingWidth)
     {
-        unsigned int smallestPossible = sheet->getSmallestPossibleWidth();
-        if((unsigned int) arg1 < smallestPossible)
-        {
-            arg1 = smallestPossible;
-            ui->sheetWidthBox->setValue(arg1);  //yaaay recursion
-        }
-        sheet->setWidth(arg1);
-        updateSelectedAnim();
+        arg1 = smallestPossible;
+        userEditingWidth = false;
+        ui->sheetWidthBox->setValue(arg1);  //yaaay recursion
+        userEditingWidth = false;
     }
+    sheet->setWidth(arg1);
+    updateSelectedAnim();
+    userEditingWidth = true;
 }
 
 void MainWindow::newFile()
 {
     //Don't overwrite changes when they create a new file
-    if(bFileModified)
+    if(isModified())
     {
         QMessageBox::StandardButton dialog;
         dialog = QMessageBox::warning(this, "Save Changes",
@@ -976,7 +1016,7 @@ void MainWindow::newFile()
         if(dialog == QMessageBox::Save)
         {
             saveFile();
-            if(bFileModified)   //If they still haven't saved...
+            if(isModified())   //If they still haven't saved...
                 return;
         }
         else if(dialog != QMessageBox::Discard)
@@ -992,14 +1032,12 @@ void MainWindow::newFile()
     drawAnimation();
 
     sCurFilename = UNTITLED_IMAGE_STR;
-    setModified(false);
-    updateWindowTitle();
-
-    //Store file orig state, clear undo/redo
+    //Clear undo/redo
     clearUndo();
     clearRedo();
-    pushUndo();
-    updateUndoRedoMenu();
+    setSaved();
+    updateWindowTitle();
+
     updateSelectedAnim();
     mAnimFrame = 0;
 }
@@ -1010,91 +1048,63 @@ void MainWindow::keyPressEvent(QKeyEvent* e)
 
 
     //Delete current selected frame(s)
-    if(e->key() == Qt::Key_Delete && sheet && sheet->hasSelectedFrames())
+    if(e->key() == Qt::Key_Delete)
     {
         deleteSelected();
+    }
+    else if(e->key() == Qt::Key_A && QApplication::keyboardModifiers() & Qt::ControlModifier)
+    {
+        if(QApplication::keyboardModifiers() & Qt::ShiftModifier)
+            sheet->deselectAll();
+        else
+            sheet->selectAll();
     }
 }
 
 void MainWindow::on_saveFrameButton_clicked()
 {
-    if(!sheet || !sheet->size() || !mCurFrame)
+    if(!sheet || !sheet->size() || mCurFrame.isNull())
         return;
 
-    setIconImage(*mCurFrame);
+    setIconImage(mCurFrame);
     mIconExportWindow->show();
 }
 
 void MainWindow::on_fontColSelect_clicked()
 {
-    QColor fontColor = sheet->getFontColor();
-    QColor selected = colorSelect.getColor(fontColor, this, "Select Font Color");
+    QColor selected = colorSelect.getColor(sheet->getFontColor(), this, "Select Font Color");
     if(selected.isValid())
-    {
-        fontColor = selected;
-        QPixmap colIcon(32, 32);
-        colIcon.fill(fontColor);
-        QIcon ic(colIcon);
-        ui->fontColSelect->setIcon(ic);
-        sheet->setFontColor(selected);
-        drawAnimation();
-        genUndoState();
-    }
+        addUndoStep(new FontColorStep(this, sheet->getFontColor(), selected));
 }
 
 void MainWindow::on_frameBgColSelect_clicked()
 {
-    QColor selected = colorSelect.getColor(frameBgCol, this, "Select Frame Background Color");
+    QColor selected = colorSelect.getColor(sheet->getFrameBgCol(), this, "Select Frame Background Color");
     if(selected.isValid())
-    {
-        frameBgCol = selected;
-        QPixmap colIcon(32, 32);
-        colIcon.fill(frameBgCol);
-        QIcon ic(colIcon);
-        ui->frameBgColSelect->setIcon(ic);
-        if(sheet)
-            sheet->setFrameBgCol(selected);
-        drawAnimation();
-        genUndoState();
-    }
+        addUndoStep(new FrameBgColorStep(this, sheet->getFrameBgCol(), selected));
 }
 
 void MainWindow::on_sheetBgColSelect_clicked()
 {
-    QColor selected = colorSelect.getColor(sheetBgCol, this, "Select Sheet Background Color");
+    QColor selected = colorSelect.getColor(sheet->getBgCol(), this, "Select Sheet Background Color");
     if(selected.isValid())
-    {
-        sheetBgCol = selected;
-        QPixmap colIcon(32, 32);
-        colIcon.fill(sheetBgCol);
-        QIcon ic(colIcon);
-        ui->sheetBgColSelect->setIcon(ic);
-        genUndoState();
-        if(sheet)
-            sheet->setBgCol(selected);
-    }
+        addUndoStep(new SheetBgColorStep(this, sheet->getBgCol(), selected));
 }
 
-void MainWindow::on_FrameBgTransparent_toggled(bool checked)
+void MainWindow::on_frameBgTransparent_toggled(bool checked)
 {
-    if(bLoadMutex)
+    if(bUIMutex)
         return;
 
-    ui->frameBgColSelect->setEnabled(!checked);
-    drawAnimation();
-    genUndoState();
-    if(sheet)
-        sheet->setFrameBgTransparent(checked);
+    addUndoStep(new FrameBgTransparentStep(this, !checked, checked));
 }
 
-void MainWindow::on_SheetBgTransparent_toggled(bool checked)
+void MainWindow::on_sheetBgTransparent_toggled(bool checked)
 {
-    if(bLoadMutex)
+    if(bUIMutex)
         return;
 
-    ui->sheetBgColSelect->setEnabled(!checked);
-    if(sheet)
-        sheet->setBgTransparent(checked);
+    addUndoStep(new SheetBgTransparentStep(this, !checked, checked));
 }
 
 void MainWindow::on_balanceAnimButton_clicked()
@@ -1118,51 +1128,47 @@ void MainWindow::balance(int w, int h, BalancePos::Pos vert, BalancePos::Pos hor
     if(!sheet || !sheet->size())
         return;
 
-    Animation* anim = sheet->getAnimation(sheet->getCurSelected());
+    int curSelected = sheet->getCurSelected();
+    Animation* anim = sheet->getAnimation(curSelected);
     if(!anim)
         return;
 
-    anim->balance(QPoint(w,h), vert, horiz);
-    sheet->refresh();
-
-    drawAnimation();
-    genUndoState();
+    addUndoStep(new BalanceAnimStep(this, curSelected, w, h, vert, horiz));
 }
 
 void MainWindow::undo()
 {
-    if(undoList.size() > 1)
+    if(undoStack.size())
     {
-        setModified(true);
         //Save our redo point
-        QByteArray* ba = undoList.pop();
-        redoList.push(ba);
+        UndoStep* step = undoStack.pop();
+        redoStack.push(step);
 
         //Undo
-        cleanMemory();
-        ba = undoList.top();
-        QDataStream s(ba, QIODevice::ReadOnly);
-        loadFromStream(s);
+        bUIMutex = true;  //Don't bork on UI changes
+        step->undo();
+        bUIMutex = false;
 
         updateUndoRedoMenu();
+        updateWindowTitle();
     }
 }
 
 void MainWindow::redo()
 {
-    if(redoList.size())
+    if(redoStack.size())
     {
-        setModified(true);
-        //Save this back on our undo list (top of undo list is current state)
-        QByteArray* ba = redoList.pop();
-        undoList.push(ba);
+        //Save this back on our undo list
+        UndoStep* step = redoStack.pop();
+        undoStack.push(step);
 
         //Load this state
-        cleanMemory();
-        QDataStream s(ba, QIODevice::ReadOnly);
-        loadFromStream(s);
+        bUIMutex = true;  //Don't bork on UI changes
+        step->redo();
+        bUIMutex = false;
 
         updateUndoRedoMenu();
+        updateWindowTitle();
     }
 }
 
@@ -1196,7 +1202,7 @@ void MainWindow::saveSheet(QString filename)
 void MainWindow::loadSheet(QString openFilename)
 {
     //Don't overwrite changes when they create a new file
-    if(bFileModified)
+    if(isModified())
     {
         QMessageBox::StandardButton dialog;
         dialog = QMessageBox::warning(this, "Save Changes",
@@ -1206,7 +1212,7 @@ void MainWindow::loadSheet(QString openFilename)
         if(dialog == QMessageBox::Save)
         {
             saveFile();
-            if(bFileModified)   //If they still haven't saved...
+            if(isModified())   //If they still haven't saved...
                 return;
         }
         else if(dialog != QMessageBox::Discard)
@@ -1239,13 +1245,11 @@ void MainWindow::loadSheet(QString openFilename)
 
             QFileInfo fi(openFilename);
             sCurFilename = fi.fileName();
-            setModified(false);
-            updateWindowTitle();
-            lastSaveStr = openFilename;
             clearUndo();
             clearRedo();
-            pushUndo();
-            updateUndoRedoMenu();
+            setSaved();
+            updateWindowTitle();
+            lastSaveStr = openFilename;
         }
     }
 }
@@ -1262,7 +1266,7 @@ void MainWindow::saveToStream(QDataStream& s)
 
 void MainWindow::loadFromStream(QDataStream& s)
 {
-    bLoadMutex = true;
+    bUIMutex = true;
     //Grab sheet frames
     int major = MAJOR_VERSION;
     int minor = MINOR_VERSION;
@@ -1290,19 +1294,19 @@ void MainWindow::loadFromStream(QDataStream& s)
         for(int j = 0; j < numFrames; j++)
         {
             bool selected = false;
-            QImage* img = new QImage();
+            QImage img;
             QByteArray imgByteArray;
             s >> imgByteArray;
             QBuffer buffer(&imgByteArray);
             buffer.open(QIODevice::ReadOnly);
             if(major == 1 && minor < 2) //pre-v1.2 saved as TIFF
-                img->load(&buffer, "TIFF");
+                img.load(&buffer, "TIFF");
             else
             {
-                img->load(&buffer, "PNG");
+                img.load(&buffer, "PNG");
                 s >> selected;
             }
-            Frame* f = new Frame(msheetScene, img, frameBgCol, transparentBg, false);   //Will set framebgtransparent later
+            Frame* f = new Frame(msheetScene, img, sheet->getFrameBgCol(), transparentBg, false);   //Will set framebgtransparent later
             if(selected)
                 f->selectToggle();
             imgList.push_back(f);
@@ -1328,6 +1332,8 @@ void MainWindow::loadFromStream(QDataStream& s)
     }
 
     //Read other stuff
+    QColor frameBgCol;
+    QColor sheetBgCol;
     s >> sheetBgCol;
     s >> frameBgCol;
     QColor fontColor;
@@ -1336,8 +1342,8 @@ void MainWindow::loadFromStream(QDataStream& s)
 
     bool bSheetBg, bFrameBg;
     s >> bFrameBg >> bSheetBg;
-    ui->FrameBgTransparent->setChecked(bFrameBg);
-    ui->SheetBgTransparent->setChecked(bSheetBg);
+    ui->frameBgTransparent->setChecked(bFrameBg);
+    ui->sheetBgTransparent->setChecked(bSheetBg);
     ui->frameBgColSelect->setEnabled(!bFrameBg);
     ui->sheetBgColSelect->setEnabled(!bSheetBg);
 
@@ -1345,10 +1351,14 @@ void MainWindow::loadFromStream(QDataStream& s)
     s >> xSpacing >> ySpacing >> sheetWidth;
     ui->xSpacingBox->setValue(xSpacing);
     ui->ySpacingBox->setValue(ySpacing);
+    lastXSpacing = ui->xSpacingBox->value();
+    lastYSpacing = ui->ySpacingBox->value();
     //Set sheet spacing now
     sheet->setXSpacing(ui->xSpacingBox->value());
     sheet->setYSpacing(ui->ySpacingBox->value());
+    userEditingWidth = false;
     ui->sheetWidthBox->setValue(sheetWidth);
+    lastSheetW = ui->sheetWidthBox->value();
 
     QString sFontStr;
     QFont sheetFont;
@@ -1367,10 +1377,11 @@ void MainWindow::loadFromStream(QDataStream& s)
     //Done reading
 
     //Init sheet values
+    sheet->setNamesVisible(bNamesEnabled);
     sheet->setBgCol(sheetBgCol);
     sheet->setFrameBgCol(frameBgCol);
-    sheet->setBgTransparent(ui->SheetBgTransparent->isChecked());
-    sheet->setFrameBgTransparent(ui->FrameBgTransparent->isChecked());
+    sheet->setBgTransparent(ui->sheetBgTransparent->isChecked());
+    sheet->setFrameBgTransparent(ui->frameBgTransparent->isChecked());
     sheet->setFont(sheetFont);
     sheet->setFontColor(fontColor);
     sheet->setWidth(sheetWidth);
@@ -1383,22 +1394,13 @@ void MainWindow::loadFromStream(QDataStream& s)
 
     drawAnimation();
     updateSelectedAnim();
-    bLoadMutex = false;
+    bUIMutex = false;
 }
 
 void MainWindow::cleanMemory()
 {
     //Wipe sheet
     sheet->clear();
-
-    //    if(mCurSheet)
-    //        delete mCurSheet;
-    //    mCurSheet = NULL;
-
-    //    mSheetFrames.clear();
-    //    mCurAnim = mSheetFrames.begin();
-    //    mAnimNames.clear();
-    //    mCurAnimName = mAnimNames.begin();
 }
 
 void MainWindow::on_fontButton_clicked()
@@ -1406,128 +1408,125 @@ void MainWindow::on_fontButton_clicked()
     bool ok;
     QFont font = QFontDialog::getFont(&ok, sheet->getFont(), this);
     if(ok)
-    {
-        sheet->setFont(font);
-        genUndoState();
-    }
+        addUndoStep(new SheetFontStep(this, sheet->getFont(), font));
 }
 
 void MainWindow::updateWindowTitle()
 {
     QString sWindowStr;
     QTextStream sWindowTitle(&sWindowStr);
-    if(bFileModified)
+    bool b = isModified();
+    if(b)
         sWindowTitle << "*";
     sWindowTitle << sCurFilename;
     sWindowTitle << " - Sprite Sheeter v" << MAJOR_VERSION << "." << MINOR_VERSION;
     if(REV_VERSION)
         sWindowTitle << " r" << REV_VERSION;
     setWindowTitle(sWindowStr);
+    ui->saveButton->setEnabled(b);
+    ui->actionSave->setEnabled(b);
 }
 
-void MainWindow::genUndoState()
+void MainWindow::addUndoStep(UndoStep* step)
 {
-    if((!sheet || !sheet->size()) && sCurFilename == UNTITLED_IMAGE_STR && undoList.size() < 2)
+    //Don't apply step if it does nothing
+    if(!step->isDifferent())
     {
-        clearUndo();
-        pushUndo(); //Save this as our starting state
-        return;   //Don't generate undo states on empty sheet
+        delete step;
+        return;
     }
 
-    //Set the window title if this is the first the file has been modified
-    if(!bFileModified)
-    {
-        setModified(true);
-        updateWindowTitle();
-    }
+    bUIMutex = true;    //Don't infinitely recurse if this step causes UI changes
+    step->redo();   //Apply the step first
+    bUIMutex = false;
 
-    //Gen undo point
-    pushUndo();
+    undoStack.push(step);
 
     //Clear redo list
     clearRedo();
 
+    updateWindowTitle();
     updateUndoRedoMenu();
-}
-
-void MainWindow::pushUndo()
-{
-    QByteArray* baUndoPt = new QByteArray();
-    QDataStream s(baUndoPt, QIODevice::WriteOnly);
-    saveToStream(s);
-    undoList.push(baUndoPt);
 }
 
 void MainWindow::clearUndo()
 {
-    while(undoList.size())
+    while(undoStack.size())
     {
-        QByteArray* ba = undoList.pop();
-        delete ba;
+        UndoStep* st = undoStack.pop();
+        delete st;
     }
+    updateUndoRedoMenu();
 }
 
 void MainWindow::clearRedo()
 {
-    while(redoList.size())
+    while(redoStack.size())
     {
-        QByteArray* ba = redoList.pop();
-        delete ba;
+        UndoStep* st = redoStack.pop();
+        delete st;
     }
+    updateUndoRedoMenu();
 }
 
 void MainWindow::updateUndoRedoMenu()
 {
-    ui->actionRedo->setEnabled(redoList.size() > 0);
-    ui->actionUndo->setEnabled(undoList.size() > 1);
-    ui->redoButton->setEnabled(redoList.size() > 0);
-    ui->undoButton->setEnabled(undoList.size() > 1);
+    ui->actionRedo->setEnabled(redoStack.size() > 0);
+    ui->actionUndo->setEnabled(undoStack.size() > 0);
+    ui->redoButton->setEnabled(redoStack.size() > 0);
+    ui->undoButton->setEnabled(undoStack.size() > 0);
 }
 
 void MainWindow::on_xSpacingBox_editingFinished()
 {
-    if(ui->minWidthCheckbox->isChecked())
-        minimizeSheetWidth();
-    genUndoState();
+    if(bUIMutex)
+        return;
+
+    addUndoStep(new XSpacingStep(this, lastXSpacing, ui->xSpacingBox->value(), ui->sheetWidthBox->value()));
+
+    lastXSpacing = ui->xSpacingBox->value();
 }
 
 void MainWindow::on_ySpacingBox_editingFinished()
 {
-    genUndoState();
+    if(bUIMutex)
+        return;
+
+    addUndoStep(new YSpacingStep(this, lastYSpacing, ui->ySpacingBox->value()));
+    lastYSpacing = ui->ySpacingBox->value();
 }
 
 void MainWindow::on_sheetWidthBox_editingFinished()
 {
-    if(ui->minWidthCheckbox->isChecked())
-        minimizeSheetWidth();
-    sheet->updateSceneBounds();
-    genUndoState();
+    qDebug() << "Editing finished" << lastSheetW << wEditing;
+    //userEditingWidth = false;
+    //if(bUIMutex)
+    //    return;
+
+    addUndoStep(new SheetWidthStep(this, lastSheetW, wEditing));
+
+    lastSheetW = wEditing;
 }
 
 void MainWindow::on_animationNameEditor_editingFinished()
 {
-    genUndoState();
+    if(bUIMutex || !sheet->size())
+        return;
+
+    addUndoStep(new AnimNameStep(this, lastAnimName, ui->animationNameEditor->text(), sheet->getCurSelected()));
+    lastAnimName = ui->animationNameEditor->text();
 }
 
 void MainWindow::on_animNameEnabled_toggled(bool checked)
 {
-    if(checked)
-    {
-        ui->animationNameEditor->setEnabled(true);
-        ui->fontButton->setEnabled(true);
-        ui->fontColSelect->setEnabled(true);
-    }
-    else
-    {
-        ui->animationNameEditor->setEnabled(false);
-        ui->fontButton->setEnabled(false);
-        ui->fontColSelect->setEnabled(false);
-    }
-    genUndoState();
+    if(bUIMutex)
+        return;
+
+    addUndoStep(new NameVisibleStep(this, checked));
 }
 
 //See http://sourceforge.net/p/freeimage/discussion/36111/thread/ea987d97/ for discussion of FreeImage gif saving...
-void MainWindow::on_ExportAnimButton_clicked()
+void MainWindow::on_exportAnimButton_clicked()
 {
     if(!sheet || !sheet->size())
         return;
@@ -1561,14 +1560,14 @@ bool MainWindow::loadAnimatedGIF(QString sFilename)
     }
 
     //Grab all the frames and stick them in a Qt-friendly format
-    QVector<QImage*> frameList;
+    QVector<QImage> frameList;
     for(int i = 0; i < numFrames; i++)
     {
         FIBITMAP* frame = FreeImage_LockPage(bmp, i);
         FIBITMAP* frame32bit = FreeImage_ConvertTo32Bits(frame);
 
         QImage imgResult(FreeImage_GetBits(frame32bit), FreeImage_GetWidth(frame32bit), FreeImage_GetHeight(frame32bit), FreeImage_GetPitch(frame32bit), QImage::Format_ARGB32);
-        frameList.push_back(new QImage(imgResult.mirrored()));
+        frameList.push_back(imgResult.mirrored());
 
         FreeImage_Unload(frame32bit);   //Qt expects the memory to be available the whole time wut? Luckily, we have to mirror it anyway so it doesn't matter
         FreeImage_UnlockPage(bmp, frame, false);
@@ -1578,7 +1577,7 @@ bool MainWindow::loadAnimatedGIF(QString sFilename)
     insertAnimHelper(frameList, fileName);
     checkMinWidth();
     drawAnimation();
-    genUndoState();
+    //genUndoState();
 
     FreeImage_CloseMultiBitmap(bmp);
     return true;
@@ -1587,34 +1586,17 @@ bool MainWindow::loadAnimatedGIF(QString sFilename)
 void MainWindow::on_reverseAnimButton_clicked()
 {
     if(sheet->size())
-    {
-        Animation* anim = sheet->getAnimation(sheet->getCurSelected());
-        if(anim)
-        {
-            anim->reverse();
-            sheet->refresh();   //Tell sheet to recalculate positions
-
-            drawAnimation();
-            genUndoState();
-        }
-    }
-
+        addUndoStep(new ReverseAnimStep(this, sheet->getCurSelected()));
 }
 
 void MainWindow::on_removeDuplicateFramesButton_clicked()
 {
     if(sheet && sheet->size())
     {
-        Animation* anim = sheet->getAnimation(sheet->getCurSelected());
+        int curSelected = sheet->getCurSelected();
+        Animation* anim = sheet->getAnimation(curSelected);
         if(anim)
-        {
-            if(anim->removeDuplicateFrames())
-                sheet->refresh();
-
-            mAnimFrame = 0;
-            drawAnimation();
-            genUndoState();
-        }
+            addUndoStep(new RemoveDuplicateStep(this, curSelected));
     }
 }
 
@@ -1688,11 +1670,11 @@ void MainWindow::on_actionBatch_Processing_triggered()
         batchRenderer->offsetX = ui->xSpacingBox->value();
         batchRenderer->offsetY = ui->ySpacingBox->value();
         batchRenderer->animNameEnabled = ui->animNameEnabled->isChecked();
-        batchRenderer->sheetBgTransparent = ui->SheetBgTransparent->isChecked();
-        batchRenderer->sheetBgCol = sheetBgCol;
+        batchRenderer->sheetBgTransparent = ui->sheetBgTransparent->isChecked();
+        batchRenderer->sheetBgCol = sheet->getBgCol();
         batchRenderer->animHighlightCol = animHighlightCol;
-        batchRenderer->frameBgTransparent = ui->FrameBgTransparent->isChecked();
-        batchRenderer->frameBgCol = frameBgCol;
+        batchRenderer->frameBgTransparent = ui->frameBgTransparent->isChecked();
+        batchRenderer->frameBgCol = sheet->getFrameBgCol();
         batchRenderer->fontColor = sheet->getFontColor();
 
         QObject::connect(batchRenderer, SIGNAL(renderingStart(QString)), this, SLOT(startedBatchRender(QString)));
@@ -1737,10 +1719,10 @@ void MainWindow::setColorButtonIcons()
 {
     QPixmap colIcon(32, 32);
 
-    colIcon.fill(sheetBgCol);
+    colIcon.fill(sheet->getBgCol());
     ui->sheetBgColSelect->setIcon(QIcon(colIcon));
 
-    colIcon.fill(frameBgCol);
+    colIcon.fill(sheet->getFrameBgCol());
     ui->frameBgColSelect->setIcon(QIcon(colIcon));
 
     colIcon.fill(sheet->getFontColor());
@@ -1749,39 +1731,54 @@ void MainWindow::setColorButtonIcons()
 
 void MainWindow::on_minWidthCheckbox_toggled(bool checked)
 {
-    if(sheet && checked)
-        minimizeSheetWidth();
-    sheet->updateSceneBounds();
+    if(bUIMutex)
+        return;
+
+    addUndoStep(new MinimizeWidthCheckboxStep(this, !checked, checked, lastSheetW));
 }
 
 void MainWindow::minimizeSheetWidth()
 {
+    if(!sheet->size())
+        return;
+
     unsigned int width = sheet->getMinWidth();
+    userEditingWidth = false;
     ui->sheetWidthBox->setValue(width); //Updates width of sheet automatically
+    lastSheetW = width;
 }
 
 void MainWindow::deleteSelected()
 {
-    if(!sheet->size())
+    if(!sheet->size() || !sheet->hasSelectedFrames())
         return;
 
-    sheet->deleteSelected();
     curSelectedRect->setVisible(false); //In case we deleted a hovered frame
-    genUndoState();
     lastSelected = selected = NULL;
     curDragLine->setVisible(false); //If we're currently dragging, hide dragging line
-    drawAnimation();
-    updateSelectedAnim();
+
+    addUndoStep(new DeleteStep(this));
 }
 
-void MainWindow::setModified(bool b)
+void MainWindow::setSaved()
 {
-    bFileModified = b;
-    ui->saveButton->setEnabled(b);
-    ui->actionSave->setEnabled(b);
+    foreach(UndoStep* st, undoStack)
+        st->setSaved(false);
+
+    foreach(UndoStep* st, redoStack)
+        st->setSaved(false);
+
+    if(!undoStack.isEmpty())
+    {
+        UndoStep* s = undoStack.top();
+        s->setSaved(true);
+        bStackBottomSaved = false;
+    }
+    else
+        bStackBottomSaved = true;
 }
 
-QImage* MainWindow::loadImageFI(QString filename)
+QImage MainWindow::loadImageFI(QString filename)
 {
     std::string sFilename = filename.toStdString();
     FREE_IMAGE_FORMAT fif = FIF_UNKNOWN;
@@ -1801,7 +1798,7 @@ QImage* MainWindow::loadImageFI(QString filename)
     if(fif == FIF_UNKNOWN)
     {
         qDebug() << "Unknown image type for file " << filename << endl;
-        return NULL;
+        return QImage();
     }
 
     //check that the plugin has reading capabilities and load the file
@@ -1811,7 +1808,7 @@ QImage* MainWindow::loadImageFI(QString filename)
     if(!dib)
     {
         qDebug() << "Error loading image " << filename << endl;
-        return NULL;
+        return QImage();
     }
     //retrieve the image data
 
@@ -1831,11 +1828,11 @@ QImage* MainWindow::loadImageFI(QString filename)
     if((bits == NULL) || (width == 0) || (height == 0))
     {
         qDebug() << "Unable to lock bits" << endl;
-        return NULL;
+        return QImage();
     }
 
     QImage imgResult(bits, width, height, FreeImage_GetPitch(dib), QImage::Format_ARGB32);
-    QImage* ret = new QImage(imgResult.mirrored());    //Copy the image cause Qt is dumb with image memory
+    QImage ret = imgResult.mirrored();    //Copy the image cause Qt is dumb with image memory
     FreeImage_Unload(dib);
     return ret;
 }
@@ -1846,8 +1843,10 @@ void MainWindow::checkMinWidth()
     unsigned int minW = sheet->getSmallestPossibleWidth();
     if(curW < minW)
     {
+        userEditingWidth = false;
         ui->sheetWidthBox->setValue(minW);
         sheet->updateSceneBounds();
+        lastSheetW = ui->sheetWidthBox->value();
     }
 }
 
@@ -1865,7 +1864,15 @@ void MainWindow::updatePlayIcon()
     }
 }
 
-void MainWindow::updateSelectedAnim()
+bool MainWindow::isModified()
+{
+    if(undoStack.isEmpty())
+        return !bStackBottomSaved;
+
+    return !(undoStack.top()->isSaved());
+}
+
+void MainWindow::updateSelectedAnim(bool updateName)
 {
     QString animationName;
     int curAnim = sheet->getCurSelected();
@@ -1893,6 +1900,8 @@ void MainWindow::updateSelectedAnim()
         curSelectedAnimRect->setVisible(false);
     }
     ui->animationNameEditor->setText(animationName);
+    if(updateName)
+        lastAnimName = animationName;
 }
 
 void MainWindow::on_newButton_clicked()
@@ -1953,4 +1962,9 @@ void MainWindow::copy()
 void MainWindow::paste()
 {
     //TODO
+}
+
+void MainWindow::on_exportButton_clicked()
+{
+    saveFileAs();
 }

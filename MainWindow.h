@@ -12,6 +12,7 @@
 #include "Animation.h"
 #include "Sheet.h"
 #include "BalancePos.h"
+#include "undo/UndoStep.h"
 #include <QStack>
 #include <QTextStream>
 #include <QProgressDialog>
@@ -41,9 +42,17 @@ public:
     ~MainWindow();
 
     void keyPressEvent(QKeyEvent* e);
+    Ui::MainWindow* getUI() {return ui;}
+    Sheet* getSheet() {return sheet;}
+    void drawAnimation();
+    void updateSelectedAnim(bool updateName = true);
+    void minimizeSheetWidth();  //Minimize the sheet's width against the anim lines currently on it
+    int mAnimFrame;
+    bool userEditingWidth;
+    void checkMinWidth();   //Check the sheet's current width against the min possible width & update as needed
 
 signals:
-    bool setImportImg(QImage* image);
+    bool setImportImg(QImage image);
     void setBalanceDefWH(int w, int h);
     void setIconImage(QImage img);
 
@@ -87,8 +96,8 @@ private slots:
     void on_saveFrameButton_clicked();
     void on_frameBgColSelect_clicked();
     void on_sheetBgColSelect_clicked();
-    void on_FrameBgTransparent_toggled(bool checked);
-    void on_SheetBgTransparent_toggled(bool checked);
+    void on_frameBgTransparent_toggled(bool checked);
+    void on_sheetBgTransparent_toggled(bool checked);
     void on_balanceAnimButton_clicked();
     void on_fontButton_clicked();
     void on_xSpacingBox_editingFinished();
@@ -96,7 +105,7 @@ private slots:
     void on_sheetWidthBox_editingFinished();
     void on_animationNameEditor_editingFinished();
     void on_animNameEnabled_toggled(bool checked);
-    void on_ExportAnimButton_clicked();
+    void on_exportAnimButton_clicked();
     void on_reverseAnimButton_clicked();
     void on_removeDuplicateFramesButton_clicked();
     void on_actionAbout_triggered();
@@ -111,6 +120,7 @@ private slots:
     void on_pasteButton_clicked();
     void on_undoButton_clicked();
     void on_redoButton_clicked();
+    void on_exportButton_clicked();
 
 private:
     Ui::MainWindow*         ui;
@@ -133,8 +143,7 @@ private:
     QGraphicsItem* lastSelected;    //Last item that was clicked (persists after clicking stops)
     QGraphicsRectItem* curSelectedRect; //Rect for showing hovered anim frame
     QGraphicsLineItem* curDragLine;
-    QImage* mCurFrame;
-    int mAnimFrame;
+    QImage mCurFrame;
     QGraphicsRectItem* curSelectedAnimRect;
 
     //Variables for drawing the current sheet/animation
@@ -142,14 +151,16 @@ private:
     bool m_bSetDraggingCursor;
     QRect m_rLastDragHighlight;
     bool m_bLastDragInAnim;
-    QImage* transparentBg;
-    QColor sheetBgCol;
-    QColor frameBgCol;
+    QImage transparentBg;
     QColor animHighlightCol;
 
-    //TODO Replace with undo/redo classes
-    QStack<QByteArray*> undoList;
-    QStack<QByteArray*> redoList;
+    //Undo/redo variables
+    QStack<UndoStep*> undoStack;
+    QStack<UndoStep*> redoStack;
+    bool bStackBottomSaved;
+    int lastXSpacing, lastYSpacing, lastSheetW;
+    int wEditing;
+    QString lastAnimName;
 
     QString lastIconStr;
     QString lastOpenDir;
@@ -160,7 +171,6 @@ private:
     int curMouseX;
     int curMouseY;
 
-    bool bFileModified;
     QString sCurFilename;
 
     //Variables for dealing with the Qt draw engine
@@ -175,7 +185,7 @@ private:
     int mStartSheetW;
     int xStartDragSheetW;
     bool bDraggingSheetW;
-    bool bLoadMutex;
+    bool bUIMutex;
 
     QProgressDialog* progressBar;
 
@@ -184,17 +194,14 @@ private:
     void importImageList(QStringList& fileList, QString prepend = QString(""), QString animName = QString(""));
     void centerParent(QWidget* parent, QWidget* child);
 
-    void drawAnimation();
-
     void closeEvent(QCloseEvent *event);
     void loadSettings();
     void cleanMemory();
 
-    void insertAnimHelper(QVector<QImage*> imgList, QString name);  //TODO Remove
+    void insertAnimHelper(QVector<QImage> imgList, QString name);  //TODO Remove
 
     void updateWindowTitle();
-    void genUndoState();
-    void pushUndo();
+    void addUndoStep(UndoStep* step);
     void clearUndo();
     void clearRedo();
     void updateUndoRedoMenu();  //Update the menu icons to active/inactive as needed
@@ -212,14 +219,12 @@ private:
     QString getSaveFilename(const char* title);
     void saveSettings();
     void saveFile();
-    void minimizeSheetWidth();  //Minimize the sheet's width against the anim lines currently on it
     void deleteSelected();
-    void setModified(bool b);
-    QImage* loadImageFI(QString filename);  //Load a QImage using FreeImage, which generally loads images better
-    void checkMinWidth();   //Check the sheet's current width against the min possible width & update as needed
+    void setSaved();
+    QImage loadImageFI(QString filename);  //Load a QImage using FreeImage, which generally loads images better
     void updatePlayIcon();  //Update the icon for the anim play/pause button
-    void updateSelectedAnim();
 
+    bool isModified();  //If the current sheet is modified
 };
 
 #endif // MAINWINDOW_H

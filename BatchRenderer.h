@@ -15,7 +15,7 @@ class BatchRenderer : public QObject, public QRunnable
 
     QList<QList<QImage> > mSheetFrames;
     QStringList mAnimNames;
-    QImage* mCurSheet;
+    QImage mCurSheet;
     bool bStop;
 
 public:

@@ -18,5 +18,6 @@
         <file>images/save.png</file>
         <file>images/undo.png</file>
         <file>images/open.png</file>
+        <file>images/export.png</file>
     </qresource>
 </RCC>

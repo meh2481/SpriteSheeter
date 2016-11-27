@@ -33,28 +33,30 @@ class Animation : public QObject
     int curHeight;  //Last-calculated height for the animation
     QColor frameBgCol;
     bool frameBgTransparent;
-    QImage* transparentBg;
+    QImage transparentBg;
     unsigned int minWidth;  //Minimum width for this animation at the current width
     QString name;
     QGraphicsSimpleTextItem* label;
+    bool drawLabel;
+    bool frameBgVisible;
 
     unsigned int heightRecalc();    //Recalculate where each image is on in the sheet
     unsigned int widthOfImages();
 public:
-    explicit Animation(QImage* bg, QGraphicsScene* s, QObject *parent = 0);
+    explicit Animation(QImage bg, QGraphicsScene* s, QObject *parent = 0);
     ~Animation();
 
     //Insert an image at the end of the animation and hand over control of the memory
-    void insertImage(QImage* img);
+    void insertImage(QImage img);
 
     //Insert an image at the specified index and hand over control of the memory
-    void insertImage(QImage* img, unsigned int index);
+    void insertImage(QImage img, unsigned int index);
 
     //Insert a list of images at the end of the animation and hand over control of the memory
-    void insertImages(QVector<QImage*>& imgs);
+    void insertImages(QVector<QImage>& imgs);
 
     //Insert a list of images at the specified index and hand over control of the memory
-    void insertImages(QVector<QImage*>& imgs, unsigned int index);
+    void insertImages(QVector<QImage>& imgs, unsigned int index);
 
     //Remove the selected images from the given animation and add them to this one
     void addImages(QVector<Frame*>& imgs, unsigned int index);
@@ -87,9 +89,6 @@ public:
     //Reverse the animation
     void reverse();
 
-    //Remove duplicate frames from the current animation (return true if duplicates found/removed)
-    bool removeDuplicateFrames();
-
     //Get the largest width/height out of all animation frames
     QPoint getMaxFrameSize();
 
@@ -101,11 +100,12 @@ public:
     bool isInside(int x, int y);
 
     unsigned int getMinWidth() {return minWidth;}   //Get the minimum width for the current width
+
     unsigned int getSmallestImageWidth();           //Get the smallest possible width for this animation
 
     bool toggleSelect(QGraphicsItem* it); //Select the given item as a frame (return selected)
 
-    bool deleteSelected();  //Return true if now empty after deletion
+    bool toggleSelect(int pos);
 
     bool hasSelected(); //Return true if any frames in this animation are selected
 
@@ -123,18 +123,33 @@ public:
 
     QVector<Frame*>& getFrames() {return frames;}
 
+    QVector<Frame*>* getFramePtr() {return &frames;}
+
     void render(QPainter& painter);
 
     QString getName() {return name;}
+
     void setName(QString s);
 
     void setFont(QFont& f);
+
     void setFontColor(QColor c);
 
     void saveGIF(QString saveFilename, int animFPS);
 
     int getPosX() {return offsetX;}
+
     int getPosY() {return offsetY;}
+
+    void setNameVisible(bool b);
+
+    void clear();
+
+    Frame* getFrame(unsigned int index);
+
+    void removeFrame(int index);
+
+    void selectAll();
 
 signals:
 

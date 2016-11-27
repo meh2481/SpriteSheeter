@@ -5,7 +5,7 @@
 #include <QPainter>
 #include "FreeImage.h"
 
-Animation::Animation(QImage* bg, QGraphicsScene* s, QObject *parent) : QObject(parent)
+Animation::Animation(QImage bg, QGraphicsScene* s, QObject *parent) : QObject(parent)
 {
     offsetX = offsetY = 0;
     spacingX = spacingY = 0;
@@ -18,40 +18,44 @@ Animation::Animation(QImage* bg, QGraphicsScene* s, QObject *parent) : QObject(p
     scene = s;
     label = scene->addSimpleText(name);
     label->setZValue(5);    //Above errything
+    drawLabel = true;
+    frameBgVisible = true;
 }
 
 Animation::~Animation()
 {
-    foreach(Frame* f, frames)
-        delete f;
+    clear();
     scene->removeItem(label);
 }
 
-void Animation::insertImage(QImage* img)
+void Animation::insertImage(QImage img)
 {
     insertImage(img, frames.size());
 }
 
-void Animation::insertImage(QImage* img, unsigned int index)
+void Animation::insertImage(QImage img, unsigned int index)
 {
     if(index > (unsigned int)frames.size())
         index = frames.size();
 
     Frame* f = new Frame(scene, img, frameBgCol, transparentBg, frameBgTransparent);
+    f->setFrameBgCol(frameBgCol);
+    f->setFrameBgTransparent(frameBgTransparent);
+    f->setFrameBgVisible(frameBgVisible);
     frames.insert(index, f);
 
     heightRecalc();
 }
 
-void Animation::insertImages(QVector<QImage*>& imgs)
+void Animation::insertImages(QVector<QImage>& imgs)
 {
-    foreach(QImage* img, imgs)
+    foreach(QImage img, imgs)
         insertImage(img);
 }
 
-void Animation::insertImages(QVector<QImage*>& imgs, unsigned int index)
+void Animation::insertImages(QVector<QImage>& imgs, unsigned int index)
 {
-    foreach(QImage* img, imgs)
+    foreach(QImage img, imgs)
         insertImage(img, index++);
 }
 
@@ -94,7 +98,7 @@ unsigned int Animation::heightRecalc()
 {
     int curX = spacingX;
     int curY = spacingY;
-    if(!name.isEmpty())
+    if(!name.isEmpty() && drawLabel)
         curY += label->boundingRect().height() + spacingY;
     unsigned int tallestHeight = 0;
     minWidth = widthOfImages();
@@ -116,11 +120,8 @@ unsigned int Animation::heightRecalc()
             minWidth = curX;
     }
     curHeight = curY + tallestHeight;
-    if(!name.isEmpty())
-    {
-        //curHeight += label->boundingRect().height() + spacingY;
+    if(!name.isEmpty() && drawLabel)
         label->setPos(offsetX + spacingX, offsetY + spacingY);
-    }
     return curHeight;
 }
 
@@ -181,6 +182,7 @@ void Animation::setFrameBgTransparent(bool b)
 
 void Animation::setFrameBgVisible(bool b)
 {
+    frameBgVisible = b;
     foreach(Frame* f, frames)
         f->setFrameBgVisible(b);
 }
@@ -195,42 +197,6 @@ void Animation::reverse()
     foreach(Frame* f, newList)
         frames.prepend(f);
     heightRecalc();
-}
-
-bool Animation::removeDuplicateFrames()
-{
-    if(frames.size() < 2)
-        return false;
-
-    bool bFoundDuplicates = false;
-
-    for(int tester = 0; tester < frames.size(); tester++)
-    {
-        for(int testee = tester+1; testee < frames.size(); testee++)
-        {
-            Frame* testerItem = frames[tester];
-            Frame* testeeItem = frames[testee];
-            QImage* testerImg = testerItem->getImage();
-            QImage* testeeImg = testeeItem->getImage();
-
-            //Images of different size
-            if(testeeImg->width() != testerImg->width() || testeeImg->height() != testerImg->height())
-                continue;
-
-            //Images of different byte counts
-            if(testeeImg->byteCount() != testerImg->byteCount())
-                continue;
-
-            if(std::memcmp(testeeImg->bits(), testerImg->bits(), testeeImg->byteCount()) == 0)
-            {
-                bFoundDuplicates = true;
-                frames.removeAt(testee);
-                testee--;
-                delete testeeItem;   //Free image
-            }
-        }
-    }
-    return bFoundDuplicates;
 }
 
 QPoint Animation::getMaxFrameSize()
@@ -281,18 +247,11 @@ bool Animation::toggleSelect(QGraphicsItem* it)
     return false;
 }
 
-bool Animation::deleteSelected()
+bool Animation::toggleSelect(int pos)
 {
-    for(int i = frames.size()-1; i >= 0; i--)
-    {
-        if(frames.at(i)->isSelected())
-        {
-            Frame* f = frames.at(i);
-            frames.remove(i);
-            delete f;
-        }
-    }
-    return(!frames.size());
+    Frame* f = frames.at(pos);
+    f->selectToggle();
+    return f->isSelected();
 }
 
 bool Animation::hasSelected()
@@ -330,7 +289,7 @@ QLine Animation::getDragPos(int x, int y)
     //Position inside animation
     int curX = spacingX;
     int curY = spacingY;
-    if(!name.isEmpty())
+    if(!name.isEmpty() && drawLabel)
         curY += label->boundingRect().height() + spacingY;
     unsigned int tallestHeight = 0;
     for(int i = 0; i < frames.size(); i++)
@@ -404,7 +363,7 @@ int Animation::getDropPos(int x, int y)
     //Position inside animation
     int curX = spacingX;
     int curY = spacingY;
-    if(!name.isEmpty())
+    if(!name.isEmpty() && drawLabel)
         curY += label->boundingRect().height() + spacingY;
     unsigned int tallestHeight = 0;
     for(int i = 0; i < frames.size(); i++)
@@ -458,7 +417,7 @@ void Animation::deselectAll()
 void Animation::render(QPainter& painter)
 {
     //Render anim title
-    if(name.length())
+    if(!name.isEmpty() && drawLabel)
     {
         QPen orig = painter.pen();
         painter.setPen(QPen(label->brush().color()));
@@ -533,7 +492,7 @@ void Animation::saveGIF(QString saveFilename, int animFPS)
     foreach(Frame* f, frames)
     {
         //Create image and 256-color image
-        QImage imgTemp(*(f->getImage()));
+        QImage imgTemp(f->getImage());
         //Gotta get Qt image in proper format first
         imgTemp = imgTemp.convertToFormat(QImage::Format_ARGB32);
         QByteArray bytes((char*)imgTemp.bits(), imgTemp.byteCount());
@@ -577,4 +536,44 @@ void Animation::saveGIF(QString saveFilename, int animFPS)
 
     //Save final GIF
     FreeImage_CloseMultiBitmap(bmp, GIF_DEFAULT);
+}
+
+void Animation::setNameVisible(bool b)
+{
+    drawLabel = b;
+    label->setVisible(b);
+}
+
+void Animation::clear()
+{
+    foreach(Frame* f, frames)
+        delete f;
+    frames.clear();
+}
+
+Frame* Animation::getFrame(unsigned int index)
+{
+    if(index < (unsigned int)frames.size())
+        return frames.at(index);
+    if(frames.size())
+        return frames.at(frames.size()-1);
+    return NULL;
+}
+
+void Animation::removeFrame(int index)
+{
+    if(index < 0 || index > frames.size() - 1)
+        return;
+
+    delete frames.at(index);
+    frames.remove(index);
+}
+
+void Animation::selectAll()
+{
+    foreach(Frame* f, frames)
+    {
+        if(!f->isSelected())
+            f->selectToggle();
+    }
 }

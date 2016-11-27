@@ -446,6 +446,20 @@
               </property>
              </widget>
             </item>
+            <item>
+             <widget class="QPushButton" name="exportButton">
+              <property name="toolTip">
+               <string>Export this sheet as an image</string>
+              </property>
+              <property name="text">
+               <string>Export</string>
+              </property>
+              <property name="icon">
+               <iconset resource="spritesheetertest1.qrc">
+                <normaloff>:/images/export.png</normaloff>:/images/export.png</iconset>
+              </property>
+             </widget>
+            </item>
            </layout>
           </item>
          </layout>
@@ -735,7 +749,7 @@
              </widget>
             </item>
             <item>
-             <widget class="QPushButton" name="ExportAnimButton">
+             <widget class="QPushButton" name="exportAnimButton">
               <property name="toolTip">
                <string>Export the currently selected animation as a GIF image (Note: May degrade quality)</string>
               </property>
@@ -824,7 +838,7 @@
                </widget>
               </item>
               <item>
-               <widget class="QCheckBox" name="FrameBgTransparent">
+               <widget class="QCheckBox" name="frameBgTransparent">
                 <property name="toolTip">
                  <string>Toggle animation frame transparency</string>
                 </property>
@@ -881,7 +895,7 @@
                </widget>
               </item>
               <item>
-               <widget class="QCheckBox" name="SheetBgTransparent">
+               <widget class="QCheckBox" name="sheetBgTransparent">
                 <property name="toolTip">
                  <string>Toggle sheet background transparency</string>
                 </property>

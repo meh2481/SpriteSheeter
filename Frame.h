@@ -18,26 +18,27 @@ class Frame
     QGraphicsPixmapItem* item;
     QGraphicsRectItem* bg;
     QGraphicsRectItem* fg;
-    QImage* img;
+    QImage img;
     bool selected;
     int x, y;
     bool bgTransparent;
+    bool bVisible;
     QColor frameBgCol;
-    QImage* transparentBg;
+    QImage transparentBg;
 
 public:
-    Frame(QGraphicsScene* s, QImage* i, QColor bgCol, QImage* tBg, bool frameBgTransparent);
+    Frame(QGraphicsScene* s, QImage i, QColor bgCol, QImage tBg, bool frameBgTransparent);
     ~Frame();
 
     void setPosition(int xPos, int yPos);
 
-    int getWidth() {return img->width();}
-    int getHeight() {return img->height();}
+    int getWidth() {return img.width();}
+    int getHeight() {return img.height();}
 
     void setFrameBgCol(QColor c);
 
     void resize(int w, int h, BalancePos::Pos vert, BalancePos::Pos horiz);
-    QImage* getImage() {return img;}
+    QImage getImage() {return img;}
 
     void setFrameBgVisible(bool b);
 
@@ -50,6 +51,8 @@ public:
     bool isSelected() {return selected;}
 
     void render(QPainter& painter);
+
+    Frame* copy();
 };
 
 #endif // FRAME_H

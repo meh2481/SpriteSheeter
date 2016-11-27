@@ -31,17 +31,17 @@ class Sheet : public QObject
     QColor frameBgCol;
     bool sheetBgTransparent;
     bool frameBgTransparent;
-    QImage* transparentBg;
+    QImage transparentBg;
     unsigned int xSpacing, ySpacing, dragRectWidth;
     SheetEditorView* sheetPreview;
     QFont font;
     QColor fontColor;
     int curSelectedAnim;
+    bool animNamesVisible;
 
     void updateAnimBg();
-    void deleteEmpty(); //Delete empty animations
 public:
-    explicit Sheet(QGraphicsScene* s, SheetEditorView* sheetView, QImage* bg, unsigned int dragW, QObject *parent = 0);
+    explicit Sheet(QGraphicsScene* s, SheetEditorView* sheetView, QImage bg, unsigned int dragW, QObject *parent = 0);
     ~Sheet();
 
     void addAnimation(Animation* anim);
@@ -49,23 +49,29 @@ public:
 
     void setWidth(unsigned int w);
     void setBgCol(QColor c);
+    QColor getBgCol() {return sheetBgCol;}
     void setFrameBgCol(QColor c);
+    QColor getFrameBgCol() {return frameBgCol;}
     void setBgTransparent(bool b);
     void setFrameBgTransparent(bool b);
 
     void setXSpacing(unsigned int x);
     void setYSpacing(unsigned int y);
 
+    QGraphicsScene* getScene() {return scene;}
+    QImage getTransparentBg() {return transparentBg;}
+
     unsigned int getWidth() {return width;}
     unsigned int getHeight() {return curHeight;}
     void updateSceneBounds();
     unsigned int size() {return animations.size();}
     Animation* getAnimation(unsigned int index);   //Return NULL or the current animation
-    void refresh(){setWidth(width);updateSceneBounds();} //Recalculate sheet
+    QVector<Animation*>* getAnimationPtr() {return &animations;}
+    int getOver(int x, int y);  //Get animation this xy position is over
+    void refresh(){setWidth(width);selectAnimation(curSelectedAnim);updateSceneBounds();} //Recalculate sheet
     unsigned int getMinWidth(); //Get the minimum width for the current width
     unsigned int getSmallestPossibleWidth();    //Get the smallest possible width for this sheet (width of largest animation frame image)
     bool clicked(int x, int y, QGraphicsItem* it);
-    void deleteSelected();  //Delete currently selected frames/animations
     bool hasSelectedFrames();     //Return true if there are selected frames in this sheet
     bool selected(QGraphicsItem* it);   //Return true if this item is selected
     void selectLine(QGraphicsItem* from, QGraphicsItem* to);
@@ -82,7 +88,12 @@ public:
     QColor getFontColor() {return fontColor;}
     int getSelected(int x, int y);
     void selectAnimation(int selected);
-    int getCurSelected() {return curSelectedAnim;}
+    int getCurSelected();
+    void setNamesVisible(bool b);
+    bool areNamesVisible() {return animNamesVisible;}
+    QVector<int> deleteEmpty(); //Delete empty animations
+    void removeAnimation(int idx);
+    void selectAll();
 
 signals:
 
