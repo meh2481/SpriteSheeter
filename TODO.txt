@@ -1,12 +1,9 @@
-Feature undoRedo:
--Drag/drop to beginning and end of sheet don't save anim locations properly
--Drag/drop and delete undo/redo should deselect all other frames
-
 Release 1.2:
--Save/Save As should deal in .sheet format, PNG/etc should be Export
-	-This way, users aren't misled into thinking they can re-open PNG images and such
+-Drag/drop to beginning and end of sheet don't save anim locations properly
 
 UI Design Stories:
+-Save/Save As should deal in .sheet format, PNG/etc should be Export
+	-This way, users aren't misled into thinking they can re-open PNG images and such
 -Re-add up/down select while editing animation names?
 -Drag-and-drop should support .sheet file format
 	-Import sheet also support .sheet format. That way we can add frames from another .sheet to this one

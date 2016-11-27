@@ -1956,3 +1956,8 @@ void MainWindow::paste()
 {
     //TODO
 }
+
+void MainWindow::on_exportButton_clicked()
+{
+    saveFileAs();
+}

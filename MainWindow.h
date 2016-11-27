@@ -120,6 +120,7 @@ private slots:
     void on_pasteButton_clicked();
     void on_undoButton_clicked();
     void on_redoButton_clicked();
+    void on_exportButton_clicked();
 
 private:
     Ui::MainWindow*         ui;

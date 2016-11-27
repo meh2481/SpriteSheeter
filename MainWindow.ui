@@ -446,6 +446,17 @@
               </property>
              </widget>
             </item>
+            <item>
+             <widget class="QPushButton" name="exportButton">
+              <property name="text">
+               <string>Export</string>
+              </property>
+              <property name="icon">
+               <iconset resource="spritesheetertest1.qrc">
+                <normaloff>:/images/export.png</normaloff>:/images/export.png</iconset>
+              </property>
+             </widget>
+            </item>
            </layout>
           </item>
          </layout>
