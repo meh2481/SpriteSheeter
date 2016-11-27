@@ -30,6 +30,7 @@ void DeleteStep::undo()
 {
     Sheet* sheet = mainWindow->getSheet();
     Ui::MainWindow* ui = mainWindow->getUI();
+    sheet->deselectAll();
 
     //Add back animations
     for(int i = deletedAnimations.size() - 1; i >= 0; i--)
@@ -65,6 +66,7 @@ void DeleteStep::redo()
     clear();
     Ui::MainWindow* ui = mainWindow->getUI();
     Sheet* sheet = mainWindow->getSheet();
+    sheet->deselectAll();
 
     deleteSelected();
     sheet->refresh();

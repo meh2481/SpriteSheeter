@@ -20,6 +20,7 @@ DragDropStep::~DragDropStep()
 void DragDropStep::undo()
 {
     Sheet* sheet = mainWindow->getSheet();
+    sheet->deselectAll();
     //See if we created a new anim
     if(animCreated >= 0)
         sheet->removeAnimation(animCreated);
@@ -47,8 +48,7 @@ void DragDropStep::undo()
         FrameLoc fl = movedFrames.at(j);
         Animation* a = sheet->getAnimation(fl.anim);
         a->insertImage(fl.img, fl.frame);
-        if(fl.selected)
-            a->getFrame(fl.frame)->selectToggle();
+        a->getFrame(fl.frame)->selectToggle();
     }
     //Recalculate sheet positions
     sheet->refresh();
@@ -75,6 +75,8 @@ void DragDropStep::redo()
             movedFrames.append(f);
         curAnim++;
     }
+
+    sheet->deselectAll();
 
     //Figure out what to do with them
     if(newDropLocation >= 0)                   //Add to this anim
@@ -133,7 +135,6 @@ QVector<DragDropStep::FrameLoc> DragDropStep::pullSelected(Animation* anim, int*
             fl.anim = curAnim;
             fl.frame = iter;
             fl.img = f->getImage();
-            fl.selected = f->isSelected();
             imgList.append(fl);
             frames->remove(iter);
             iter--;
@@ -158,8 +159,7 @@ void DragDropStep::selectFrames(Animation* anim, int loc, int count)
     for(int i = 0; i < count; i++)
     {
         int animLoc = i + loc;
-        if(movedFrames.at(i).selected)
-            anim->getFrame(animLoc)->selectToggle();
+        anim->getFrame(animLoc)->selectToggle();
     }
 }
 

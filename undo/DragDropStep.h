@@ -14,7 +14,6 @@ class DragDropStep : public UndoStep
         QImage img;
         int anim;
         int frame;
-        bool selected;
     };
 
     int animOverIdx;
