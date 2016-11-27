@@ -15,9 +15,11 @@ Release 1.2:
 UI Design Stories:
 -Save/Save As should deal in .sheet format, PNG/etc should be Export
 	-This way, users aren't misled into thinking they can re-open PNG images and such
+-Drag-and-drop should support .sheet file format
+	-Import sheet also support .sheet format. That way we can add frames from another .sheet to this one
 -Bug: Animation preview doesn't reset when selecting new anim in sheet view
 -Disable delete button if nothing selected
--Loading .sheet files should use loading mouse cursor (noticable when large files)
+-Loading .sheet files should use loading mouse cursor (noticable when loading large files)
 -Ctrl-A should select all
 -Rework frame movement/editing:
 	-Click-drag in box to select multiple frames
@@ -29,15 +31,15 @@ UI Design Stories:
 	-Paste disabled if nothing in clipboard
 -Add support to autocrop frames in an animation to remove whitespace (while maintaining balance)
 -Different highlight box around last-selected frame for shift-click
-Odd scrollbars with empty sheets sometimes. Sheet view also lets you zoom in on empty sheet.
+-Odd scrollbars with empty sheets sometimes. Sheet view also lets you zoom in on empty sheet.
 
 Technical Stories:
--Only gen undo states if sheet wasn't empty at beginning?
--Rather than specifying image types manually, remove filter entirely or add ALL actual file types we support to filter
--Commandline argument support - Can associate .sheet with program
+-Only gen undo states if sheet wasn't empty at beginning? -- First attempt found that this wasn't straightforward; recommend closer look
+-Rather than specifying image types manually, remove load filter entirely?
+-Commandline argument support - That way we can associate .sheet with program
 -Installer for ease of use / file association?
 -Pull out functionality from sheet width & other slots; pull out into other functions that can be called elsewhere
--Odd visual bugs when resizing sheets sometimes
+-Odd visual bugs when resizing sheets sometimes -- probably a Qt bug/not worth looking into
 
 User stories:
 -Test balance/resize; reports of crashing (Possibly related to undo/redo memory cap? Research)
@@ -53,7 +55,6 @@ User stories:
 	-Might be a non-issue if moving animations as a whole? Should blank animations be allowed?
 -Perhaps display sheet height?
 	-Revisit workflow of optimal width/height vs. user-specified
--Offset frames by a few pixels l/r/u/d; not to be confused with moving frames around in an animation (Current workaround: use the balance animation button)
--Drag-and-drop should support .sheet file format
+-Offset frames by a few pixels l/r/u/d; not to be confused with moving frames around in an animation (Current workaround: balance animation twice)
 -Create user guide? At the very least, a FAQ may help since e.g. the Balance Animation button isn't well understood
 -Auto-check for updates?
