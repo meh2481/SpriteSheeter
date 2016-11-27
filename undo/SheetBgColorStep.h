@@ -11,7 +11,7 @@ public:
 
     void undo();
     void redo();
-
+    bool isDifferent() {return origColor != newColor;}
 };
 
 #endif // SHEETBGCOLORSTEP_H

@@ -17,6 +17,7 @@ public:
 
     void undo();
     void redo();
+    bool isDifferent() {return (toAdd.size() > 0);}
 };
 
 #endif // ADDIMAGESSTEP_H

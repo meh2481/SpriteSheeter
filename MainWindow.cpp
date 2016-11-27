@@ -1392,9 +1392,17 @@ void MainWindow::updateWindowTitle()
 
 void MainWindow::addUndoStep(UndoStep* step)
 {
+    //Don't apply step if it does nothing
+    if(!step->isDifferent())
+    {
+        delete step;
+        return;
+    }
+
     bUIMutex = true;    //Don't infinitely recurse if this step causes UI changes
     step->redo();   //Apply the step first
     bUIMutex = false;
+
     undoStack.push(step);
 
     //Clear redo list

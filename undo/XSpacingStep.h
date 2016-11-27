@@ -11,6 +11,7 @@ public:
 
     void undo();
     void redo();
+    bool isDifferent() {return prevX != curX;}
 };
 
 #endif // XSPACINGSTEP_H

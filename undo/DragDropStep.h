@@ -34,6 +34,7 @@ public:
 
     void undo();
     void redo();
+    bool isDifferent() {return true;}   //Prolly can check this manually
 };
 
 #endif // DRAGDROPSTEP_H

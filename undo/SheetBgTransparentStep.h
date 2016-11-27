@@ -11,6 +11,7 @@ public:
 
     void undo();
     void redo();
+    bool isDifferent() {return previousTransparent != newTransparent;}
 };
 
 #endif // SHEETBGTRANSPARENTSTEP_H

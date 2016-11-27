@@ -29,6 +29,7 @@ public:
 
     void undo();
     void redo();
+    bool isDifferent();
 };
 
 #endif // DELETESTEP_H

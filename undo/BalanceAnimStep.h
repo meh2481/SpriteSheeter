@@ -17,6 +17,7 @@ public:
 
     void undo();
     void redo();
+    bool isDifferent() {return true;}   //Prolly can check this manually but whatever
 };
 
 #endif // BALANCEANIMSTEP_H

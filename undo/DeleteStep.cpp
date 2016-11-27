@@ -70,6 +70,11 @@ void DeleteStep::redo()
     mainWindow->updateSelectedAnim();
 }
 
+bool DeleteStep::isDifferent()
+{
+    return mainWindow->getSheet()->hasSelectedFrames();
+}
+
 void DeleteStep::clear()
 {
     foreach(DeleteLoc dl, deletedFrames)

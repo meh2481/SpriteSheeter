@@ -21,6 +21,7 @@ public:
 
     void undo();
     void redo();
+    bool isDifferent() {return true;}   //Could calculate, but not really worth
 };
 
 #endif // REMOVEDUPLICATESTEP_H

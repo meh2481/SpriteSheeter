@@ -10,6 +10,7 @@ public:
 
     void undo();
     void redo();
+    bool isDifferent();
 };
 
 #endif // REVERSEANIMSTEP_H

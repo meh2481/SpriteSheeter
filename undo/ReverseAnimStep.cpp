@@ -23,3 +23,11 @@ void ReverseAnimStep::redo()
         mainWindow->updateSelectedAnim();
     }
 }
+
+bool ReverseAnimStep::isDifferent()
+{
+    Animation* a = mainWindow->getSheet()->getAnimation(anim);
+    if(a)
+        return (a->getFramePtr()->size() > 1);
+    return false;
+}

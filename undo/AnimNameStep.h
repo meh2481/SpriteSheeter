@@ -12,6 +12,7 @@ public:
 
     void undo();
     void redo();
+    bool isDifferent() {return prev != cur;}
 };
 
 #endif // ANIMNAMESTEP_H

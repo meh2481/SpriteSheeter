@@ -10,6 +10,7 @@ public:
 
     void undo();
     void redo();
+    bool isDifferent() {return prev != next;}
 };
 
 #endif // SHEETWIDTHSTEP_H
