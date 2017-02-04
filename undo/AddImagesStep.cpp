@@ -6,7 +6,9 @@ AddImagesStep::AddImagesStep(MainWindow* w, QVector<QImage> images, QString name
 {
     toAdd = images;
     animName = name;
-    insertPos = w->getSheet()->getCurSelected();
+    insertPos = w->getSheet()->getCurSelected()+1;
+    if(w->getSheet()->size() == 0)
+        insertPos = 0;
     prevW = w->getUI()->sheetWidthBox->value();
 }
 

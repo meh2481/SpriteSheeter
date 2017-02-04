@@ -28,8 +28,8 @@ Sheet::~Sheet()
 
 void Sheet::addAnimation(Animation* anim, unsigned int index)
 {
-    if(index > (unsigned int)animations.size())
-        index = animations.size();
+    if(index > (unsigned int)animations.size()+1)
+        index = animations.size()+1;
     animations.insert(index, anim);
     anim->setSpacing(xSpacing, ySpacing);
     anim->setFrameBgCol(frameBgCol);
