@@ -55,8 +55,6 @@ MainWindow::MainWindow(QWidget *parent) :
     mRecentDocuments = new RecentDocuments(this);
     mRecentDocuments->init(ui->menuFile, ui->actionQuit);
 
-    ui->animStopButton->setVisible(false);
-
     //TODO Implement cut/copy/paste
     ui->cutCopyPasteSeparator->setVisible(false);
     ui->cutButton->setVisible(false);

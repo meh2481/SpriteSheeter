@@ -71,7 +71,7 @@
               <normaloff>:/images/new.png</normaloff>:/images/new.png</iconset>
             </property>
             <property name="flat">
-             <bool>true</bool>
+             <bool>false</bool>
             </property>
            </widget>
           </item>
@@ -88,7 +88,7 @@
               <normaloff>:/images/open.png</normaloff>:/images/open.png</iconset>
             </property>
             <property name="flat">
-             <bool>true</bool>
+             <bool>false</bool>
             </property>
            </widget>
           </item>
@@ -105,7 +105,7 @@
               <normaloff>:/images/save.png</normaloff>:/images/save.png</iconset>
             </property>
             <property name="flat">
-             <bool>true</bool>
+             <bool>false</bool>
             </property>
            </widget>
           </item>
@@ -141,7 +141,7 @@
               <normaloff>:/images/cut.png</normaloff>:/images/cut.png</iconset>
             </property>
             <property name="flat">
-             <bool>true</bool>
+             <bool>false</bool>
             </property>
            </widget>
           </item>
@@ -161,7 +161,7 @@
               <normaloff>:/images/copy.png</normaloff>:/images/copy.png</iconset>
             </property>
             <property name="flat">
-             <bool>true</bool>
+             <bool>false</bool>
             </property>
            </widget>
           </item>
@@ -181,7 +181,7 @@
               <normaloff>:/images/paste.png</normaloff>:/images/paste.png</iconset>
             </property>
             <property name="flat">
-             <bool>true</bool>
+             <bool>false</bool>
             </property>
            </widget>
           </item>
@@ -211,7 +211,7 @@
               <normaloff>:/images/undo.png</normaloff>:/images/undo.png</iconset>
             </property>
             <property name="flat">
-             <bool>true</bool>
+             <bool>false</bool>
             </property>
            </widget>
           </item>
@@ -228,7 +228,7 @@
               <normaloff>:/images/redo.png</normaloff>:/images/redo.png</iconset>
             </property>
             <property name="flat">
-             <bool>true</bool>
+             <bool>false</bool>
             </property>
            </widget>
           </item>
@@ -258,10 +258,10 @@
               <normaloff>:/images/minus-2-256.png</normaloff>:/images/minus-2-256.png</iconset>
             </property>
             <property name="default">
-             <bool>true</bool>
+             <bool>false</bool>
             </property>
             <property name="flat">
-             <bool>true</bool>
+             <bool>false</bool>
             </property>
            </widget>
           </item>
