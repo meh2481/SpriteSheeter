@@ -43,6 +43,7 @@ MainWindow::MainWindow(QWidget *parent) :
     ui(new Ui::MainWindow)
 {
     sheet = NULL;
+    animationWrap = WRAP;
 
     //Create UI, removing help icons as needed
     ui->setupUi(this);
@@ -595,8 +596,44 @@ void MainWindow::animUpdate()
         QVector<Frame*> frames = anim->getFrames();
         if(frames.size())
         {
-            mAnimFrame++;
-            if(mAnimFrame > frames.size()-1)
+            if(frames.size() > 1)
+            {
+                if(animationWrap != PINGPONG_BACK)
+                    mAnimFrame++;
+                else
+                {
+                    if(!mAnimFrame)
+                    {
+                        animationWrap = PINGPONG;
+                        mAnimFrame++;
+                    }
+                    else
+                        mAnimFrame--;
+                }
+
+                if(mAnimFrame > frames.size()-1)
+                {
+                    switch(animationWrap)
+                    {
+                        case WRAP:
+                        default:
+                            mAnimFrame = 0;
+                            break;
+
+                        case PINGPONG:
+                            mAnimFrame = frames.size()-2;
+                            animationWrap = PINGPONG_BACK;
+                            break;
+
+                        case STOP:
+                            on_animStopButton_clicked();
+                            mAnimFrame = frames.size()-1;   //Reset to last frame
+                            break;
+                    }
+
+                }
+            }
+            else
                 mAnimFrame = 0;
         }
     }
@@ -1970,4 +2007,25 @@ void MainWindow::paste()
 void MainWindow::on_exportButton_clicked()
 {
     saveFileAs();
+}
+
+void MainWindow::on_radioButton_wrap_toggled(bool checked)
+{
+    if(checked)
+        animationWrap = WRAP;
+    qDebug() << "wrap " << checked;
+}
+
+void MainWindow::on_radioButton_pingPong_toggled(bool checked)
+{
+    if(checked)
+        animationWrap = PINGPONG;
+    qDebug() << "ping pong " << checked;
+}
+
+void MainWindow::on_radioButton_stop_toggled(bool checked)
+{
+    if(checked)
+        animationWrap = STOP;
+    qDebug() << "stop " << checked;
 }

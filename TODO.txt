@@ -1,5 +1,4 @@
 Fix sheet not loading with load sheet properly for some reason
-Add back stop button
 Sort/reorder animations easier/keep names
 Select anim should update frame count/cur frame
 Add pingpong/play once anim

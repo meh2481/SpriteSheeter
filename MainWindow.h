@@ -27,6 +27,13 @@
 
 #define UNTITLED_IMAGE_STR "Untitled"
 
+enum WrapType {
+    WRAP,
+    PINGPONG,
+    PINGPONG_BACK,
+    STOP
+};
+
 class ZoomableGraphicsView;
 
 namespace Ui {
@@ -121,6 +128,9 @@ private slots:
     void on_undoButton_clicked();
     void on_redoButton_clicked();
     void on_exportButton_clicked();
+    void on_radioButton_wrap_toggled(bool checked);
+    void on_radioButton_pingPong_toggled(bool checked);
+    void on_radioButton_stop_toggled(bool checked);
 
 private:
     Ui::MainWindow*         ui;
@@ -137,6 +147,7 @@ private:
 
     //Animation variables
     Sheet* sheet;
+    WrapType animationWrap;
 
     QGraphicsItem* clicked; //Last scene item the user clicked on
     QGraphicsItem* selected; //Last scene item the user clicked on that was currently selected
