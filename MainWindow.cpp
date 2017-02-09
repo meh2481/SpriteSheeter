@@ -657,9 +657,20 @@ void MainWindow::on_animPlayButton_clicked()
         animUpdateTimer->start(iInterval);
     }
     else
-    {
         animUpdateTimer->stop();
+
+    //Set to first frame if we're on stop anim playback on last frame
+    if(animationWrap == STOP && sheet->size())
+    {
+        Animation* anim = sheet->getAnimation(sheet->getCurSelected());
+        QVector<Frame*> frames = anim->getFrames();
+        if(mAnimFrame >= frames.size()-1)
+        {
+            mAnimFrame = 0;
+            drawAnimation();
+        }
     }
+
     updatePlayIcon();
 }
 
@@ -2023,19 +2034,16 @@ void MainWindow::on_radioButton_wrap_toggled(bool checked)
 {
     if(checked)
         animationWrap = WRAP;
-    qDebug() << "wrap " << checked;
 }
 
 void MainWindow::on_radioButton_pingPong_toggled(bool checked)
 {
     if(checked)
         animationWrap = PINGPONG;
-    qDebug() << "ping pong " << checked;
 }
 
 void MainWindow::on_radioButton_stop_toggled(bool checked)
 {
     if(checked)
         animationWrap = STOP;
-    qDebug() << "stop " << checked;
 }
