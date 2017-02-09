@@ -946,6 +946,10 @@ void MainWindow::saveSettings()
     settings.setValue("major", MAJOR_VERSION);
     settings.setValue("minor", MINOR_VERSION);
     settings.setValue("rev", REV_VERSION);
+    WrapType saveType = animationWrap;
+    if(saveType == PINGPONG_BACK)
+        saveType = PINGPONG;
+    settings.setValue("animationWrap", (uint)saveType);
     //settings.setValue("", );
 }
 
@@ -995,6 +999,8 @@ void MainWindow::loadSettings()
         ui->animNameEnabled->setChecked(settings.value("animNames").toBool());
     if(settings.value("lastGIFStr").isValid())
         lastGIFStr = settings.value("lastGIFStr").toString();
+    if(settings.value("animationWrap").isValid())
+        animationWrap = (WrapType)settings.value("animationWrap").toUInt();
 
     //Done reading settings; init program state
 
@@ -1003,6 +1009,10 @@ void MainWindow::loadSettings()
 
     ui->frameBgColSelect->setEnabled(!ui->frameBgTransparent->isChecked());
     ui->sheetBgColSelect->setEnabled(!ui->sheetBgTransparent->isChecked());
+
+    ui->radioButton_pingPong->setChecked(animationWrap == PINGPONG);
+    ui->radioButton_stop->setChecked(animationWrap == STOP);
+    ui->radioButton_wrap->setChecked(animationWrap == WRAP);
 
     //Init sheet values
     if(sheet)

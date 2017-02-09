@@ -1,7 +1,6 @@
 Fix sheet not loading with load sheet properly for some reason
 Sort/reorder animations easier/keep names
 Select anim should update frame count/cur frame
-Add pingpong/play once anim
 
 UI Design Stories:
 -Keep anim name when dragging one anim
