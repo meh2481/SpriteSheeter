@@ -66,8 +66,8 @@ MainWindow::MainWindow(QWidget *parent) :
     ui->actionPaste->setVisible(false);
 
     //Connect all our signals & slots up
-    QObject::connect(mImportWindow, SIGNAL(importOK(int, int, bool, bool)), this, SLOT(importNext(int, int, bool, bool)));
-    QObject::connect(mImportWindow, SIGNAL(importAll(int, int, bool, bool)), this, SLOT(importAll(int, int, bool, bool)));
+    QObject::connect(mImportWindow, SIGNAL(importOK(QImage, int, int, bool, bool)), this, SLOT(importNext(QImage, int, int, bool, bool)));
+    QObject::connect(mImportWindow, SIGNAL(importAll(QImage, int, int, bool, bool)), this, SLOT(importAll(QImage, int, int, bool, bool)));
     QObject::connect(this, SIGNAL(setImportImg(QImage)), mImportWindow, SLOT(setPreviewImage(QImage)));
     QObject::connect(ui->sheetPreview, SIGNAL(mouseMoved(int,int)), this, SLOT(mouseCursorPos(int, int)));
     QObject::connect(ui->sheetPreview, SIGNAL(mousePressed(int,int)), this, SLOT(mouseDown(int, int)));
@@ -282,15 +282,15 @@ void MainWindow::on_openStripButton_clicked()
     }
 }
 
-void MainWindow::importNext(int numx, int numy, bool bVert, bool bSplit)
+void MainWindow::importNext(QImage img, int numx, int numy, bool bVert, bool bSplit)
 {
-    importImageAsSheet(curImportImage, numx, numy, bVert, bSplit);
+    importImageAsSheet(img, curImportImage, numx, numy, bVert, bSplit);
     openImportDiag();   //Next one
 }
 
-void MainWindow::importAll(int numx, int numy, bool bVert, bool bSplit)
+void MainWindow::importAll(QImage img, int numx, int numy, bool bVert, bool bSplit)
 {
-    importImageAsSheet(curImportImage, numx, numy, bVert, bSplit);
+    importImageAsSheet(img, curImportImage, numx, numy, bVert, bSplit);
     foreach(QString s, mOpenFiles)
         importImageAsSheet(s, numx, numy, bVert, bSplit);
 
@@ -340,15 +340,20 @@ void MainWindow::insertAnimHelper(QVector<QImage> imgList, QString name)
         addUndoStep(new AddImagesStep(this, imgList, name));
 }
 
-void MainWindow::importImageAsSheet(QString s, int numxframes, int numyframes, bool bVert, bool bSplit)
+void MainWindow::importImageAsSheet(QString imgFilename, int numxframes, int numyframes, bool bVert, bool bSplit)
 {
-    QImage image = loadImageFI(s);
+    QImage image = loadImageFI(imgFilename);
     if(!image.isNull())
     {
-        QMessageBox::information(this, "Image Import", "Error opening image " + s);
+        QMessageBox::information(this, "Image Import", "Error opening image " + imgFilename);
         return;
     }
-    QString fileName = QFileInfo(s).baseName();
+    importImageAsSheet(image, imgFilename, numxframes, numyframes, bVert, bSplit);
+}
+
+void MainWindow::importImageAsSheet(QImage image, QString imgFilename, int numxframes, int numyframes, bool bVert, bool bSplit)
+{
+    QString fileName = QFileInfo(imgFilename).baseName();
 
     //Find image dimensions
     int iXFrameSize = image.width() / numxframes;
@@ -391,7 +396,6 @@ void MainWindow::importImageAsSheet(QString s, int numxframes, int numyframes, b
 
     checkMinWidth();
     drawAnimation();
-    //genUndoState();
 }
 
 //Example from http://www.qtforum.org/article/28852/center-any-child-window-center-parent.html
@@ -1638,7 +1642,6 @@ bool MainWindow::loadAnimatedGIF(QString sFilename)
     insertAnimHelper(frameList, fileName);
     checkMinWidth();
     drawAnimation();
-    //genUndoState();
 
     FreeImage_CloseMultiBitmap(bmp);
     return true;

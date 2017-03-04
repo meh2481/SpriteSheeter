@@ -9,6 +9,7 @@ ImportDialog::ImportDialog(QWidget *parent) : QDialog(parent),
 
     scene = NULL;
     item = NULL;
+    importImage = QImage();
     restoreSettings();
 }
 
@@ -42,6 +43,9 @@ bool ImportDialog::setPreviewImage(QImage image)
         scene->setSceneRect(0, 0, image.width(), image.height());
 
         ui->imagePreview->show();
+
+        importImage = image;
+
         return true;
     }
     return false;
@@ -50,13 +54,13 @@ bool ImportDialog::setPreviewImage(QImage image)
 void ImportDialog::on_okButton_clicked()
 {
     this->hide();
-    importOK(ui->xFramesBox->value(), ui->yFramesBox->value(), ui->vertFirst->isChecked(), ui->checkSplitAnimations->isChecked());
+    importOK(importImage, ui->xFramesBox->value(), ui->yFramesBox->value(), ui->vertFirst->isChecked(), ui->checkSplitAnimations->isChecked());
 }
 
 void ImportDialog::on_allButton_clicked()
 {
     this->hide();
-    importAll(ui->xFramesBox->value(), ui->yFramesBox->value(), ui->vertFirst->isChecked(), ui->checkSplitAnimations->isChecked());
+    importAll(importImage, ui->xFramesBox->value(), ui->yFramesBox->value(), ui->vertFirst->isChecked(), ui->checkSplitAnimations->isChecked());
 }
 
 void ImportDialog::showEvent(QShowEvent *)

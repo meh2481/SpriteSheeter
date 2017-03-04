@@ -64,8 +64,8 @@ signals:
     void setIconImage(QImage img);
 
 public slots:
-    void importNext(int numx, int numy, bool bVert, bool bSplit);
-    void importAll(int numx, int numy, bool bVert, bool bSplit);
+    void importNext(QImage img, int numx, int numy, bool bVert, bool bSplit);
+    void importAll(QImage img, int numx, int numy, bool bVert, bool bSplit);
     void animUpdate();
     void mouseCursorPos(int x, int y);
     void mouseDown(int x, int y);
@@ -202,6 +202,7 @@ private:
 
     void openImportDiag();
     void importImageAsSheet(QString s, int numxframes, int numyframes, bool bVert, bool bSplit);
+    void importImageAsSheet(QImage img, QString sImgFilename, int numxframes, int numyframes, bool bVert, bool bSplit);
     void importImageList(QStringList& fileList, QString prepend = QString(""), QString animName = QString(""));
     void centerParent(QWidget* parent, QWidget* child);
 
