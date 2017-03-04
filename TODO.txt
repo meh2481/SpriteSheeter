@@ -1,7 +1,3 @@
-Fix sheet not loading with load sheet properly for some reason
-Sort/reorder animations easier/keep names
-Select anim should update frame count/cur frame
-
 UI Design Stories:
 -Keep anim name when dragging one anim
 -Save/Save As should deal in .sheet format, PNG/etc should be Export
@@ -9,7 +5,7 @@ UI Design Stories:
 -Re-add up/down select while editing animation names?
 -Drag-and-drop should support .sheet file format
 	-Import sheet also support .sheet format. That way we can add frames from another .sheet to this one
--Bug: Animation preview doesn't reset when selecting new anim in sheet view
+-Bug: Animation preview/frame count doesn't reset when selecting new anim in sheet view
 -Disable delete button if nothing selected
 -Loading .sheet files should use loading mouse cursor (noticable when loading large files)
 -Rework frame movement/editing:
@@ -25,15 +21,14 @@ UI Design Stories:
 -Odd scrollbars with empty sheets sometimes. Sheet view also lets you zoom in on empty sheet.
 
 Technical Stories:
--Drag-drop failed by dragging frame to end of sheet?
 -Only gen undo states if sheet wasn't empty at beginning? -- First attempt found that this wasn't straightforward; recommend closer look
 -Rather than specifying image types manually, remove load filter entirely?
--Commandline argument support - That way we can associate .sheet with program
--Installer for ease of use / file association?
+-Commandline argument support - That way we can associate .sheet with program & launch
+	-Installer for ease of use / file association?
 -Pull out functionality from sheet width & other slots; pull out into other functions that can be called elsewhere
 -Odd visual bugs when resizing sheets sometimes -- probably a Qt bug/not worth looking into
 
-User stories:
+User Stories:
 -Test balance/resize; reports of crashing (Possibly related to undo/redo memory cap? Research)
 -Being able to drag labels around
 	-May want to think about labels being individual items rather than an inherent part of an animation
