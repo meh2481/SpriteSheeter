@@ -43,6 +43,7 @@ MainWindow::MainWindow(QWidget *parent) :
     ui(new Ui::MainWindow)
 {
     sheet = NULL;
+    animationWrap = WRAP;
 
     //Create UI, removing help icons as needed
     ui->setupUi(this);
@@ -55,8 +56,6 @@ MainWindow::MainWindow(QWidget *parent) :
     mRecentDocuments = new RecentDocuments(this);
     mRecentDocuments->init(ui->menuFile, ui->actionQuit);
 
-    ui->animStopButton->setVisible(false);
-
     //TODO Implement cut/copy/paste
     ui->cutCopyPasteSeparator->setVisible(false);
     ui->cutButton->setVisible(false);
@@ -67,8 +66,8 @@ MainWindow::MainWindow(QWidget *parent) :
     ui->actionPaste->setVisible(false);
 
     //Connect all our signals & slots up
-    QObject::connect(mImportWindow, SIGNAL(importOK(int, int, bool, bool)), this, SLOT(importNext(int, int, bool, bool)));
-    QObject::connect(mImportWindow, SIGNAL(importAll(int, int, bool, bool)), this, SLOT(importAll(int, int, bool, bool)));
+    QObject::connect(mImportWindow, SIGNAL(importOK(QImage, int, int, bool, bool)), this, SLOT(importNext(QImage, int, int, bool, bool)));
+    QObject::connect(mImportWindow, SIGNAL(importAll(QImage, int, int, bool, bool)), this, SLOT(importAll(QImage, int, int, bool, bool)));
     QObject::connect(this, SIGNAL(setImportImg(QImage)), mImportWindow, SLOT(setPreviewImage(QImage)));
     QObject::connect(ui->sheetPreview, SIGNAL(mouseMoved(int,int)), this, SLOT(mouseCursorPos(int, int)));
     QObject::connect(ui->sheetPreview, SIGNAL(mousePressed(int,int)), this, SLOT(mouseDown(int, int)));
@@ -283,15 +282,15 @@ void MainWindow::on_openStripButton_clicked()
     }
 }
 
-void MainWindow::importNext(int numx, int numy, bool bVert, bool bSplit)
+void MainWindow::importNext(QImage img, int numx, int numy, bool bVert, bool bSplit)
 {
-    importImageAsSheet(curImportImage, numx, numy, bVert, bSplit);
+    importImageAsSheet(img, curImportImage, numx, numy, bVert, bSplit);
     openImportDiag();   //Next one
 }
 
-void MainWindow::importAll(int numx, int numy, bool bVert, bool bSplit)
+void MainWindow::importAll(QImage img, int numx, int numy, bool bVert, bool bSplit)
 {
-    importImageAsSheet(curImportImage, numx, numy, bVert, bSplit);
+    importImageAsSheet(img, curImportImage, numx, numy, bVert, bSplit);
     foreach(QString s, mOpenFiles)
         importImageAsSheet(s, numx, numy, bVert, bSplit);
 
@@ -341,15 +340,20 @@ void MainWindow::insertAnimHelper(QVector<QImage> imgList, QString name)
         addUndoStep(new AddImagesStep(this, imgList, name));
 }
 
-void MainWindow::importImageAsSheet(QString s, int numxframes, int numyframes, bool bVert, bool bSplit)
+void MainWindow::importImageAsSheet(QString imgFilename, int numxframes, int numyframes, bool bVert, bool bSplit)
 {
-    QImage image = loadImageFI(s);
+    QImage image = loadImageFI(imgFilename);
     if(!image.isNull())
     {
-        QMessageBox::information(this, "Image Import", "Error opening image " + s);
+        QMessageBox::information(this, "Image Import", "Error opening image " + imgFilename);
         return;
     }
-    QString fileName = QFileInfo(s).baseName();
+    importImageAsSheet(image, imgFilename, numxframes, numyframes, bVert, bSplit);
+}
+
+void MainWindow::importImageAsSheet(QImage image, QString imgFilename, int numxframes, int numyframes, bool bVert, bool bSplit)
+{
+    QString fileName = QFileInfo(imgFilename).baseName();
 
     //Find image dimensions
     int iXFrameSize = image.width() / numxframes;
@@ -392,7 +396,6 @@ void MainWindow::importImageAsSheet(QString s, int numxframes, int numyframes, b
 
     checkMinWidth();
     drawAnimation();
-    //genUndoState();
 }
 
 //Example from http://www.qtforum.org/article/28852/center-any-child-window-center-parent.html
@@ -597,8 +600,44 @@ void MainWindow::animUpdate()
         QVector<Frame*> frames = anim->getFrames();
         if(frames.size())
         {
-            mAnimFrame++;
-            if(mAnimFrame > frames.size()-1)
+            if(frames.size() > 1)
+            {
+                if(animationWrap != PINGPONG_BACK)
+                    mAnimFrame++;
+                else
+                {
+                    if(!mAnimFrame)
+                    {
+                        animationWrap = PINGPONG;
+                        mAnimFrame++;
+                    }
+                    else
+                        mAnimFrame--;
+                }
+
+                if(mAnimFrame > frames.size()-1)
+                {
+                    switch(animationWrap)
+                    {
+                        case WRAP:
+                        default:
+                            mAnimFrame = 0;
+                            break;
+
+                        case PINGPONG:
+                            mAnimFrame = frames.size()-2;
+                            animationWrap = PINGPONG_BACK;
+                            break;
+
+                        case STOP:
+                            on_animStopButton_clicked();
+                            mAnimFrame = frames.size()-1;   //Reset to last frame
+                            break;
+                    }
+
+                }
+            }
+            else
                 mAnimFrame = 0;
         }
     }
@@ -622,9 +661,20 @@ void MainWindow::on_animPlayButton_clicked()
         animUpdateTimer->start(iInterval);
     }
     else
-    {
         animUpdateTimer->stop();
+
+    //Set to first frame if we're on stop anim playback on last frame
+    if(animationWrap == STOP && sheet->size())
+    {
+        Animation* anim = sheet->getAnimation(sheet->getCurSelected());
+        QVector<Frame*> frames = anim->getFrames();
+        if(mAnimFrame >= frames.size()-1)
+        {
+            mAnimFrame = 0;
+            drawAnimation();
+        }
     }
+
     updatePlayIcon();
 }
 
@@ -911,6 +961,10 @@ void MainWindow::saveSettings()
     settings.setValue("major", MAJOR_VERSION);
     settings.setValue("minor", MINOR_VERSION);
     settings.setValue("rev", REV_VERSION);
+    WrapType saveType = animationWrap;
+    if(saveType == PINGPONG_BACK)
+        saveType = PINGPONG;
+    settings.setValue("animationWrap", (uint)saveType);
     //settings.setValue("", );
 }
 
@@ -960,6 +1014,8 @@ void MainWindow::loadSettings()
         ui->animNameEnabled->setChecked(settings.value("animNames").toBool());
     if(settings.value("lastGIFStr").isValid())
         lastGIFStr = settings.value("lastGIFStr").toString();
+    if(settings.value("animationWrap").isValid())
+        animationWrap = (WrapType)settings.value("animationWrap").toUInt();
 
     //Done reading settings; init program state
 
@@ -968,6 +1024,10 @@ void MainWindow::loadSettings()
 
     ui->frameBgColSelect->setEnabled(!ui->frameBgTransparent->isChecked());
     ui->sheetBgColSelect->setEnabled(!ui->sheetBgTransparent->isChecked());
+
+    ui->radioButton_pingPong->setChecked(animationWrap == PINGPONG);
+    ui->radioButton_stop->setChecked(animationWrap == STOP);
+    ui->radioButton_wrap->setChecked(animationWrap == WRAP);
 
     //Init sheet values
     if(sheet)
@@ -1582,7 +1642,6 @@ bool MainWindow::loadAnimatedGIF(QString sFilename)
     insertAnimHelper(frameList, fileName);
     checkMinWidth();
     drawAnimation();
-    //genUndoState();
 
     FreeImage_CloseMultiBitmap(bmp);
     return true;
@@ -1972,4 +2031,22 @@ void MainWindow::paste()
 void MainWindow::on_exportButton_clicked()
 {
     saveFileAs();
+}
+
+void MainWindow::on_radioButton_wrap_toggled(bool checked)
+{
+    if(checked)
+        animationWrap = WRAP;
+}
+
+void MainWindow::on_radioButton_pingPong_toggled(bool checked)
+{
+    if(checked)
+        animationWrap = PINGPONG;
+}
+
+void MainWindow::on_radioButton_stop_toggled(bool checked)
+{
+    if(checked)
+        animationWrap = STOP;
 }

@@ -1,4 +1,9 @@
+Fix sheet not loading with load sheet properly for some reason
+Sort/reorder animations easier/keep names
+Select anim should update frame count/cur frame
+
 UI Design Stories:
+-Keep anim name when dragging one anim
 -Save/Save As should deal in .sheet format, PNG/etc should be Export
 	-This way, users aren't misled into thinking they can re-open PNG images and such
 -Re-add up/down select while editing animation names?

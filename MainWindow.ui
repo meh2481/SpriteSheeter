@@ -71,7 +71,7 @@
               <normaloff>:/images/new.png</normaloff>:/images/new.png</iconset>
             </property>
             <property name="flat">
-             <bool>true</bool>
+             <bool>false</bool>
             </property>
            </widget>
           </item>
@@ -88,7 +88,7 @@
               <normaloff>:/images/open.png</normaloff>:/images/open.png</iconset>
             </property>
             <property name="flat">
-             <bool>true</bool>
+             <bool>false</bool>
             </property>
            </widget>
           </item>
@@ -105,7 +105,7 @@
               <normaloff>:/images/save.png</normaloff>:/images/save.png</iconset>
             </property>
             <property name="flat">
-             <bool>true</bool>
+             <bool>false</bool>
             </property>
            </widget>
           </item>
@@ -141,7 +141,7 @@
               <normaloff>:/images/cut.png</normaloff>:/images/cut.png</iconset>
             </property>
             <property name="flat">
-             <bool>true</bool>
+             <bool>false</bool>
             </property>
            </widget>
           </item>
@@ -161,7 +161,7 @@
               <normaloff>:/images/copy.png</normaloff>:/images/copy.png</iconset>
             </property>
             <property name="flat">
-             <bool>true</bool>
+             <bool>false</bool>
             </property>
            </widget>
           </item>
@@ -181,7 +181,7 @@
               <normaloff>:/images/paste.png</normaloff>:/images/paste.png</iconset>
             </property>
             <property name="flat">
-             <bool>true</bool>
+             <bool>false</bool>
             </property>
            </widget>
           </item>
@@ -211,7 +211,7 @@
               <normaloff>:/images/undo.png</normaloff>:/images/undo.png</iconset>
             </property>
             <property name="flat">
-             <bool>true</bool>
+             <bool>false</bool>
             </property>
            </widget>
           </item>
@@ -228,7 +228,7 @@
               <normaloff>:/images/redo.png</normaloff>:/images/redo.png</iconset>
             </property>
             <property name="flat">
-             <bool>true</bool>
+             <bool>false</bool>
             </property>
            </widget>
           </item>
@@ -258,10 +258,10 @@
               <normaloff>:/images/minus-2-256.png</normaloff>:/images/minus-2-256.png</iconset>
             </property>
             <property name="default">
-             <bool>true</bool>
+             <bool>false</bool>
             </property>
             <property name="flat">
-             <bool>true</bool>
+             <bool>false</bool>
             </property>
            </widget>
           </item>
@@ -662,6 +662,69 @@
                </size>
               </property>
              </spacer>
+            </item>
+           </layout>
+          </item>
+          <item>
+           <layout class="QHBoxLayout" name="horizontalLayout_14">
+            <property name="topMargin">
+             <number>0</number>
+            </property>
+            <item>
+             <widget class="QLabel" name="label_6">
+              <property name="toolTip">
+               <string>Preview method for animation</string>
+              </property>
+              <property name="text">
+               <string>Animation Preview:</string>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <spacer name="horizontalSpacer_8">
+              <property name="orientation">
+               <enum>Qt::Horizontal</enum>
+              </property>
+              <property name="sizeHint" stdset="0">
+               <size>
+                <width>40</width>
+                <height>20</height>
+               </size>
+              </property>
+             </spacer>
+            </item>
+            <item>
+             <widget class="QRadioButton" name="radioButton_wrap">
+              <property name="toolTip">
+               <string>When animation reaches the last frame, wrap to the first frame and continue</string>
+              </property>
+              <property name="text">
+               <string>Repeat</string>
+              </property>
+              <property name="checked">
+               <bool>true</bool>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QRadioButton" name="radioButton_pingPong">
+              <property name="toolTip">
+               <string>When animation reaches the last frame, play it in reverse until it reaches the first frame</string>
+              </property>
+              <property name="text">
+               <string>Ping Pong</string>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QRadioButton" name="radioButton_stop">
+              <property name="toolTip">
+               <string>When animation reaches the last frame, stop animation</string>
+              </property>
+              <property name="text">
+               <string>Stop</string>
+              </property>
+             </widget>
             </item>
            </layout>
           </item>

@@ -20,12 +20,19 @@
 #define DRAG_HANDLE_SIZE 10
 
 #define MAJOR_VERSION 1
-#define MINOR_VERSION 1
+#define MINOR_VERSION 2
 #define REV_VERSION   0
 
 #define CURSOR_SZ 64
 
 #define UNTITLED_IMAGE_STR "Untitled"
+
+enum WrapType {
+    WRAP,
+    PINGPONG,
+    PINGPONG_BACK,
+    STOP
+};
 
 class ZoomableGraphicsView;
 
@@ -57,8 +64,8 @@ signals:
     void setIconImage(QImage img);
 
 public slots:
-    void importNext(int numx, int numy, bool bVert, bool bSplit);
-    void importAll(int numx, int numy, bool bVert, bool bSplit);
+    void importNext(QImage img, int numx, int numy, bool bVert, bool bSplit);
+    void importAll(QImage img, int numx, int numy, bool bVert, bool bSplit);
     void animUpdate();
     void mouseCursorPos(int x, int y);
     void mouseDown(int x, int y);
@@ -121,6 +128,9 @@ private slots:
     void on_undoButton_clicked();
     void on_redoButton_clicked();
     void on_exportButton_clicked();
+    void on_radioButton_wrap_toggled(bool checked);
+    void on_radioButton_pingPong_toggled(bool checked);
+    void on_radioButton_stop_toggled(bool checked);
 
 private:
     Ui::MainWindow*         ui;
@@ -137,6 +147,7 @@ private:
 
     //Animation variables
     Sheet* sheet;
+    WrapType animationWrap;
 
     QGraphicsItem* clicked; //Last scene item the user clicked on
     QGraphicsItem* selected; //Last scene item the user clicked on that was currently selected
@@ -191,6 +202,7 @@ private:
 
     void openImportDiag();
     void importImageAsSheet(QString s, int numxframes, int numyframes, bool bVert, bool bSplit);
+    void importImageAsSheet(QImage img, QString sImgFilename, int numxframes, int numyframes, bool bVert, bool bSplit);
     void importImageList(QStringList& fileList, QString prepend = QString(""), QString animName = QString(""));
     void centerParent(QWidget* parent, QWidget* child);
 

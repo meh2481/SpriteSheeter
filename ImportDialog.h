@@ -5,6 +5,7 @@
 #include <QGraphicsScene>
 #include <QGraphicsView>
 #include <QGraphicsPixmapItem>
+#include <QImage>
 
 namespace Ui {
 class importDialog;
@@ -22,8 +23,8 @@ public:
     void resizeEvent(QResizeEvent* event);
 
 signals:
-    void importOK(int numx, int numy, bool bVert, bool bSplit);
-    void importAll(int numx, int numy, bool bVert, bool bSplit);
+    void importOK(QImage curImage, int numx, int numy, bool bVert, bool bSplit);
+    void importAll(QImage curImage, int numx, int numy, bool bVert, bool bSplit);
 
 public slots:
     bool setPreviewImage(QImage image);
@@ -39,6 +40,8 @@ private:
 
     QGraphicsScene* scene;
     QGraphicsPixmapItem* item;
+
+    QImage importImage;
 
     void saveSettings();
     void restoreSettings();
