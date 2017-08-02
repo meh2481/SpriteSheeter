@@ -7,7 +7,7 @@ class FontColorStep : public UndoStep
 {
     QColor origColor, newColor;
 public:
-    FontColorStep(MainWindow* window, QColor& origC, QColor& newC);
+    FontColorStep(MainWindow* window, QColor const & origC, QColor const & newC);
 
     void undo();
     void redo();

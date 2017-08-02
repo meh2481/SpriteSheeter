@@ -85,7 +85,7 @@ FORMS    += \
     IconExportDialog.ui \
     ImportDialog.ui \
     MainWindow.ui
-	
+
 RC_FILE = spritesheetertest1.rc
 
 RESOURCES = spritesheetertest1.qrc
@@ -93,3 +93,5 @@ RESOURCES = spritesheetertest1.qrc
 DISTFILES +=
 
 win32:LIBS += -L"$$_PRO_FILE_PWD_/lib/" -lFreeImage
+
+linux:LIBS += -lfreeimage
