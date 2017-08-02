@@ -4,7 +4,7 @@
 #include "FontColorStep.h"
 #include "ui_MainWindow.h"
 
-FontColorStep::FontColorStep(MainWindow* window, QColor& origC, QColor& newC) : UndoStep(window)
+FontColorStep::FontColorStep(MainWindow* window, QColor const & origC, QColor const & newC) : UndoStep(window)
 {
     origColor = origC;
     newColor = newC;
